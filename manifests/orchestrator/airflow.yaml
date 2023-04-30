@@ -1,0 +1,65 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: airflow
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"
+  namespace: cicd
+spec:
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: orchestrator
+  project: default
+  source:
+    repoURL: 'https://airflow.apache.org/'
+    targetRevision: 1.8.0
+    helm:
+      values: |-
+        executor: "KubernetesExecutor"
+        webserverSecretKeySecretName: my-webserver-secret
+        createUserJob:
+          useHelmHooks: false
+        migrateDatabaseJob:
+          useHelmHooks: false
+        webserver:
+          service: 
+            type: LoadBalancer
+        data:
+          metadataSecretName: airflow-metadata-secret
+        postgresql:
+          enabled: false
+        logs:
+          persistence:
+            enabled: true
+            size: 10Gi
+        dags:
+          gitSync:
+            enabled: true
+            repo: "git@github.com:GersonRS/challenge-delta-lake-deep-dive.git"
+            branch: main
+            rev: HEAD
+            depth: 1
+            maxFailures: 1
+            subPath: "dags"
+            sshKeySecret: airflow-ssh-secret
+            knownHosts: |-
+              |1|yutcXh9HhbK6KCouq3xMQ38B9ns=|V9zQ39gzVxSZ75WU78CGJiVKCOk= ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBEmKSENjQEezOmxkZMy7opKgwFB9nkt5YRrYMjNuG5N87uRgg6CLrbo5wAdT/y6v0mKV0U2w0WZ2YB/++Tpockg=
+              |1|7ww9iNXn8d1jtXlaDjt+fYpsRi0=|vfHsTzw+QATWkCKD7kgG2jhu/1w= ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBEmKSENjQEezOmxkZMy7opKgwFB9nkt5YRrYMjNuG5N87uRgg6CLrbo5wAdT/y6v0mKV0U2w0WZ2YB/++Tpockg=
+        env:
+          - name: AIRFLOW_CONN_MINIO_S3
+            value: "aws:///?region_name=eu-west-1&aws_access_key_id=gerson&aws_secret_access_key=rHasMuUFzGY0REI2H6RcdaJFNZp9b9ht&endpoint_url=http%3A%2F%2Fminio.deepstorage.svc.cluster.local%3A9000"
+          - name: AIRFLOW_CONN_MINIKUBE
+            value: "kubernetes:///?__extra__=%7B%22in_cluster%22%3A+true%2C+%22disable_verify_ssl%22%3A+false%2C+%22disable_tcp_keepalive%22%3A+false%7D"
+        extraSecrets:
+          airflow-metadata-secret:
+            data: |
+              connection: cG9zdGdyZXNxbDovL3NkczhmMjNjNzpmY2EzMTY5MWQyYzhlZThlYzAwZmZkMjVmNGRjN2U0ZUBwb3N0Z3Jlcy1wb3N0Z3Jlc3FsLmRhdGFiYXNlLnN2Yy5jbHVzdGVyLmxvY2FsOjU0MzIvYWlyZmxvdw==
+          my-webserver-secret:
+            data: |
+              webserver-secret-key: NzA3YTNiOTE4MzdhYTNjOTQ0N2U5ZTdmMDUyZTZmNGE=
+        
+    chart: airflow
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true

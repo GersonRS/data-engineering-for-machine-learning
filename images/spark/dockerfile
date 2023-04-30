@@ -1,0 +1,35 @@
+# docker image [gcp]
+FROM apache/spark-py:v3.3.2
+# Switch to user root so we can add additional jars and configuration files.
+USER root
+# create directory for apps
+RUN mkdir -p /app
+# Setup for the Prometheus JMX exporter.
+# Add the Prometheus JMX exporter Java agent jar for exposing metrics sent to the JmxSink to Prometheus.
+ADD https://repo1.maven.org/maven2/io/prometheus/jmx/jmx_prometheus_javaagent/0.11.0/jmx_prometheus_javaagent-0.11.0.jar /prometheus/
+RUN chmod 644 /prometheus/jmx_prometheus_javaagent-0.11.0.jar
+# add jar files
+ADD https://repo1.maven.org/maven2/io/delta/delta-core_2.12/2.2.0/delta-core_2.12-2.2.0.jar $SPARK_HOME/jars/delta-core_2.12-2.2.0.jar
+RUN chmod 644 $SPARK_HOME/jars/delta-core_2.12-2.2.0.jar
+ADD https://repo1.maven.org/maven2/io/delta/delta-storage/2.2.0/delta-storage-2.2.0.jar $SPARK_HOME/jars/delta-storage-2.2.0.jar
+RUN chmod 644 $SPARK_HOME/jars/delta-storage-2.2.0.jar
+ADD https://repo1.maven.org/maven2/com/amazonaws/aws-java-sdk-bundle/1.12.431/aws-java-sdk-bundle-1.12.431.jar $SPARK_HOME/jars/aws-java-sdk-bundle-1.12.431.jar
+RUN chmod 644 $SPARK_HOME/jars/aws-java-sdk-bundle-1.12.431.jar
+ADD https://repo1.maven.org/maven2/org/apache/hadoop/hadoop-common/3.3.4/hadoop-common-3.3.4.jar $SPARK_HOME/jars/hadoop-common-3.3.4.jar
+RUN chmod 644 $SPARK_HOME/jars/hadoop-common-3.3.4.jar
+ADD https://repo1.maven.org/maven2/org/apache/hadoop/hadoop-aws/3.3.4/hadoop-aws-3.3.4.jar $SPARK_HOME/jars/hadoop-aws-3.3.4.jar
+RUN chmod 644 $SPARK_HOME/jars/hadoop-aws-3.3.4.jar
+# copy spark program
+COPY landing/ /app/landing/
+# set work directory
+WORKDIR /app
+
+USER ${spark_uid}
+
+RUN mkdir -p /etc/metrics/conf
+COPY conf/metrics.properties /etc/metrics/conf
+COPY conf/prometheus.yaml /etc/metrics/conf
+COPY requirements.txt /
+RUN pip install --no-cache-dir -r /requirements.txt
+
+COPY ingestion_to_bronze.py bronze_to_silver.py silver_to_gold.py /app/

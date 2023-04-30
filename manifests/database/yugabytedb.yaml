@@ -1,0 +1,50 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: yugabytedb
+  annotations:
+    argocd.argoproj.io/sync-wave: "4"
+  namespace: cicd
+spec:
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: database
+  project: default
+  source:
+    repoURL: 'https://charts.yugabyte.com'
+    targetRevision: 2.16.0
+    helm:
+      values: |-
+        preflight:
+          skipUlimit: true
+        storage:
+          master:
+            count: 1
+          tserver:
+            count: 1
+        resource:
+          master:
+            requests:
+              cpu: 0.5
+              memory: 0.5Gi
+          tserver:
+            requests:
+              cpu: 500m
+              memory: 0.5Gi
+        replicas:
+          master: 1
+          tserver: 1
+        authCredentials:
+          ysql:
+            user: sds8f23c7
+            password: fca31691d2c8ee8ec00ffd25f4dc7e4e
+            database: airflow
+          ycql:
+            user: sds8f23c7
+            password: fca31691d2c8ee8ec00ffd25f4dc7e4e
+            keyspace: airflow
+    chart: yugabyte
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true

@@ -1,0 +1,12 @@
+apache-airflow[amazon,async,celery,cncf.kubernetes,docker,grpc,hashicorp,http,pandas]
+ipdb
+pytest-helpers-namespace
+pytest-mock
+pytest
+pytest-docker-tools
+mypy
+flake8
+black
+pytest-cov
+minio
+pandas

@@ -1,0 +1,23 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: access-control
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+  namespace: cicd
+spec:
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: misc
+  project: default
+  source:
+    repoURL: 'git@github.com:GersonRS/challenge-delta-lake-deep-dive.git'
+    path: access-control/
+    targetRevision: HEAD
+    directory:
+      recurse: true
+      jsonnet: {}
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
