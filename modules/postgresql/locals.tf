@@ -2,7 +2,6 @@ locals {
   credentials = {
     user     = "moderndevopsadmin"
     password = resource.random_password.password_secret.result
-    database = "mlflow"
   }
   helm_values = [{
     volumePermissions = {

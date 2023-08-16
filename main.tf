@@ -168,7 +168,7 @@ module "mlflow" {
   database = {
     user     = module.postgresql.credentials.user
     password = module.postgresql.credentials.password
-    database = module.postgresql.credentials.database
+    database = "mlflow"
     service  = module.postgresql.service
   }
   dependency_ids = {
@@ -197,7 +197,7 @@ module "jupyterhub" {
   database = {
     user     = module.postgresql.credentials.user
     password = module.postgresql.credentials.password
-    database = module.postgresql.credentials.database
+    database = "jupyterhub"
     service  = module.postgresql.service
   }
   mlflow = {
@@ -230,7 +230,7 @@ module "airflow" {
   database = {
     user     = module.postgresql.credentials.user
     password = module.postgresql.credentials.password
-    database = module.postgresql.credentials.database
+    database = "airflow"
     service  = module.postgresql.service
   }
   dependency_ids = {

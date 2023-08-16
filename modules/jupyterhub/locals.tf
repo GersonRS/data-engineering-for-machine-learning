@@ -11,8 +11,8 @@ locals {
     externalDatabase = {
       host     = "${var.database.service}"
       port     = 5432
-      user     = "postgres"
-      database = "postgres"
+      user     = "${var.database.user}"
+      database = "${var.database.database}"
       password = "${var.database.password}"
     }
     postgresql = {
