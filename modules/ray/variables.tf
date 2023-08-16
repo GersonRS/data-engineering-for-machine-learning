@@ -3,7 +3,7 @@
 #######################
 
 variable "cluster_name" {
-  description = "Name given to the cluster. Value used for naming some the resources created by the module."
+  description = "Name given to the cluster. Value used for the ingress' URL of the application."
   type        = string
 }
 
@@ -33,13 +33,7 @@ variable "cluster_issuer" {
 variable "namespace" {
   description = "Namespace where the applications's Kubernetes resources should be created. Namespace will be created in case it doesn't exist."
   type        = string
-  default     = "orchestrator"
-}
-
-variable "enable_service_monitor" {
-  description = "Enable Prometheus ServiceMonitor in the Helm chart."
-  type        = bool
-  default     = true
+  default     = "kuberay"
 }
 
 variable "helm_values" {
@@ -72,23 +66,13 @@ variable "dependency_ids" {
 ## Module variables
 #######################
 
-variable "oidc" {
-  description = "OIDC configuration to access the MinIO web interface."
-
+variable "database" {
+  description = "Keycloak external database server configuration."
   type = object({
-    issuer_url              = optional(string, "")
-    oauth_url               = optional(string, "")
-    token_url               = optional(string, "")
-    api_url                 = optional(string, "")
-    client_id               = optional(string, "")
-    client_secret           = optional(string, "")
-    oauth2_proxy_extra_args = optional(list(string), [])
+    vendor   = string
+    host     = string
+    username = string
+    password = string
   })
-
-  default = {}
-}
-variable "home_ssh" {
-  description = "home ssh"
-  type        = string
-  default     = "/home/gerson/.ssh/id_ed25519" # change here
+  default = null
 }

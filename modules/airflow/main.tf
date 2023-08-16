@@ -1,3 +1,7 @@
+resource "random_password" "airflow_webserver_secret_key" {
+  length  = 16
+  special = false
+}
 resource "kubernetes_namespace" "airflow_namespace" {
   metadata {
     annotations = {
@@ -91,7 +95,7 @@ resource "argocd_application" "this" {
 
     source {
       repo_url        = "https://github.com/GersonRS/data-engineering-for-machine-learning.git"
-      path            = "iac/modules/airflow/charts/airflow"
+      path            = "modules/airflow/charts/airflow"
       target_revision = var.target_revision
       helm {
         values = data.utils_deep_merge_yaml.values.output

@@ -1,4 +1,4 @@
-variable "credentials_storage" {
+variable "storage" {
   description = "MinIO S3 bucket configuration values for the bucket where the archived metrics will be stored."
   type = object({
     bucket_name       = string
@@ -8,7 +8,7 @@ variable "credentials_storage" {
   })
 }
 
-variable "credentials_database" {
+variable "database" {
   description = "database configuration"
   type = object({
     user     = string

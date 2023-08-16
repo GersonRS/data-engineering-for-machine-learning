@@ -37,11 +37,14 @@ locals {
       }
     }
 
-    # data = {
-    #   metadataSecretName = "airflow-metadata-secret"
-    # }
-    postgresql = {
+    pgbouncer = {
       enabled = true
+    }
+    data = {
+      metadataSecretName = "airflow-metadata-secret"
+    }
+    postgresql = {
+      enabled = false
     }
     triggerer = {
       persistence = {
@@ -71,7 +74,7 @@ locals {
     env = [
       {
         name  = "AIRFLOW_VAR_MINIO_S4"
-        value = "aws:///?region_name=eu-west-1&aws_access_key_id=${var.credentials_storage.access_key}&aws_secret_access_key=${var.credentials_storage.secret_access_key}&endpoint_url=http://${split(":", var.credentials_storage.endpoint)[0]}.svc.cluster.local:9000"
+        value = "aws:///?region_name=eu-west-1&aws_access_key_id=${var.storage.access_key}&aws_secret_access_key=${var.storage.secret_access_key}&endpoint_url=http://${var.storage.endpoint}:9000"
       },
       {
         name  = "AIRFLOW_VAR_MINIKUBE1"
@@ -94,11 +97,14 @@ locals {
     ]
 
     extraSecrets = {
+      airflow-metadata-secret = {
+        data = "connection: ${base64encode("postgresql://postgres:${var.database.password}@${var.database.service}:5432/postgres")}"
+      }
       my-webserver-secret = {
-        data = "webserver-secret-key: NzA3YTNiOTE4MzdhYTNjOTQ0N2U5ZTdmMDUyZTZmNGE="
+        data = "webserver-secret-key: ${base64encode(resource.random_password.airflow_webserver_secret_key.result)}"
       }
       minio-s3-airflow-connections = {
-        data = join(" ", ["AIRFLOW_CONN_MINIO_S3:", base64encode("aws:///?region_name=eu-west-1&aws_access_key_id=${var.credentials_storage.access_key}&aws_secret_access_key=${var.credentials_storage.secret_access_key}&endpoint_url=http://${split(":", var.credentials_storage.endpoint)[0]}.svc.cluster.local:9000")])
+        data = "AIRFLOW_CONN_MINIO_S3: ${base64encode("aws:///?region_name=eu-west-1&aws_access_key_id=${var.storage.access_key}&aws_secret_access_key=${var.storage.secret_access_key}&endpoint_url=http://${var.storage.endpoint}:9000")}"
       }
       minikube-airflow-connections = {
         data = "AIRFLOW_CONN_MINIKUBE: ${base64encode("kubernetes:///?__extra__=%7B%22in_cluster%22%3A+true%2C+%22disable_verify_ssl%22%3A+false%2C+%22disable_tcp_keepalive%22%3A+false%7D")}"

@@ -207,13 +207,13 @@ module "airflow" {
   argocd_namespace = module.argocd_bootstrap.argocd_namespace
   enable_service_monitor = local.enable_service_monitor
   oidc = module.oidc.oidc
-  credentials_storage = {
+  storage = {
     bucket_name       = "airflow"
-    endpoint          = module.minio.endpoint
+    endpoint          = module.minio.cluster_ip
     access_key        = module.minio.minio_root_user_credentials.username
     secret_access_key = module.minio.minio_root_user_credentials.password
   }
-  credentials_database = {
+  database = {
     user     = module.postgresql.credentials.user
     password = module.postgresql.credentials.password
     database = module.postgresql.credentials.database
