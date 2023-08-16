@@ -4,7 +4,6 @@ repos:
   rev: v3.2.0
   hooks:
   - id: check-yaml
-    args: ['--unsafe']
     exclude: ^modules/
   - id: pretty-format-json
     args: ['--autofix']
