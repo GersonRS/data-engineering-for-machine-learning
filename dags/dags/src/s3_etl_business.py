@@ -4,12 +4,12 @@ from io import BytesIO
 from typing import Tuple
 
 import pandas as pd
-from dags.utils.constants import CURATED_ZONE, PROCESSING_ZONE
 from minio import Minio
+
+from dags.utils.constants import CURATED_ZONE, PROCESSING_ZONE
 
 
 def read_business_json_data(*file: Tuple[str]) -> str:
-
     client: Minio = Minio(
         os.getenv("S3_ENDPOINT_URL"),
         os.getenv("S3_ACCESS_KEY"),

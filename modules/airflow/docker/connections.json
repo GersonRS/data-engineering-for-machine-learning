@@ -1,0 +1,22 @@
+{
+  "kubernetes_default": {
+    "conn_type": "kubernetes",
+    "description": "",
+    "extra": "{\"in_cluster\": true, \"disable_verify_ssl\": false, \"disable_tcp_keepalive\": false}",
+    "host": "",
+    "login": "",
+    "password": null,
+    "port": null,
+    "schema": ""
+  },
+  "minio": {
+    "conn_type": "aws",
+    "description": "",
+    "extra": "{\"aws_access_key_id\": \"gerson\", \"aws_secret_access_key\": \"rHasMuUFzGY0REI2H6RcdaJFNZp9b9ht\", \"endpoint_url\": \"http://minio.deepstorage.svc.cluster.local:9000\"}",
+    "host": "",
+    "login": "",
+    "password": null,
+    "port": null,
+    "schema": ""
+  }
+}

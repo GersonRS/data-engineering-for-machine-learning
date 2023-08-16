@@ -8,13 +8,13 @@
 <!-- PROJECT SHIELDS -->
 
 [![npm](https://img.shields.io/badge/type-Open%20Project-green?&style=plastic)](https://img.shields.io/badge/type-Open%20Project-green)
-[![GitHub last commit](https://img.shields.io/github/last-commit/GersonRS/data-engineering?logo=github&style=plastic)](https://github.com/GersonRS/data-engineering/commits/master)
-[![GitHub Issues](https://img.shields.io/github/issues/gersonrs/data-engineering?logo=github&style=plastic)](https://github.com/GersonRS/data-engineering/issues)
-[![GitHub Language](https://img.shields.io/github/languages/top/gersonrs/data-engineering?&logo=github&style=plastic)](https://github.com/GersonRS/data-engineering/search?l=python)
-[![GitHub Repo-Size](https://img.shields.io/github/repo-size/GersonRS/data-engineering?logo=github&style=plastic)](https://img.shields.io/github/repo-size/GersonRS/data-engineering)
-[![GitHub Contributors](https://img.shields.io/github/contributors/GersonRS/data-engineering?logo=github&style=plastic)](https://img.shields.io/github/contributors/GersonRS/data-engineering)
-[![GitHub Stars](https://img.shields.io/github/stars/GersonRS/data-engineering?logo=github&style=plastic)](https://img.shields.io/github/stars/GersonRS/data-engineering)
-[![NPM](https://img.shields.io/github/license/GersonRS/data-engineering?&style=plastic)](LICENSE)
+[![GitHub last commit](https://img.shields.io/github/last-commit/GersonRS/data-engineering-for-machine-learning?logo=github&style=plastic)](https://github.com/GersonRS/data-engineering-for-machine-learning/commits/master)
+[![GitHub Issues](https://img.shields.io/github/issues/gersonrs/data-engineering-for-machine-learning?logo=github&style=plastic)](https://github.com/GersonRS/data-engineering-for-machine-learning/issues)
+[![GitHub Language](https://img.shields.io/github/languages/top/gersonrs/data-engineering-for-machine-learning?&logo=github&style=plastic)](https://github.com/GersonRS/data-engineering-for-machine-learning/search?l=python)
+[![GitHub Repo-Size](https://img.shields.io/github/repo-size/GersonRS/data-engineering-for-machine-learning?logo=github&style=plastic)](https://img.shields.io/github/repo-size/GersonRS/data-engineering-for-machine-learning)
+[![GitHub Contributors](https://img.shields.io/github/contributors/GersonRS/data-engineering-for-machine-learning?logo=github&style=plastic)](https://img.shields.io/github/contributors/GersonRS/data-engineering-for-machine-learning)
+[![GitHub Stars](https://img.shields.io/github/stars/GersonRS/data-engineering-for-machine-learning?logo=github&style=plastic)](https://img.shields.io/github/stars/GersonRS/data-engineering-for-machine-learning)
+[![NPM](https://img.shields.io/github/license/GersonRS/data-engineering-for-machine-learning?&style=plastic)](LICENSE)
 [![Status](https://img.shields.io/badge/status-active-success.svg)](https://img.shields.io/badge/status-active-success.svg)
 
 <p align="center">
@@ -23,9 +23,9 @@
 
 <!-- PROJECT LOGO -->
 
-# Template de Engenharia de Dados para Orquestração de Dados e DataOps
+# Engenharia de dados para aprendizado de máquina
 
-Esse repositório é um template para orquestração de fluxos de dados e DataOps. Ele contém uma estrutura básica e um conjunto de ferramentas para ajudá-lo a gerenciar seus fluxos de trabalho de dados.
+Há algum tempo, comecei a procurar maneiras de modernizar meu aprendizado de máquina da minha [disertação de mestrado](https://www.sciencedirect.com/science/article/abs/pii/S0957417422011721#!). Uma das primeiras coisas que eu queria fazer era começar a criar modelos e algoritmos de ML e ter uma maneira de orquestrar sua execução. Podemos pensar em um algoritmo de ML como um aplicativo que obtém alguns dados como entrada, é treinado nesses dados para que possa aprender com eles e, em seguida, pode ser usado para trazer resultados quando novos dados são inseridos nele. O modelo ML é a saída de todo esse processo.
 
 <!-- TABLE OF CONTENTS -->
 
@@ -49,7 +49,7 @@ Esse repositório é um template para orquestração de fluxos de dados e DataOp
 
 # Objetivo
 
-O objetivo deste repositório é fornecer uma estrutura e uma série de ferramentas para orquestração de dados e DataOps, com o intuito de facilitar o gerenciamento de fluxos de trabalho de dados de ponta a ponta, incluindo ferramentas capazes de realizar extração, transformação e carga de dados, validação e monitoramento.
+Este repositório fornece uma arquitetura `modern data stack` e um processo de MLOps (operações de machine learning) que usa diversas ferramentas open source, para construir uma plataforma que permita construir, testar e implantar meu modelo de detecção de ondas gravitacionais com o máximo de autonomia possível. Esse processo define uma maneira padronizada de mover modelos e pipelines de machine learning do desenvolvimento para a produção, com opções para incluir processos automatizados e manuais. validação e monitoramento.
 
 # Fluxo de versionamento
 Projeto segue regras de versionamento [gitflow](https://www.atlassian.com/br/git/tutorials/comparing-workflows/gitflow-workflow).
@@ -245,7 +245,7 @@ A estrutura do projeto é a seguinte:
 - **[dags](/dags/)** - Diretório contendo as DAGs do Airflow, responsáveis por definir fluxos de trabalho de data pipelines;
 
 - **[images](/images/)** - Diretório contendo as imagens personalizadas utilizadas no projeto;
-    
+
     - **[airflow](/images/airflow/)** - Diretório contendo a imagem do Airflow e suas dependências;
 
     - **[spark](/images/spark/)** - Diretório contendo a imagem do Spark e suas dependências;

@@ -1,0 +1,63 @@
+{{- if .Values.keycloak.database.create }}
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ .Values.keycloak.database.host }}
+  labels:
+    {{- include "devops-stack-module-keycloak.labels" $ | indent 4 }}
+spec:
+  serviceName: postgresql-db-service
+  selector:
+    matchLabels:
+      app: {{ .Values.keycloak.database.host }}
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.keycloak.database.host }}
+    spec:
+      containers:
+      - name: postgresql-db
+        image: postgres:13-alpine
+        env:
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: keycloak-db-secret
+              key: username
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: keycloak-db-secret
+              key: password
+        - name: PGDATA
+          value: /data/pgdata
+        - name: POSTGRES_DB
+          value: keycloak
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.keycloak.database.host }}
+  labels:
+    {{- include "devops-stack-module-keycloak.labels" $ | indent 4 }}
+spec:
+  selector:
+    app: {{ .Values.keycloak.database.host }}
+  type: ClusterIP
+  ports:
+  - port: 5432
+    targetPort: 5432
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: keycloak-db-secret
+  labels:
+    {{- include "devops-stack-module-keycloak.labels" $ | indent 4 }}
+type: Opaque
+data:
+  username: {{ .Values.keycloak.database.username }}
+  password: {{ .Values.keycloak.database.password }}
+{{- end }}

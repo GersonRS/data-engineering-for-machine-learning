@@ -1,0 +1,8 @@
+---
+apiVersion: "v2"
+name: "minio"
+version: "0"
+dependencies:
+  - name: "minio"
+    version: "^5" # Fix the major version only.
+    repository: "https://charts.min.io/"

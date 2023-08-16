@@ -1,0 +1,12 @@
+---
+apiVersion: "v2"
+name: "metallb"
+version: "0"
+description: |
+  This chart installs and configures metallb.
+  For more information check the following link:
+  https://metallb.universe.tf/
+dependencies:
+  - name: "metallb"
+    version: "0.13.7"
+    repository: "https://metallb.github.io/metallb"

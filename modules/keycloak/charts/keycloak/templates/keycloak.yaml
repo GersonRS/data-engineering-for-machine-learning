@@ -1,0 +1,24 @@
+---
+apiVersion: k8s.keycloak.org/v2alpha1
+kind: Keycloak
+metadata:
+  name: keycloak
+  labels:
+    {{- include "devops-stack-module-keycloak.labels" $ | indent 4 }}
+spec:
+  instances: 1
+  db:
+    vendor: {{ .Values.keycloak.database.vendor }}
+    host: {{ .Values.keycloak.database.host }}
+    usernameSecret:
+      name: keycloak-db-secret
+      key: username
+    passwordSecret:
+      name: keycloak-db-secret
+      key: password
+  http:
+    httpEnabled: true # Use HTTP since we use Traefik as a reverse proxy for HTTPS
+  hostname:
+    strict: false
+  ingress:
+    enabled: false
