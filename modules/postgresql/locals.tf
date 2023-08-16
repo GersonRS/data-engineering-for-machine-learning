@@ -11,7 +11,7 @@ locals {
       postgresql = {
         auth = {
           username       = local.credentials.user
-          database       = local.credentials.database
+          database       = "mlflow"
           existingSecret = "postgres-secrets"
           secretKeys = {
             adminPasswordKey       = "postgres-password"
