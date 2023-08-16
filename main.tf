@@ -137,6 +137,20 @@ module "postgresql" {
   }
 }
 
+module "ray" {
+  source = "./modules/ray"
+  cluster_name     = local.cluster_name
+  base_domain      = local.base_domain
+  cluster_issuer   = local.cluster_issuer
+  argocd_namespace = module.argocd_bootstrap.argocd_namespace
+  dependency_ids = {
+    traefik      = module.traefik.id
+    cert-manager = module.cert-manager.id
+    minio        = module.minio.id
+    postgresql   = module.postgresql.id
+  }
+}
+
 module "mlflow" {
   source = "./modules/mlflow"
   cluster_name     = local.cluster_name

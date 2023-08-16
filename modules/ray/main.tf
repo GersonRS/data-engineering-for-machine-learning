@@ -173,6 +173,6 @@ resource "argocd_application" "this" {
 
 resource "null_resource" "this" {
   depends_on = [
-    resource.null_resource.wait_for_ray,
+    resource.argocd_application.this,
   ]
 }

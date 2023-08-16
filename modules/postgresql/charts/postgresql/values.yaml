@@ -336,7 +336,11 @@ primary:
     ##      #!/bin/sh
     ##      echo "Do something."
     ##
-    scripts: {}
+    scripts:
+      init.sql: |
+        CREATE USER my_app WITH PASSWORD '12345678';
+        CREATE DATABASE ray;
+        GRANT ALL PRIVILEGES ON DATABASE ray TO my_app;
     ## @param primary.initdb.scriptsConfigMap ConfigMap with scripts to be run at first boot
     ## NOTE: This will override `primary.initdb.scripts`
     ##
@@ -1049,7 +1053,6 @@ readReplicas:
     ##
     dataSource: {}
 
-
 ## @section Backup parameters
 ## This section implements a trivial logical dump cronjob of the database.
 ## This only comes with the consistency guarantees of the dump program.
@@ -1121,7 +1124,7 @@ backup:
       ## @param backup.cronjob.storage.accessModes PV Access Mode
       ##
       accessModes:
-       - ReadWriteOnce
+        - ReadWriteOnce
       ## @param backup.cronjob.storage.size PVC Storage Request for the backup data volume
       ##
       size: 8Gi
