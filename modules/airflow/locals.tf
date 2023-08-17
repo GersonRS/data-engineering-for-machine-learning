@@ -8,12 +8,12 @@ locals {
     }
     executor                     = "KubernetesExecutor"
     webserverSecretKeySecretName = "my-webserver-secret"
-    # createUserJob = {
-    #   useHelmHooks = false
-    # }
-    # migrateDatabaseJob = {
-    #   useHelmHooks = false
-    # }
+    createUserJob = {
+      useHelmHooks = false
+    }
+    migrateDatabaseJob = {
+      useHelmHooks = false
+    }
     ingress = {
       enabled = true
       web = {
