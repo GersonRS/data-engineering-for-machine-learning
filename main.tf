@@ -62,12 +62,12 @@ module "argocd_bootstrap" {
 }
 
 module "traefik" {
-  source = "./modules/traefik"
+  source       = "./modules/traefik"
   cluster_name = local.cluster_name
   # TODO fix: the base domain is defined later. Proposal: remove redirection from traefik module and add it in dependent modules.
   # For now random value is passed to base_domain. Redirections will not work before fix.
-  base_domain = "172-18-0-100.nip.io"
-  argocd_namespace = module.argocd_bootstrap.argocd_namespace
+  base_domain            = "172-18-0-100.nip.io"
+  argocd_namespace       = module.argocd_bootstrap.argocd_namespace
   enable_service_monitor = local.enable_service_monitor
   dependency_ids = {
     argocd = module.argocd_bootstrap.id
@@ -75,8 +75,8 @@ module "traefik" {
 }
 
 module "cert-manager" {
-  source = "./modules/cert-manager"
-  argocd_namespace = module.argocd_bootstrap.argocd_namespace
+  source                 = "./modules/cert-manager"
+  argocd_namespace       = module.argocd_bootstrap.argocd_namespace
   enable_service_monitor = local.enable_service_monitor
   dependency_ids = {
     argocd = module.argocd_bootstrap.id
@@ -84,7 +84,7 @@ module "cert-manager" {
 }
 
 module "keycloak" {
-  source = "./modules/keycloak"
+  source           = "./modules/keycloak"
   cluster_name     = local.cluster_name
   base_domain      = local.base_domain
   cluster_issuer   = local.cluster_issuer
@@ -96,7 +96,7 @@ module "keycloak" {
 }
 
 module "oidc" {
-  source = "./modules/oidc"
+  source         = "./modules/oidc"
   cluster_name   = local.cluster_name
   base_domain    = local.base_domain
   cluster_issuer = local.cluster_issuer
@@ -108,14 +108,14 @@ module "oidc" {
 }
 
 module "minio" {
-  source = "./modules/minio"
-  cluster_name     = local.cluster_name
-  base_domain      = local.base_domain
-  cluster_issuer   = local.cluster_issuer
-  argocd_namespace = module.argocd_bootstrap.argocd_namespace
+  source                 = "./modules/minio"
+  cluster_name           = local.cluster_name
+  base_domain            = local.base_domain
+  cluster_issuer         = local.cluster_issuer
+  argocd_namespace       = module.argocd_bootstrap.argocd_namespace
   enable_service_monitor = local.enable_service_monitor
-  config_minio = local.minio_config
-  oidc = module.oidc.oidc
+  config_minio           = local.minio_config
+  oidc                   = module.oidc.oidc
   dependency_ids = {
     traefik      = module.traefik.id
     cert-manager = module.cert-manager.id
@@ -124,11 +124,11 @@ module "minio" {
 }
 
 module "postgresql" {
-  source = "./modules/postgresql"
-  cluster_name     = local.cluster_name
-  base_domain      = local.base_domain
-  cluster_issuer   = local.cluster_issuer
-  argocd_namespace = module.argocd_bootstrap.argocd_namespace
+  source                 = "./modules/postgresql"
+  cluster_name           = local.cluster_name
+  base_domain            = local.base_domain
+  cluster_issuer         = local.cluster_issuer
+  argocd_namespace       = module.argocd_bootstrap.argocd_namespace
   enable_service_monitor = local.enable_service_monitor
   dependency_ids = {
     traefik      = module.traefik.id
@@ -138,13 +138,13 @@ module "postgresql" {
 }
 
 module "mlflow" {
-  source = "./modules/mlflow"
-  cluster_name     = local.cluster_name
-  base_domain      = local.base_domain
-  cluster_issuer   = local.cluster_issuer
-  argocd_namespace = module.argocd_bootstrap.argocd_namespace
+  source                 = "./modules/mlflow"
+  cluster_name           = local.cluster_name
+  base_domain            = local.base_domain
+  cluster_issuer         = local.cluster_issuer
+  argocd_namespace       = module.argocd_bootstrap.argocd_namespace
   enable_service_monitor = local.enable_service_monitor
-  oidc = module.oidc.oidc
+  oidc                   = module.oidc.oidc
   storage = {
     bucket_name       = "mlflow"
     endpoint          = module.minio.cluster_dns
@@ -167,7 +167,7 @@ module "mlflow" {
 }
 
 module "ray" {
-  source = "./modules/ray"
+  source           = "./modules/ray"
   cluster_name     = local.cluster_name
   base_domain      = local.base_domain
   cluster_issuer   = local.cluster_issuer
@@ -181,13 +181,13 @@ module "ray" {
 }
 
 module "jupyterhub" {
-  source = "./modules/jupyterhub"
-  cluster_name     = local.cluster_name
-  base_domain      = local.base_domain
-  cluster_issuer   = local.cluster_issuer
-  argocd_namespace = module.argocd_bootstrap.argocd_namespace
+  source                 = "./modules/jupyterhub"
+  cluster_name           = local.cluster_name
+  base_domain            = local.base_domain
+  cluster_issuer         = local.cluster_issuer
+  argocd_namespace       = module.argocd_bootstrap.argocd_namespace
   enable_service_monitor = local.enable_service_monitor
-  oidc = module.oidc.oidc
+  oidc                   = module.oidc.oidc
   storage = {
     bucket_name       = "jupyterhub"
     endpoint          = module.minio.cluster_dns
@@ -236,6 +236,12 @@ module "jupyterhub" {
 #     database = "airflow"
 #     service  = module.postgresql.cluster_ip
 #   }
+#     mlflow = {
+#       cluster_ip = module.mlflow.cluster_ip
+#     }
+#     ray = {
+#       endpoint = module.ray.endpoint
+#     }
 #   dependency_ids = {
 #     traefik      = module.traefik.id
 #     cert-manager = module.cert-manager.id

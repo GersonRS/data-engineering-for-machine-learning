@@ -36,5 +36,36 @@ locals {
         }
       }
     }
+
+    web = {
+      ingress = {
+        enabled = true
+        annotations = {
+          "cert-manager.io/cluster-issuer"                   = "${var.cluster_issuer}"
+          "traefik.ingress.kubernetes.io/router.entrypoints" = "websecure"
+          "traefik.ingress.kubernetes.io/router.middlewares" = "traefik-withclustername@kubernetescrd"
+          "traefik.ingress.kubernetes.io/router.tls"         = "true"
+          "ingress.kubernetes.io/ssl-redirect"               = "true"
+          "kubernetes.io/ingress.allow-http"                 = "false"
+        }
+        hosts = [
+          {
+            host = "ray.apps.${var.base_domain}"
+            path = "/"
+          },
+          {
+            host = "ray.apps.${var.cluster_name}.${var.base_domain}"
+            path = "/"
+          },
+        ]
+        tls = [{
+          secretName = "ray-tls"
+          hosts = [
+            "ray.apps.${var.base_domain}",
+            "ray.apps.${var.cluster_name}.${var.base_domain}"
+          ]
+        }]
+      }
+    }
   }]
 }
