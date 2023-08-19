@@ -48,11 +48,11 @@ spec:
             backend:
               {{- if semverCompare ">=1.19-0" $.Capabilities.KubeVersion.GitVersion }}
               service:
-                name: {{ $fullName }}
+                name: {{ $fullName }}-head-svc
                 port:
                   number: 8265
               {{- else }}
-              serviceName: {{ $fullName }}
+              serviceName: {{ $fullName }}-head-svc
               servicePort: 8265
               {{- end }}
           {{- end }}

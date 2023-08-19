@@ -37,7 +37,11 @@ locals {
       }
     }
     ingress = {
-      enabled = true
+      # -- Specifies if you want to create an ingress access
+      enabled : true
+      # -- New style ingress class name. Only possible if you use K8s 1.18.0 or later version
+      className : "traefik"
+      # -- Additional ingress annotations
       annotations = {
         "cert-manager.io/cluster-issuer"                   = "${var.cluster_issuer}"
         "traefik.ingress.kubernetes.io/router.entrypoints" = "websecure"
@@ -49,17 +53,23 @@ locals {
       hosts = [
         {
           host = "ray.apps.${var.base_domain}"
-          path = "/"
+          paths = [{
+            path     = "/"
+            pathType = "ImplementationSpecific"
+          }]
         },
         {
           host = "ray.apps.${var.cluster_name}.${var.base_domain}"
-          path = "/"
-        },
+          paths = [{
+            path     = "/"
+            pathType = "ImplementationSpecific"
+          }]
+        }
       ]
-      tls = [{
-        secretName = "ray-tls"
+      # -- Ingress tls configuration for https access
+      tls : [{
+        secretName = "ray-ingres-tls"
         hosts = [
-          "ray.apps.${var.base_domain}",
           "ray.apps.${var.cluster_name}.${var.base_domain}"
         ]
       }]
