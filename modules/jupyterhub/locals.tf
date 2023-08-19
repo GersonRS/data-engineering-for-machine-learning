@@ -19,12 +19,17 @@ locals {
       enabled = false
     }
     singleuser = {
+      image = {
+        repository = "jupyter/pyspark-notebook"
+        tag = "latest"
+      }
       extraEnvVars = {
         # MLFLOW_TRACKING_URI = "postgresql+psycopg2://${var.database.user}:${var.database.password}@${var.database.service}:5432/mlflow"
         MLFLOW_TRACKING_URI = "http://${var.mlflow.cluster_ip}:5000"
         MLFLOW_S3_ENDPOINT_URL = "http://${var.storage.endpoint}"
-        AWS_ACCESS_KEY_ID = "${var.storage.access_key}"
-        AWS_SECRET_ACCESS_KEY = "${var.storage.secret_access_key}"
+        RAY_ADDRESS = "ray://${var.ray.endpoint}:10001"
+        # AWS_ACCESS_KEY_ID = "${var.storage.access_key}"
+        # AWS_SECRET_ACCESS_KEY = "${var.storage.secret_access_key}"
       }
       # notebookDir: "/"
     }

@@ -3,12 +3,16 @@ output "id" {
   value       = resource.null_resource.this.id
 }
 
+output "cluster_dns" {
+  description = "MLflow cluster dns"
+  value       = "mlflow.${var.namespace}.svc.cluster.local:9000"
+}
 output "cluster_ip" {
   description = "MLflow cluster ip internal"
-  value = data.kubernetes_service.mlflow.spec[0].cluster_ip
+  value       = data.kubernetes_service.mlflow.spec[0].cluster_ip
 }
 
 output "endpoint" {
   description = "MLflow endpoint external"
-  value = "https://mlflow.apps.${var.cluster_name}.${var.base_domain}"
+  value       = "https://mlflow.apps.${var.cluster_name}.${var.base_domain}"
 }

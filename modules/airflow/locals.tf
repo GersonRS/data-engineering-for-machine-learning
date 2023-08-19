@@ -98,7 +98,7 @@ locals {
 
     extraSecrets = {
       airflow-metadata-secret = {
-        data = "connection: ${base64encode("postgresql://postgres:${var.database.password}@${var.database.service}:5432/postgres")}"
+        data = "connection: ${base64encode("postgresql://${var.database.user}:${var.database.password}@${var.database.service}:5432/${var.database.database}")}"
       }
       my-webserver-secret = {
         data = "webserver-secret-key: ${base64encode(resource.random_password.airflow_webserver_secret_key.result)}"

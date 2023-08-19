@@ -67,12 +67,23 @@ variable "dependency_ids" {
 #######################
 
 variable "database" {
-  description = "Keycloak external database server configuration."
+  description = "ray external database server configuration."
   type = object({
-    vendor   = string
+    database = string
     host     = string
     username = string
     password = string
+  })
+  default = null
+}
+
+variable "storage" {
+  description = "MinIO S3 bucket configuration values for the bucket where the archived metrics will be stored."
+  type = object({
+    bucket_name       = string
+    endpoint          = string
+    access_key        = string
+    secret_access_key = string
   })
   default = null
 }

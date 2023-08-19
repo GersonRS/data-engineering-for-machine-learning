@@ -1,5 +1,6 @@
 FROM bitnami/jupyter-base-notebook:latest
 USER root
+RUN apt-get install git-all -y
 RUN conda install --quiet --yes \
     'mlflow' \
     'seaborn' \

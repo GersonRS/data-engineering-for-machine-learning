@@ -197,3 +197,14 @@ resource "null_resource" "this" {
     resource.argocd_application.this,
   ]
 }
+
+data "kubernetes_service" "ray" {
+  metadata {
+    name      = "ray-kuberay-head-svc"
+    namespace = var.namespace
+  }
+
+  depends_on = [
+    null_resource.this
+  ]
+}
