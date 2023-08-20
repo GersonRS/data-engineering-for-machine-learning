@@ -1,12 +1,16 @@
 locals {
+
+  vars = {
+    RAY_ADDRESS = var.ray != null ? "ray://${var.ray.endpoint}:10001" : null
+  }
   helm_values = [{
 
-    client_id = "${var.oidc.client_id}"
-    client_secret = "${var.oidc.client_secret}"
+    client_id          = "${var.oidc.client_id}"
+    client_secret      = "${var.oidc.client_secret}"
     oauth_callback_url = "https://jupyterhub.apps.${var.cluster_name}.${var.base_domain}/hub/oauth_callback"
-    authorize_url = "${var.oidc.oauth_url}"
-    token_url = "${var.oidc.token_url}"
-    userdata_url = "${var.oidc.api_url}"
+    authorize_url      = "${var.oidc.oauth_url}"
+    token_url          = "${var.oidc.token_url}"
+    userdata_url       = "${var.oidc.api_url}"
 
     externalDatabase = {
       host     = "${var.database.service}"
@@ -20,17 +24,20 @@ locals {
     }
     singleuser = {
       image = {
-        repository = "jupyter/pyspark-notebook"
-        tag = "latest"
+        repository = "gersonrs/jupyter-base-notebook"
+        tag: "latest"
       }
-      extraEnvVars = {
+      extraEnvVars = merge({
         # MLFLOW_TRACKING_URI = "postgresql+psycopg2://${var.database.user}:${var.database.password}@${var.database.service}:5432/mlflow"
-        MLFLOW_TRACKING_URI = "http://${var.mlflow.cluster_ip}:5000"
+
+        MLFLOW_TRACKING_URI    = "http://${var.mlflow.cluster_ip}:5000"
         MLFLOW_S3_ENDPOINT_URL = "http://${var.storage.endpoint}"
-        RAY_ADDRESS = "ray://${var.ray.endpoint}:10001"
+
         # AWS_ACCESS_KEY_ID = "${var.storage.access_key}"
         # AWS_SECRET_ACCESS_KEY = "${var.storage.secret_access_key}"
-      }
+        },
+        var.ray != null ? local.vars : null
+      )
       # notebookDir: "/"
     }
     # hub = {
