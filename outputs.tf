@@ -4,10 +4,10 @@ output "credentials" {
   sensitive   = true
 }
 
-output "jupyterhub_url" {
-  value = module.jupyterhub.endpoint
-  sensitive   = false
-}
+# output "jupyterhub_url" {
+#   value = module.jupyterhub.endpoint
+#   sensitive   = false
+# }
 output "mlflow_url" {
   value = module.mlflow.endpoint
   sensitive   = false

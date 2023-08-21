@@ -24,7 +24,7 @@ RUN apt-get update --yes && \
     #   https://github.com/krallin/tini#why-tini for details.
     tini \
     wget \
-    git-all && \
+    git && \
     apt-get clean && rm -rf /var/lib/apt/lists/* && \
     echo "en_US.UTF-8 UTF-8" > /etc/locale.gen && \
     locale-gen
@@ -45,48 +45,36 @@ RUN conda install --quiet --yes \
     'mlflow' \
     'pandas' \
     'boto3' \
-    'atom-ml[full]' \
     'ipywidgets' \
     'lightgbm' \
-    'optuna' \
     'tensorflow' \
     'matplotlib-base' \
-    'modin[all]' \
     'scipy' \
-    'altair' \
-    'beautifulsoup4' \
-    'bokeh' \
-    'bottleneck' \
-    'cloudpickle' \
-    'conda-forge::blas=*=openblas' \
-    'cython' \
-    'dask' \
-    'dill' \
     'h5py' \
     'ipympl'\
-    'ipywidgets' \
-    'jupyterlab-git' \
-    'matplotlib-base' \
-    'numba' \
-    'numexpr' \
-    'openpyxl' \
-    'pandas' \
-    'patsy' \
     'protobuf' \
     'pytables' \
     'scikit-image' \
     'scikit-learn' \
-    'scipy' \
     'seaborn' \
     'sqlalchemy' \
     'statsmodels' \
-    'sympy' \
-    'widgetsnbextension'\
-    'xlrd' && \
+    'sympy' && \
     conda clean --all -f -y
 RUN conda install -c conda-forge jupyterlab-git
-RUN pip install -U "ray[all]"
+RUN pip install -U ray[all]
+RUN pip install -U atom-ml[ray]
+RUN pip install -U optuna ipywidgets modin[all]
 RUN pip install jupyterlab-pullrequests
+
+RUN apt-get update && apt-get install -y \
+    software-properties-common \
+    npm
+RUN npm install npm@latest -g && \
+    npm install n -g && \
+    n latest
+
+RUN jupyter lab build
 
 # Spark dependencies
 # Default values can be overridden at build time
@@ -153,3 +141,5 @@ RUN conda install -c conda-forge findspark
 EXPOSE 4040
 
 USER 1001
+
+WORKDIR $HOME

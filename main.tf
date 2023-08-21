@@ -180,8 +180,44 @@ module "mlflow" {
 #   }
 # }
 
-module "jupyterhub" {
-  source                 = "./modules/jupyterhub"
+# module "jupyterhub" {
+#   source                 = "./modules/jupyterhub"
+#   cluster_name           = local.cluster_name
+#   base_domain            = local.base_domain
+#   cluster_issuer         = local.cluster_issuer
+#   argocd_namespace       = module.argocd_bootstrap.argocd_namespace
+#   enable_service_monitor = local.enable_service_monitor
+#   oidc                   = module.oidc.oidc
+#   storage = {
+#     bucket_name       = "jupyterhub"
+#     endpoint          = module.minio.cluster_dns
+#     access_key        = module.minio.minio_root_user_credentials.username
+#     secret_access_key = module.minio.minio_root_user_credentials.password
+#   }
+#   database = {
+#     user     = module.postgresql.credentials.user
+#     password = module.postgresql.credentials.password
+#     database = "jupyterhub"
+#     service  = module.postgresql.cluster_ip
+#   }
+#   mlflow = {
+#     cluster_ip = module.mlflow.cluster_ip
+#   }
+#   # ray = {
+#   #   endpoint = module.ray.endpoint
+#   # }
+#   dependency_ids = {
+#     traefik      = module.traefik.id
+#     cert-manager = module.cert-manager.id
+#     oidc         = module.oidc.id
+#     minio        = module.minio.id
+#     postgresql   = module.postgresql.id
+#     mlflow       = module.mlflow.id
+#   }
+# }
+
+module "airflow" {
+  source                 = "./modules/airflow"
   cluster_name           = local.cluster_name
   base_domain            = local.base_domain
   cluster_issuer         = local.cluster_issuer
@@ -189,15 +225,15 @@ module "jupyterhub" {
   enable_service_monitor = local.enable_service_monitor
   oidc                   = module.oidc.oidc
   storage = {
-    bucket_name       = "jupyterhub"
-    endpoint          = module.minio.cluster_dns
+    bucket_name       = "airflow"
+    endpoint          = module.minio.cluster_ip
     access_key        = module.minio.minio_root_user_credentials.username
     secret_access_key = module.minio.minio_root_user_credentials.password
   }
   database = {
     user     = module.postgresql.credentials.user
     password = module.postgresql.credentials.password
-    database = "jupyterhub"
+    database = "airflow"
     service  = module.postgresql.cluster_ip
   }
   mlflow = {
@@ -211,41 +247,5 @@ module "jupyterhub" {
     cert-manager = module.cert-manager.id
     oidc         = module.oidc.id
     minio        = module.minio.id
-    postgresql   = module.postgresql.id
-    mlflow       = module.mlflow.id
   }
 }
-
-# module "airflow" {
-#   source = "./modules/airflow"
-#   cluster_name     = local.cluster_name
-#   base_domain      = local.base_domain
-#   cluster_issuer   = local.cluster_issuer
-#   argocd_namespace = module.argocd_bootstrap.argocd_namespace
-#   enable_service_monitor = local.enable_service_monitor
-#   oidc = module.oidc.oidc
-#   storage = {
-#     bucket_name       = "airflow"
-#     endpoint          = module.minio.cluster_ip
-#     access_key        = module.minio.minio_root_user_credentials.username
-#     secret_access_key = module.minio.minio_root_user_credentials.password
-#   }
-#   database = {
-#     user     = module.postgresql.credentials.user
-#     password = module.postgresql.credentials.password
-#     database = "airflow"
-#     service  = module.postgresql.cluster_ip
-#   }
-#     mlflow = {
-#       cluster_ip = module.mlflow.cluster_ip
-#     }
-#     ray = {
-#       endpoint = module.ray.endpoint
-#     }
-#   dependency_ids = {
-#     traefik      = module.traefik.id
-#     cert-manager = module.cert-manager.id
-#     oidc         = module.oidc.id
-#     minio        = module.minio.id
-#   }
-# }
