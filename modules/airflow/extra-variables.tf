@@ -1,3 +1,28 @@
+#######################
+## Module variables
+#######################
+
+variable "oidc" {
+  description = "OIDC configuration to access the MinIO web interface."
+
+  type = object({
+    issuer_url              = optional(string, "")
+    oauth_url               = optional(string, "")
+    token_url               = optional(string, "")
+    api_url                 = optional(string, "")
+    client_id               = optional(string, "")
+    client_secret           = optional(string, "")
+    oauth2_proxy_extra_args = optional(list(string), [])
+  })
+
+  default = {}
+}
+variable "home_ssh" {
+  description = "home ssh"
+  type        = string
+  default     = "/home/gerson/.ssh/id_ed25519" # change here
+}
+
 variable "storage" {
   description = "MinIO S3 bucket configuration values for the bucket where the archived metrics will be stored."
   type = object({
@@ -16,4 +41,20 @@ variable "database" {
     database = string
     service  = string
   })
+}
+
+variable "mlflow" {
+  description = "mlflow configuration"
+  type = object({
+    cluster_ip = string
+  })
+  default = null
+}
+
+variable "ray" {
+  description = "mlflow configuration"
+  type = object({
+    endpoint = string
+  })
+  default = null
 }

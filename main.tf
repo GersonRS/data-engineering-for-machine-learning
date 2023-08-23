@@ -137,6 +137,20 @@ module "postgresql" {
   }
 }
 
+module "mysql" {
+  source                 = "./modules/mysql"
+  cluster_name           = local.cluster_name
+  base_domain            = local.base_domain
+  cluster_issuer         = local.cluster_issuer
+  argocd_namespace       = module.argocd_bootstrap.argocd_namespace
+  enable_service_monitor = local.enable_service_monitor
+  dependency_ids = {
+    traefik      = module.traefik.id
+    cert-manager = module.cert-manager.id
+    oidc         = module.oidc.id
+  }
+}
+
 module "mlflow" {
   source                 = "./modules/mlflow"
   cluster_name           = local.cluster_name

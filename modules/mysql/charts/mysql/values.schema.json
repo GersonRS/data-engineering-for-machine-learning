@@ -1,0 +1,205 @@
+{
+  "$schema": "http://json-schema.org/schema#",
+  "properties": {
+    "architecture": {
+      "description": "Allowed values: `standalone` or `replication`",
+      "enum": [
+        "standalone",
+        "replication"
+      ],
+      "form": true,
+      "title": "MySQL architecture",
+      "type": "string"
+    },
+    "auth": {
+      "form": true,
+      "if": {
+        "properties": {
+          "createDatabase": {
+            "enum": [
+              true
+            ]
+          }
+        }
+      },
+      "properties": {
+        "createDatabase": {
+          "title": "MySQL create custom database",
+          "type": "boolean"
+        },
+        "database": {
+          "maxLength": 64,
+          "title": "MySQL custom database name",
+          "type": "string"
+        },
+        "password": {
+          "title": "MySQL custom password",
+          "type": "string"
+        },
+        "replicationPassword": {
+          "title": "MySQL replication password",
+          "type": "string"
+        },
+        "replicationUser": {
+          "title": "MySQL replication username",
+          "type": "string"
+        },
+        "rootPassword": {
+          "description": "Defaults to a random 10-character alphanumeric string if not set",
+          "title": "MySQL root password",
+          "type": "string"
+        },
+        "username": {
+          "title": "MySQL custom username",
+          "type": "string"
+        }
+      },
+      "required": [
+        "username",
+        "password"
+      ],
+      "then": {
+        "properties": {
+          "database": {
+            "pattern": "[a-zA-Z0-9]{1,64}"
+          }
+        }
+      },
+      "title": "Authentication configuration",
+      "type": "object"
+    },
+    "primary": {
+      "form": true,
+      "properties": {
+        "containerSecurityContext": {
+          "properties": {
+            "enabled": {
+              "default": false,
+              "type": "boolean"
+            },
+            "runAsUser": {
+              "default": 1001,
+              "hidden": {
+                "path": "primary/containerSecurityContext/enabled",
+                "value": false
+              },
+              "type": "integer"
+            }
+          },
+          "title": "MySQL primary container security context",
+          "type": "object"
+        },
+        "persistence": {
+          "properties": {
+            "enabled": {
+              "default": true,
+              "title": "If true, use a Persistent Volume Claim, If false, use emptyDir",
+              "type": "boolean"
+            },
+            "size": {
+              "form": true,
+              "hidden": {
+                "path": "primary/persistence/enabled",
+                "value": false
+              },
+              "render": "slider",
+              "sliderMin": 1,
+              "sliderUnit": "Gi",
+              "title": "Persistent Volume Size",
+              "type": "string"
+            }
+          },
+          "title": "Enable persistence using Persistent Volume Claims",
+          "type": "object"
+        },
+        "podSecurityContext": {
+          "properties": {
+            "enabled": {
+              "default": false,
+              "type": "boolean"
+            },
+            "fsGroup": {
+              "default": 1001,
+              "hidden": {
+                "path": "primary/podSecurityContext/enabled",
+                "value": false
+              },
+              "type": "integer"
+            }
+          },
+          "title": "MySQL primary Pod security context",
+          "type": "object"
+        }
+      },
+      "title": "Primary database configuration",
+      "type": "object"
+    },
+    "secondary": {
+      "form": true,
+      "properties": {
+        "containerSecurityContext": {
+          "properties": {
+            "enabled": {
+              "default": false,
+              "type": "boolean"
+            },
+            "runAsUser": {
+              "default": 1001,
+              "hidden": {
+                "path": "secondary/containerSecurityContext/enabled",
+                "value": false
+              },
+              "type": "integer"
+            }
+          },
+          "title": "MySQL secondary container security context",
+          "type": "object"
+        },
+        "persistence": {
+          "properties": {
+            "enabled": {
+              "default": true,
+              "title": "If true, use a Persistent Volume Claim, If false, use emptyDir",
+              "type": "boolean"
+            },
+            "size": {
+              "form": true,
+              "hidden": {
+                "path": "secondary/persistence/enabled",
+                "value": false
+              },
+              "render": "slider",
+              "sliderMin": 1,
+              "sliderUnit": "Gi",
+              "title": "Persistent Volume Size",
+              "type": "string"
+            }
+          },
+          "title": "Enable persistence using Persistent Volume Claims",
+          "type": "object"
+        },
+        "podSecurityContext": {
+          "properties": {
+            "enabled": {
+              "default": false,
+              "type": "boolean"
+            },
+            "fsGroup": {
+              "default": 1001,
+              "hidden": {
+                "path": "secondary/podSecurityContext/enabled",
+                "value": false
+              },
+              "type": "integer"
+            }
+          },
+          "title": "MySQL secondary Pod security context",
+          "type": "object"
+        }
+      },
+      "title": "Secondary database configuration",
+      "type": "object"
+    }
+  },
+  "type": "object"
+}
