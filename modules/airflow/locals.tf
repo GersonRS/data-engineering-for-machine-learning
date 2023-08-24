@@ -4,25 +4,11 @@ locals {
       extraInitContainers = [
         {
           name = "config-connections"
-          image = "apache/airflow:2.6.3"
-          imagePullPolicy = "IfNotPresent"
-          securityContext = {
-            runAsUser: 50000
-          }
           args = [
             "bash",
             "/opt/airflow/script.sh"
           ]
-          resources = {
-            limits = {
-              cpu = "100m"
-              memory = "128Mi"
-            }
-            requests = {
-              cpu = "100m"
-              memory = "128Mi"
-            }
-          }
+
           volumeMounts = [
             {
               name = "airflow-airflow-connections"
