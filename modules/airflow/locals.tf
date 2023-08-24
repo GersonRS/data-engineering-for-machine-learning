@@ -1,5 +1,49 @@
 locals {
   helm_values = [{
+    webserver = {
+      extraInitContainers = [
+        {
+          name = "config-connections"
+          image = "apache/airflow:2.6.3"
+          imagePullPolicy = "IfNotPresent"
+          securityContext = {
+            runAsUser: 50000
+          }
+          args = [
+            "bash",
+            "/opt/airflow/script.sh"
+          ]
+          resources = {
+            limits = {
+              cpu = "100m"
+              memory = "128Mi"
+            }
+            requests = {
+              cpu = "100m"
+              memory = "128Mi"
+            }
+          }
+          volumeMounts = [
+            {
+              name = "airflow-airflow-connections"
+              mountPath : "/opt/airflow/script.sh"
+              subPath : "script.sh"
+              readOnly : true
+            }
+          ]
+        }
+      ]
+    }
+
+    volumes = [
+      {
+        name = "airflow-airflow-connections"
+        configMap = {
+          name = "airflow-airflow-connections"
+        }
+      }
+    ]
+
     # images = {
     #   airflow = {
     #     repository = "gersonrs/airflow"
@@ -71,26 +115,26 @@ locals {
         knownHosts   = "|-\n|1|yutcXh9HhbK6KCouq3xMQ38B9ns=|V9zQ39gzVxSZ75WU78CGJiVKCOk= ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBEmKSENjQEezOmxkZMy7opKgwFB9nkt5YRrYMjNuG5N87uRgg6CLrbo5wAdT/y6v0mKV0U2w0WZ2YB/++Tpockg=\n|1|7ww9iNXn8d1jtXlaDjt+fYpsRi0=|vfHsTzw+QATWkCKD7kgG2jhu/1w= ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBEmKSENjQEezOmxkZMy7opKgwFB9nkt5YRrYMjNuG5N87uRgg6CLrbo5wAdT/y6v0mKV0U2w0WZ2YB/++Tpockg="
       }
     }
-    env = [
-      {
-        name  = "AIRFLOW_VAR_MINIO_S4"
-        value = "aws:///?region_name=eu-west-1&aws_access_key_id=${var.storage.access_key}&aws_secret_access_key=${var.storage.secret_access_key}&endpoint_url=http://${var.storage.endpoint}:9000"
-      },
-      {
-        name  = "AIRFLOW_VAR_MINIKUBE1"
-        value = "kubernetes:///?__extra__=%7B%22in_cluster%22%3A+true%2C+%22disable_verify_ssl%22%3A+false%2C+%22disable_tcp_keepalive%22%3A+false%7D"
-      }
-    ]
+    # env = [
+    #   {
+    #     name  = "AIRFLOW_VAR_MINIO_S4"
+    #     value = "aws:///?region_name=eu-west-1&aws_access_key_id=${var.storage.access_key}&aws_secret_access_key=${var.storage.secret_access_key}&endpoint_url=http://${var.storage.endpoint}:9000"
+    #   },
+    #   {
+    #     name  = "AIRFLOW_VAR_MINIKUBE1"
+    #     value = "kubernetes:///?__extra__=%7B%22in_cluster%22%3A+true%2C+%22disable_verify_ssl%22%3A+false%2C+%22disable_tcp_keepalive%22%3A+false%7D"
+    #   }
+    # ]
 
     secret = [
       {
-        envName : "AIRFLOW_CONN_MINIO_S3"
-        secretName : "minio-s3-airflow-connections"
+        envName : "conn_minio_s3"
+        secretName : "airflow-airflow-connections"
         secretKey : "AIRFLOW_CONN_MINIO_S3"
       },
       {
-        envName : "AIRFLOW_CONN_MINIKUBE"
-        secretName : "minikube-airflow-connections"
+        envName : "conn_cluster"
+        secretName : "airflow-airflow-connections"
         secretKey : "AIRFLOW_CONN_MINIKUBE"
       },
 
@@ -103,16 +147,10 @@ locals {
       my-webserver-secret = {
         data = "webserver-secret-key: ${base64encode(resource.random_password.airflow_webserver_secret_key.result)}"
       }
-      minio-s3-airflow-connections = {
-        data = "AIRFLOW_CONN_MINIO_S3: ${base64encode("aws:///?region_name=eu-west-1&aws_access_key_id=${var.storage.access_key}&aws_secret_access_key=${var.storage.secret_access_key}&endpoint_url=http://${var.storage.endpoint}:9000")}"
-      }
-      minikube-airflow-connections = {
-        data = "AIRFLOW_CONN_MINIKUBE: ${base64encode("kubernetes:///?__extra__=%7B%22in_cluster%22%3A+true%2C+%22disable_verify_ssl%22%3A+false%2C+%22disable_tcp_keepalive%22%3A+false%7D")}"
-      }
       airflow-airflow-connections = {
         data = <<-EOT
-          AIRFLOW_CONN_MINIKUBE2: ${base64encode("kubernetes:///?__extra__=%7B%22in_cluster%22%3A+true%2C+%22disable_verify_ssl%22%3A+false%2C+%22disable_tcp_keepalive%22%3A+false%7D")}
-          AIRFLOW_CONN_AWS: ${base64encode("aws:///?region_name=eu-west-1&aws_access_key_id=${var.storage.access_key}&aws_secret_access_key=${var.storage.secret_access_key}&endpoint_url=http://${var.storage.endpoint}:9000")}
+          AIRFLOW_CONN_MINIKUBE: ${base64encode("kubernetes:///?__extra__=%7B%22in_cluster%22%3A+true%2C+%22disable_verify_ssl%22%3A+false%2C+%22disable_tcp_keepalive%22%3A+false%7D")}
+          AIRFLOW_CONN_MINIO_S3: ${base64encode("aws:///?region_name=eu-west-1&aws_access_key_id=${var.storage.access_key}&aws_secret_access_key=${var.storage.secret_access_key}&endpoint_url=http://${var.storage.endpoint}:9000")}
         EOT
       }
     }
@@ -121,21 +159,26 @@ locals {
       - name: AIRFLOW_VAR_MINIO_S5
         value: "aws:///?region_name=eu-west-1&aws_access_key_id=${var.storage.access_key}&aws_secret_access_key=${var.storage.secret_access_key}&endpoint_url=http://${var.storage.endpoint}:9000"
     EOT
-
     extraConfigMaps = {
-      airflow-airflow-variables = {
+      airflow-airflow-connections = {
         data = <<-EOT
-          AIRFLOW_VAR_HELLO_MESSAGE: 'Hi!'
-          AIRFLOW_VAR_KUBERNETES_NAMESPACE: '{{ .Release.Namespace }}'
+          script.sh: |
+            #!/usr/bin/env bash
+            conn=$(airflow connections list)
+            if [ "$conn" = "No data found" ]; then
+              connections=$(env | grep '^conn_' | sort)
+              echo $connections | tr " " "\n" > .env
+              airflow connections import .env
+            fi
         EOT
       }
     }
 
-    extraEnvFrom = <<-EOT
-      - configMapRef:
-          name: 'airflow-airflow-variables'
-      - secretRef:
-          name: 'airflow-airflow-connections'
-    EOT
+    # extraEnvFrom = <<-EOT
+    #   - configMapRef:
+    #       name: 'airflow-airflow-variables'
+    #   - secretRef:
+    #       name: 'airflow-airflow-connections'
+    # EOT
   }]
 }

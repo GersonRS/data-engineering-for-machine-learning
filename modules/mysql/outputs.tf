@@ -13,7 +13,7 @@ output "cluster_dns" {
 }
 output "cluster_ip" {
   description = "mysql cluster ip internal"
-  value = data.kubernetes_service.mysqlql.spec[0].cluster_ip
+  value = data.kubernetes_service.mysql.spec[0].cluster_ip
 }
 
 output "endpoint" {

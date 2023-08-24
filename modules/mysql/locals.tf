@@ -34,7 +34,7 @@ locals {
         size = "10Gi"
       }
       service = {
-        type = LoadBalancer
+        type = "LoadBalancer"
       }
     }
   }]

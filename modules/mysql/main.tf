@@ -3,36 +3,12 @@ resource "random_password" "password_secret" {
   special = false
 }
 
-resource "kubernetes_namespace" "mysql_namespace" {
-  metadata {
-    annotations = {
-      name = var.namespace
-    }
-    name = var.namespace
-  }
-}
-
-resource "kubernetes_secret" "mysql_secret" {
-  metadata {
-    name = "postgres-secrets"
-    namespace = var.namespace
-  }
-
-  data = {
-    password = "${resource.random_password.password_secret.result}"
-    postgres-password = "${resource.random_password.password_secret.result}"
-    replicationPasswordKey = "${resource.random_password.password_secret.result}"
-  }
-
-  depends_on = [ kubernetes_namespace.mysql_namespace ]
-}
-
 resource "null_resource" "dependencies" {
   triggers = var.dependency_ids
 }
 
 resource "argocd_project" "this" {
-  depends_on = [ kubernetes_secret.mysql_secret ]
+  depends_on = [ null_resource.dependencies ]
   metadata {
     name      = "mysql"
     namespace = var.argocd_namespace
@@ -118,7 +94,6 @@ resource "argocd_application" "this" {
   }
 
   depends_on = [
-    kubernetes_secret.mysql_secret,
     argocd_project.this,
     resource.null_resource.dependencies,
   ]
