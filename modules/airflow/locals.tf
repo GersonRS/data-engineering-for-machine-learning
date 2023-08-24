@@ -4,10 +4,22 @@ locals {
       extraInitContainers = [
         {
           name = "config-connections"
+
           args = [
             "bash",
             "/opt/airflow/script.sh"
           ]
+
+          resources = {
+            limits = {
+              cpu = "100m"
+              memory = "128Mi"
+            }
+            requests = {
+              cpu = "100m"
+              memory = "128Mi"
+            }
+          }
 
           volumeMounts = [
             {
