@@ -33,7 +33,7 @@ variable "cluster_issuer" {
 variable "namespace" {
   description = "Namespace where the applications's Kubernetes resources should be created. Namespace will be created in case it doesn't exist."
   type        = string
-  default     = "keycloak"
+  default     = "processing"
 }
 
 variable "helm_values" {
@@ -60,19 +60,4 @@ variable "dependency_ids" {
   description = "IDs of the other modules on which this module depends on."
   type        = map(string)
   default     = {}
-}
-
-#######################
-## Module variables
-#######################
-
-variable "database" {
-  description = "Keycloak external database server configuration."
-  type = object({
-    vendor   = string
-    host     = string
-    username = string
-    password = string
-  })
-  default = null
 }
