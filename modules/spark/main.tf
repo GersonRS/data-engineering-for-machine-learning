@@ -84,7 +84,5 @@ resource "argocd_application" "operator" {
 }
 
 resource "null_resource" "this" {
-  depends_on = [
-    resource.null_resource.wait_for_spark,
-  ]
+  depends_on = [ argocd_application.operator ]
 }
