@@ -1,6 +1,14 @@
 locals {
   helm_values = [{
+
+    images = {
+      airflow = {
+        repository = "gersonrs/airflow"
+        tag        = "latest"
+      }
+    }
     webserver = {
+
       extraInitContainers = [
         {
           name = "config-connections"
@@ -9,17 +17,6 @@ locals {
             "bash",
             "/opt/airflow/script.sh"
           ]
-
-          resources = {
-            limits = {
-              cpu = "100m"
-              memory = "128Mi"
-            }
-            requests = {
-              cpu = "100m"
-              memory = "128Mi"
-            }
-          }
 
           volumeMounts = [
             {
@@ -42,12 +39,6 @@ locals {
       }
     ]
 
-    # images = {
-    #   airflow = {
-    #     repository = "gersonrs/airflow"
-    #     tag        = "v4"
-    #   }
-    # }
     executor                     = "KubernetesExecutor"
     webserverSecretKeySecretName = "my-webserver-secret"
     createUserJob = {
@@ -90,7 +81,8 @@ locals {
     }
     triggerer = {
       persistence = {
-        size = "10Gi"
+        enabled = false
+        size    = "10Gi"
       }
     }
     logs = {
@@ -102,7 +94,7 @@ locals {
     }
     dags = {
       gitSync = {
-        enabled      = false
+        enabled      = true
         repo         = "git@github.com:GersonRS/airflow-dags.git"
         branch       = "main"
         rev          = "HEAD"
@@ -156,6 +148,14 @@ locals {
     extraEnv = <<-EOT
       - name: AIRFLOW_VAR_MINIO_S5
         value: "aws:///?region_name=eu-west-1&aws_access_key_id=${var.storage.access_key}&aws_secret_access_key=${var.storage.secret_access_key}&endpoint_url=http://${var.storage.endpoint}:9000"
+      - name: AIRFLOW__LOGGING__REMOTE_LOGGING
+        value: "True"
+      - name: AIRFLOW__LOGGING__REMOTE_BASE_LOG_FOLDER
+        value: "s3://airflow/logs"
+      - name: AIRFLOW__LOGGING__REMOTE_LOG_CONN_ID
+        value: "conn_minio_s3"
+      - name: AIRFLOW__KUBERNETES__DELETE_WORKER_PODS
+        value: "True"
     EOT
     extraConfigMaps = {
       airflow-airflow-connections = {

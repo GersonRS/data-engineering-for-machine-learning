@@ -2754,6 +2754,35 @@
             "null"
           ]
         },
+        "containerLifecycleHooks": {
+          "$ref": "#/definitions/io.k8s.api.core.v1.Lifecycle",
+          "default": {},
+          "description": "Container Lifecycle Hooks definition for the log groomer sidecar. If not set, the values from global `containerLifecycleHooks` will be used.",
+          "examples": [
+            {
+              "postStart": {
+                "exec": {
+                  "command": [
+                    "/bin/sh",
+                    "-c",
+                    "echo postStart handler > /usr/share/message"
+                  ]
+                }
+              },
+              "preStop": {
+                "exec": {
+                  "command": [
+                    "/bin/sh",
+                    "-c",
+                    "echo preStop handler > /usr/share/message"
+                  ]
+                }
+              }
+            }
+          ],
+          "type": "object",
+          "x-docsSection": "Kubernetes"
+        },
         "enabled": {
           "default": true,
           "description": "Whether to deploy the Airflow log groomer sidecar.",
@@ -2853,7 +2882,7 @@
       "x-docsSection": "Kubernetes"
     },
     "airflowVersion": {
-      "default": "2.6.3",
+      "default": "2.7.0",
       "description": "Airflow version (Used to make some decisions based on Airflow Version being deployed).",
       "type": "string",
       "x-docsSection": "Common"
@@ -2899,6 +2928,35 @@
             "array",
             "null"
           ]
+        },
+        "containerLifecycleHooks": {
+          "$ref": "#/definitions/io.k8s.api.core.v1.Lifecycle",
+          "default": {},
+          "description": "Container Lifecycle Hooks definition for the cleanup. If not set, the values from global `containerLifecycleHooks` will be used.",
+          "examples": [
+            {
+              "postStart": {
+                "exec": {
+                  "command": [
+                    "/bin/sh",
+                    "-c",
+                    "echo postStart handler > /usr/share/message"
+                  ]
+                }
+              },
+              "preStop": {
+                "exec": {
+                  "command": [
+                    "/bin/sh",
+                    "-c",
+                    "echo preStop handler > /usr/share/message"
+                  ]
+                }
+              }
+            }
+          ],
+          "type": "object",
+          "x-docsSection": "Kubernetes"
         },
         "enabled": {
           "default": false,
@@ -3122,6 +3180,35 @@
       "type": "object",
       "x-docsSection": "Common"
     },
+    "containerLifecycleHooks": {
+      "$ref": "#/definitions/io.k8s.api.core.v1.Lifecycle",
+      "default": {},
+      "description": "Default Container Lifecycle Hooks definition. The values in this parameter will be used when `containerLifecycleHooks` is not defined for specific containers.",
+      "examples": [
+        {
+          "postStart": {
+            "exec": {
+              "command": [
+                "/bin/sh",
+                "-c",
+                "echo postStart handler > /usr/share/message"
+              ]
+            }
+          },
+          "preStop": {
+            "exec": {
+              "command": [
+                "/bin/sh",
+                "-c",
+                "echo preStop handler > /usr/share/message"
+              ]
+            }
+          }
+        }
+      ],
+      "type": "object",
+      "x-docsSection": "Kubernetes"
+    },
     "createUserJob": {
       "additionalProperties": false,
       "description": "Airflow job to create a user settings.",
@@ -3183,6 +3270,35 @@
             "array",
             "null"
           ]
+        },
+        "containerLifecycleHooks": {
+          "$ref": "#/definitions/io.k8s.api.core.v1.Lifecycle",
+          "default": {},
+          "description": "Container Lifecycle Hooks definition for the create user job. If not set, the values from global `containerLifecycleHooks` will be used.",
+          "examples": [
+            {
+              "postStart": {
+                "exec": {
+                  "command": [
+                    "/bin/sh",
+                    "-c",
+                    "echo postStart handler > /usr/share/message"
+                  ]
+                }
+              },
+              "preStop": {
+                "exec": {
+                  "command": [
+                    "/bin/sh",
+                    "-c",
+                    "echo preStop handler > /usr/share/message"
+                  ]
+                }
+              }
+            }
+          ],
+          "type": "object",
+          "x-docsSection": "Kubernetes"
         },
         "env": {
           "default": [],
@@ -3433,6 +3549,35 @@
             "array",
             "null"
           ]
+        },
+        "containerLifecycleHooks": {
+          "$ref": "#/definitions/io.k8s.api.core.v1.Lifecycle",
+          "default": {},
+          "description": "Container Lifecycle Hooks definition for the dag processor. If not set, the values from global `containerLifecycleHooks` will be used.",
+          "examples": [
+            {
+              "postStart": {
+                "exec": {
+                  "command": [
+                    "/bin/sh",
+                    "-c",
+                    "echo postStart handler > /usr/share/message"
+                  ]
+                }
+              },
+              "preStop": {
+                "exec": {
+                  "command": [
+                    "/bin/sh",
+                    "-c",
+                    "echo preStop handler > /usr/share/message"
+                  ]
+                }
+              }
+            }
+          ],
+          "type": "object",
+          "x-docsSection": "Kubernetes"
         },
         "enabled": {
           "default": false,
@@ -3721,6 +3866,35 @@
           "additionalProperties": false,
           "description": "wait-for-airflow-migrations init container.",
           "properties": {
+            "containerLifecycleHooks": {
+              "$ref": "#/definitions/io.k8s.api.core.v1.Lifecycle",
+              "default": {},
+              "description": "Container Lifecycle Hooks definition for the wait for migrations. If not set, the values from global `containerLifecycleHooks` will be used.",
+              "examples": [
+                {
+                  "postStart": {
+                    "exec": {
+                      "command": [
+                        "/bin/sh",
+                        "-c",
+                        "echo postStart handler > /usr/share/message"
+                      ]
+                    }
+                  },
+                  "preStop": {
+                    "exec": {
+                      "command": [
+                        "/bin/sh",
+                        "-c",
+                        "echo preStop handler > /usr/share/message"
+                      ]
+                    }
+                  }
+                }
+              ],
+              "type": "object",
+              "x-docsSection": "Kubernetes"
+            },
             "enabled": {
               "default": true,
               "description": "Enable wait-for-airflow-migrations init container.",
@@ -3790,6 +3964,35 @@
               "default": "v2-2-stable",
               "description": "Git branch",
               "type": "string"
+            },
+            "containerLifecycleHooks": {
+              "$ref": "#/definitions/io.k8s.api.core.v1.Lifecycle",
+              "default": {},
+              "description": "Container Lifecycle Hooks definition for the git sync sidecar. If not set, the values from global `containerLifecycleHooks` will be used.",
+              "examples": [
+                {
+                  "postStart": {
+                    "exec": {
+                      "command": [
+                        "/bin/sh",
+                        "-c",
+                        "echo postStart handler > /usr/share/message"
+                      ]
+                    }
+                  },
+                  "preStop": {
+                    "exec": {
+                      "command": [
+                        "/bin/sh",
+                        "-c",
+                        "echo preStop handler > /usr/share/message"
+                      ]
+                    }
+                  }
+                }
+              ],
+              "type": "object",
+              "x-docsSection": "Kubernetes"
             },
             "containerName": {
               "default": "git-sync",
@@ -4180,7 +4383,7 @@
       "x-docsSection": "Common"
     },
     "defaultAirflowTag": {
-      "default": "2.6.3",
+      "default": "2.7.0",
       "description": "Default airflow tag to deploy.",
       "type": "string",
       "x-docsSection": "Common"
@@ -4524,6 +4727,35 @@
             "array",
             "null"
           ]
+        },
+        "containerLifecycleHooks": {
+          "$ref": "#/definitions/io.k8s.api.core.v1.Lifecycle",
+          "default": {},
+          "description": "Container Lifecycle Hooks definition for the network policy. If not set, the values from global `containerLifecycleHooks` will be used.",
+          "examples": [
+            {
+              "postStart": {
+                "exec": {
+                  "command": [
+                    "/bin/sh",
+                    "-c",
+                    "echo postStart handler > /usr/share/message"
+                  ]
+                }
+              },
+              "preStop": {
+                "exec": {
+                  "command": [
+                    "/bin/sh",
+                    "-c",
+                    "echo preStop handler > /usr/share/message"
+                  ]
+                }
+              }
+            }
+          ],
+          "type": "object",
+          "x-docsSection": "Kubernetes"
         },
         "enabled": {
           "default": false,
@@ -5565,6 +5797,35 @@
             "null"
           ]
         },
+        "containerLifecycleHooks": {
+          "$ref": "#/definitions/io.k8s.api.core.v1.Lifecycle",
+          "default": {},
+          "description": "Container Lifecycle Hooks definition for the migrate database job. If not set, the values from global `containerLifecycleHooks` will be used.",
+          "examples": [
+            {
+              "postStart": {
+                "exec": {
+                  "command": [
+                    "/bin/sh",
+                    "-c",
+                    "echo postStart handler > /usr/share/message"
+                  ]
+                }
+              },
+              "preStop": {
+                "exec": {
+                  "command": [
+                    "/bin/sh",
+                    "-c",
+                    "echo preStop handler > /usr/share/message"
+                  ]
+                }
+              }
+            }
+          ],
+          "type": "object",
+          "x-docsSection": "Kubernetes"
+        },
         "enabled": {
           "default": true,
           "description": "Enable migrate database job.",
@@ -5848,11 +6109,79 @@
             "null"
           ]
         },
+        "containerLifecycleHooks": {
+          "$ref": "#/definitions/io.k8s.api.core.v1.Lifecycle",
+          "default": {
+            "preStop": {
+              "exec": {
+                "command": [
+                  "/bin/sh",
+                  "-c",
+                  "killall -INT pgbouncer && sleep 120"
+                ]
+              }
+            }
+          },
+          "description": "Container Lifecycle Hooks definition for the PgBouncer. If not set, the values from global `containerLifecycleHooks` will be used.",
+          "examples": [
+            {
+              "postStart": {
+                "exec": {
+                  "command": [
+                    "/bin/sh",
+                    "-c",
+                    "echo postStart handler > /usr/share/message"
+                  ]
+                }
+              },
+              "preStop": {
+                "exec": {
+                  "command": [
+                    "/bin/sh",
+                    "-c",
+                    "echo preStop handler > /usr/share/message"
+                  ]
+                }
+              }
+            }
+          ],
+          "type": "object",
+          "x-docsSection": "Kubernetes"
+        },
         "enabled": {
           "default": false,
           "description": "Enable PgBouncer.",
           "type": "boolean",
           "x-docsSection": "Common"
+        },
+        "env": {
+          "default": [],
+          "description": "Add additional env vars to `pgbouncer` container.",
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "value": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "name",
+              "value"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "extraContainers": {
+          "default": [],
+          "description": "Launch additional containers into `pgbouncer`.",
+          "items": {
+            "$ref": "#/definitions/io.k8s.api.core.v1.Container"
+          },
+          "type": "array"
         },
         "extraIni": {
           "default": null,
@@ -5927,6 +6256,35 @@
           "additionalProperties": false,
           "description": "PgBouncer - metrics exporter settings.",
           "properties": {
+            "containerLifecycleHooks": {
+              "$ref": "#/definitions/io.k8s.api.core.v1.Lifecycle",
+              "default": {},
+              "description": "Container Lifecycle Hooks definition for the metrics exporter sidecar. If not set, the values from global `containerLifecycleHooks` will be used.",
+              "examples": [
+                {
+                  "postStart": {
+                    "exec": {
+                      "command": [
+                        "/bin/sh",
+                        "-c",
+                        "echo postStart handler > /usr/share/message"
+                      ]
+                    }
+                  },
+                  "preStop": {
+                    "exec": {
+                      "command": [
+                        "/bin/sh",
+                        "-c",
+                        "echo preStop handler > /usr/share/message"
+                      ]
+                    }
+                  }
+                }
+              ],
+              "type": "object",
+              "x-docsSection": "Kubernetes"
+            },
             "livenessProbe": {
               "additionalProperties": false,
               "description": "LivenessProbe configurations for ``metricsExporterSidecar``",
@@ -6023,6 +6381,22 @@
                 "verify-full"
               ],
               "type": "string"
+            },
+            "statsSecretKey": {
+              "default": null,
+              "description": "Key referencing the PGBouncer Metrics connection URI within an existing Secrets object. Defaults to `connection` if left null.",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "statsSecretName": {
+              "default": null,
+              "description": "Name of an existing Secrets object containing PgBouncer Metrics secrets.",
+              "type": [
+                "string",
+                "null"
+              ]
             }
           },
           "type": "object",
@@ -6487,6 +6861,35 @@
           "description": "Specify scheduling constraints for Redis pods.",
           "type": "object"
         },
+        "containerLifecycleHooks": {
+          "$ref": "#/definitions/io.k8s.api.core.v1.Lifecycle",
+          "default": {},
+          "description": "Container Lifecycle Hooks definition for the redis. If not set, the values from global `containerLifecycleHooks` will be used.",
+          "examples": [
+            {
+              "postStart": {
+                "exec": {
+                  "command": [
+                    "/bin/sh",
+                    "-c",
+                    "echo postStart handler > /usr/share/message"
+                  ]
+                }
+              },
+              "preStop": {
+                "exec": {
+                  "command": [
+                    "/bin/sh",
+                    "-c",
+                    "echo preStop handler > /usr/share/message"
+                  ]
+                }
+              }
+            }
+          ],
+          "type": "object",
+          "x-docsSection": "Kubernetes"
+        },
         "enabled": {
           "default": true,
           "description": "Enable the Redis provisioned by the chart (you can also use an external Redis instance with `data.brokerUrl` or `data.brokerUrlSecretName`).",
@@ -6800,6 +7203,35 @@
             "null"
           ]
         },
+        "containerLifecycleHooks": {
+          "$ref": "#/definitions/io.k8s.api.core.v1.Lifecycle",
+          "default": {},
+          "description": "Container Lifecycle Hooks definition for the scheduler. If not set, the values from global `containerLifecycleHooks` will be used.",
+          "examples": [
+            {
+              "postStart": {
+                "exec": {
+                  "command": [
+                    "/bin/sh",
+                    "-c",
+                    "echo postStart handler > /usr/share/message"
+                  ]
+                }
+              },
+              "preStop": {
+                "exec": {
+                  "command": [
+                    "/bin/sh",
+                    "-c",
+                    "echo preStop handler > /usr/share/message"
+                  ]
+                }
+              }
+            }
+          ],
+          "type": "object",
+          "x-docsSection": "Kubernetes"
+        },
         "env": {
           "default": [],
           "description": "Add additional env vars to scheduler.",
@@ -7106,6 +7538,41 @@
           },
           "type": "object"
         },
+        "startupProbe": {
+          "additionalProperties": false,
+          "description": "Startup probe configuration for scheduler container.",
+          "properties": {
+            "command": {
+              "description": "Command for livenessProbe",
+              "items": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "type": [
+                "array",
+                "null"
+              ]
+            },
+            "failureThreshold": {
+              "default": 6,
+              "description": "Minimum consecutive failures for the probe to be considered failed after having succeeded. Minimum value is 1.",
+              "type": "integer"
+            },
+            "periodSeconds": {
+              "default": 10,
+              "description": "How often (in seconds) to perform the probe. Minimum value is 1.",
+              "type": "integer"
+            },
+            "timeoutSeconds": {
+              "default": 20,
+              "description": "Number of seconds after which the probe times out. Minimum value is 1 seconds.",
+              "type": "integer"
+            }
+          },
+          "type": "object"
+        },
         "strategy": {
           "default": null,
           "description": "Specifies the strategy used to replace old Pods by new ones when deployed as a Deployment (when not using LocalExecutor and workers.persistence).",
@@ -7144,6 +7611,35 @@
           "additionalProperties": false,
           "description": "wait-for-airflow-migrations init container.",
           "properties": {
+            "containerLifecycleHooks": {
+              "$ref": "#/definitions/io.k8s.api.core.v1.Lifecycle",
+              "default": {},
+              "description": "Container Lifecycle Hooks definition for the wait for migrations. If not set, the values from global `containerLifecycleHooks` will be used.",
+              "examples": [
+                {
+                  "postStart": {
+                    "exec": {
+                      "command": [
+                        "/bin/sh",
+                        "-c",
+                        "echo postStart handler > /usr/share/message"
+                      ]
+                    }
+                  },
+                  "preStop": {
+                    "exec": {
+                      "command": [
+                        "/bin/sh",
+                        "-c",
+                        "echo preStop handler > /usr/share/message"
+                      ]
+                    }
+                  }
+                }
+              ],
+              "type": "object",
+              "x-docsSection": "Kubernetes"
+            },
             "enabled": {
               "default": true,
               "description": "Enable wait-for-airflow-migrations init container.",
@@ -7314,10 +7810,68 @@
             "null"
           ]
         },
+        "configMapAnnotations": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "default": {},
+          "description": "Extra annotations to apply to the statsd configmap.",
+          "type": "object"
+        },
+        "containerLifecycleHooks": {
+          "$ref": "#/definitions/io.k8s.api.core.v1.Lifecycle",
+          "default": {},
+          "description": "Container Lifecycle Hooks definition for the statsd. If not set, the values from global `containerLifecycleHooks` will be used.",
+          "examples": [
+            {
+              "postStart": {
+                "exec": {
+                  "command": [
+                    "/bin/sh",
+                    "-c",
+                    "echo postStart handler > /usr/share/message"
+                  ]
+                }
+              },
+              "preStop": {
+                "exec": {
+                  "command": [
+                    "/bin/sh",
+                    "-c",
+                    "echo preStop handler > /usr/share/message"
+                  ]
+                }
+              }
+            }
+          ],
+          "type": "object",
+          "x-docsSection": "Kubernetes"
+        },
         "enabled": {
           "default": true,
           "description": "Enable StatsD.",
           "type": "boolean"
+        },
+        "env": {
+          "default": [],
+          "description": "Add additional env vars to statsd container.",
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "value": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "name",
+              "value"
+            ],
+            "type": "object"
+          },
+          "type": "array"
         },
         "extraMappings": {
           "default": [],
@@ -7578,6 +8132,35 @@
             "null"
           ]
         },
+        "containerLifecycleHooks": {
+          "$ref": "#/definitions/io.k8s.api.core.v1.Lifecycle",
+          "default": {},
+          "description": "Container Lifecycle Hooks definition for the triggerer. If not set, the values from global `containerLifecycleHooks` will be used.",
+          "examples": [
+            {
+              "postStart": {
+                "exec": {
+                  "command": [
+                    "/bin/sh",
+                    "-c",
+                    "echo postStart handler > /usr/share/message"
+                  ]
+                }
+              },
+              "preStop": {
+                "exec": {
+                  "command": [
+                    "/bin/sh",
+                    "-c",
+                    "echo preStop handler > /usr/share/message"
+                  ]
+                }
+              }
+            }
+          ],
+          "type": "object",
+          "x-docsSection": "Kubernetes"
+        },
         "enabled": {
           "default": true,
           "description": "Enable triggerer",
@@ -7635,6 +8218,72 @@
             "$ref": "#/definitions/io.k8s.api.core.v1.Volume"
           },
           "type": "array"
+        },
+        "keda": {
+          "additionalProperties": false,
+          "description": "KEDA configuration.",
+          "properties": {
+            "advanced": {
+              "additionalProperties": false,
+              "default": {},
+              "description": "Advanced KEDA configuration.",
+              "properties": {
+                "horizontalPodAutoscalerConfig": {
+                  "default": {},
+                  "description": "HorizontalPodAutoscalerConfig specifies horizontal scale config.",
+                  "properties": {
+                    "behavior": {
+                      "$ref": "#/definitions/io.k8s.api.autoscaling.v2beta2.HorizontalPodAutoscalerBehavior",
+                      "default": {},
+                      "description": "HorizontalPodAutoscalerBehavior configures the scaling behavior of the target.",
+                      "type": "object"
+                    }
+                  },
+                  "type": "object"
+                }
+              },
+              "type": "object"
+            },
+            "cooldownPeriod": {
+              "default": 30,
+              "description": "How many seconds KEDA will wait before scaling to zero.",
+              "type": "integer"
+            },
+            "enabled": {
+              "default": false,
+              "description": "Allow KEDA autoscaling.",
+              "type": "boolean"
+            },
+            "maxReplicaCount": {
+              "default": 10,
+              "description": "Maximum number of triggerers created by KEDA.",
+              "type": "integer"
+            },
+            "minReplicaCount": {
+              "default": 0,
+              "description": "Minimum number of triggerers created by KEDA.",
+              "type": "integer"
+            },
+            "namespaceLabels": {
+              "additionalProperties": {
+                "type": "string"
+              },
+              "default": {},
+              "description": "Labels used in `matchLabels` for namespace in the PgBouncer NetworkPolicy.",
+              "type": "object"
+            },
+            "pollingInterval": {
+              "default": 5,
+              "description": "How often KEDA polls the airflow DB to report new scale requests to the HPA.",
+              "type": "integer"
+            },
+            "query": {
+              "default": "SELECT ceil(COUNT(*)::decimal / {{ .Values.config.triggerer.default_capacity }}) FROM trigger",
+              "description": "Query to use for KEDA autoscaling. Must return a single integer.",
+              "type": "string"
+            }
+          },
+          "type": "object"
         },
         "labels": {
           "additionalProperties": {
@@ -7919,6 +8568,35 @@
           "additionalProperties": false,
           "description": "wait-for-airflow-migrations init container.",
           "properties": {
+            "containerLifecycleHooks": {
+              "$ref": "#/definitions/io.k8s.api.core.v1.Lifecycle",
+              "default": {},
+              "description": "Container Lifecycle Hooks definition for the wait for migrations. If not set, the values from global `containerLifecycleHooks` will be used.",
+              "examples": [
+                {
+                  "postStart": {
+                    "exec": {
+                      "command": [
+                        "/bin/sh",
+                        "-c",
+                        "echo postStart handler > /usr/share/message"
+                      ]
+                    }
+                  },
+                  "preStop": {
+                    "exec": {
+                      "command": [
+                        "/bin/sh",
+                        "-c",
+                        "echo preStop handler > /usr/share/message"
+                      ]
+                    }
+                  }
+                }
+              ],
+              "type": "object",
+              "x-docsSection": "Kubernetes"
+            },
             "enabled": {
               "default": true,
               "description": "Enable wait-for-airflow-migrations init container.",
@@ -7981,6 +8659,12 @@
       "description": "User of airflow user.",
       "type": "integer",
       "x-docsSection": "Airflow"
+    },
+    "useStandardNaming": {
+      "default": false,
+      "description": "Use standard naming for all resources using airflow.fullname template",
+      "type": "boolean",
+      "x-docsSection": null
     },
     "volumeMounts": {
       "default": [],
@@ -8048,6 +8732,43 @@
             "array",
             "null"
           ]
+        },
+        "configMapAnnotations": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "default": {},
+          "description": "Extra annotations to apply to the webserver configmap.",
+          "type": "object"
+        },
+        "containerLifecycleHooks": {
+          "$ref": "#/definitions/io.k8s.api.core.v1.Lifecycle",
+          "default": {},
+          "description": "Container Lifecycle Hooks definition for the webserver. If not set, the values from global `containerLifecycleHooks` will be used.",
+          "examples": [
+            {
+              "postStart": {
+                "exec": {
+                  "command": [
+                    "/bin/sh",
+                    "-c",
+                    "echo postStart handler > /usr/share/message"
+                  ]
+                }
+              },
+              "preStop": {
+                "exec": {
+                  "command": [
+                    "/bin/sh",
+                    "-c",
+                    "echo preStop handler > /usr/share/message"
+                  ]
+                }
+              }
+            }
+          ],
+          "type": "object",
+          "x-docsSection": "Kubernetes"
         },
         "defaultUser": {
           "additionalProperties": false,
@@ -8552,6 +9273,33 @@
           },
           "type": "object"
         },
+        "startupProbe": {
+          "additionalProperties": false,
+          "description": "Startup probe configuration.",
+          "properties": {
+            "failureThreshold": {
+              "default": 6,
+              "description": "Webserver Startup probe failure threshold.",
+              "type": "integer"
+            },
+            "periodSeconds": {
+              "default": 10,
+              "description": "Webserver Startup probe period seconds.",
+              "type": "integer"
+            },
+            "scheme": {
+              "default": "HTTP",
+              "description": "Webserver Startup probe scheme.",
+              "type": "string"
+            },
+            "timeoutSeconds": {
+              "default": 20,
+              "description": "Webserver Startup probe timeout seconds.",
+              "type": "integer"
+            }
+          },
+          "type": "object"
+        },
         "strategy": {
           "default": null,
           "description": "Specifies the strategy used to replace old Pods by new ones.",
@@ -8583,6 +9331,35 @@
           "additionalProperties": false,
           "description": "wait-for-airflow-migrations init container.",
           "properties": {
+            "containerLifecycleHooks": {
+              "$ref": "#/definitions/io.k8s.api.core.v1.Lifecycle",
+              "default": {},
+              "description": "Container Lifecycle Hooks definition for the wait for migrations. If not set, the values from global `containerLifecycleHooks` will be used.",
+              "examples": [
+                {
+                  "postStart": {
+                    "exec": {
+                      "command": [
+                        "/bin/sh",
+                        "-c",
+                        "echo postStart handler > /usr/share/message"
+                      ]
+                    }
+                  },
+                  "preStop": {
+                    "exec": {
+                      "command": [
+                        "/bin/sh",
+                        "-c",
+                        "echo preStop handler > /usr/share/message"
+                      ]
+                    }
+                  }
+                }
+              ],
+              "type": "object",
+              "x-docsSection": "Kubernetes"
+            },
             "enabled": {
               "default": true,
               "description": "Enable wait-for-airflow-migrations init container.",
@@ -8725,6 +9502,35 @@
             "array",
             "null"
           ]
+        },
+        "containerLifecycleHooks": {
+          "$ref": "#/definitions/io.k8s.api.core.v1.Lifecycle",
+          "default": {},
+          "description": "Container Lifecycle Hooks definition for the worker. If not set, the values from global `containerLifecycleHooks` will be used.",
+          "examples": [
+            {
+              "postStart": {
+                "exec": {
+                  "command": [
+                    "/bin/sh",
+                    "-c",
+                    "echo postStart handler > /usr/share/message"
+                  ]
+                }
+              },
+              "preStop": {
+                "exec": {
+                  "command": [
+                    "/bin/sh",
+                    "-c",
+                    "echo preStop handler > /usr/share/message"
+                  ]
+                }
+              }
+            }
+          ],
+          "type": "object",
+          "x-docsSection": "Kubernetes"
         },
         "env": {
           "default": [],
@@ -8876,6 +9682,35 @@
           "additionalProperties": false,
           "description": "Kerberos sidecar for Airflow workers.",
           "properties": {
+            "containerLifecycleHooks": {
+              "$ref": "#/definitions/io.k8s.api.core.v1.Lifecycle",
+              "default": {},
+              "description": "Container Lifecycle Hooks definition for the kerberos sidecar. If not set, the values from global `containerLifecycleHooks` will be used.",
+              "examples": [
+                {
+                  "postStart": {
+                    "exec": {
+                      "command": [
+                        "/bin/sh",
+                        "-c",
+                        "echo postStart handler > /usr/share/message"
+                      ]
+                    }
+                  },
+                  "preStop": {
+                    "exec": {
+                      "command": [
+                        "/bin/sh",
+                        "-c",
+                        "echo preStop handler > /usr/share/message"
+                      ]
+                    }
+                  }
+                }
+              ],
+              "type": "object",
+              "x-docsSection": "Kubernetes"
+            },
             "enabled": {
               "default": false,
               "description": "Enable Kerberos sidecar for the worker.",
@@ -8999,6 +9834,35 @@
               "default": {},
               "description": "Annotations to add to worker volumes.",
               "type": "object"
+            },
+            "containerLifecycleHooks": {
+              "$ref": "#/definitions/io.k8s.api.core.v1.Lifecycle",
+              "default": {},
+              "description": "Container Lifecycle Hooks definition for the persistence. If not set, the values from global `containerLifecycleHooks` will be used.",
+              "examples": [
+                {
+                  "postStart": {
+                    "exec": {
+                      "command": [
+                        "/bin/sh",
+                        "-c",
+                        "echo postStart handler > /usr/share/message"
+                      ]
+                    }
+                  },
+                  "preStop": {
+                    "exec": {
+                      "command": [
+                        "/bin/sh",
+                        "-c",
+                        "echo preStop handler > /usr/share/message"
+                      ]
+                    }
+                  }
+                }
+              ],
+              "type": "object",
+              "x-docsSection": "Kubernetes"
             },
             "enabled": {
               "default": true,
@@ -9242,6 +10106,35 @@
           "additionalProperties": false,
           "description": "wait-for-airflow-migrations init container.",
           "properties": {
+            "containerLifecycleHooks": {
+              "$ref": "#/definitions/io.k8s.api.core.v1.Lifecycle",
+              "default": {},
+              "description": "Container Lifecycle Hooks definition for the worker. If not set, the values from global `containerLifecycleHooks` will be used.",
+              "examples": [
+                {
+                  "postStart": {
+                    "exec": {
+                      "command": [
+                        "/bin/sh",
+                        "-c",
+                        "echo postStart handler > /usr/share/message"
+                      ]
+                    }
+                  },
+                  "preStop": {
+                    "exec": {
+                      "command": [
+                        "/bin/sh",
+                        "-c",
+                        "echo preStop handler > /usr/share/message"
+                      ]
+                    }
+                  }
+                }
+              ],
+              "type": "object",
+              "x-docsSection": "Kubernetes"
+            },
             "enabled": {
               "default": true,
               "description": "Enable wait-for-airflow-migrations init container.",

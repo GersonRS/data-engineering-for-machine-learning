@@ -1,2 +1,0 @@
-airflow-provider-great-expectations
-great-expectations

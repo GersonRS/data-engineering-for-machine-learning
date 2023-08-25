@@ -18,34 +18,40 @@
 */}}
 
 ################################
-## Airflow triggerer Service
+## Airflow Triggerer KEDA Scaler
 #################################
-{{- /* Airflow version 2.6.0 is when triggerer logs serve introduced */ -}}
-{{- if semverCompare ">=2.6.0" .Values.airflowVersion }}
-{{- if .Values.triggerer.enabled }}
-apiVersion: v1
-kind: Service
+{{- if semverCompare ">=2.2.0" .Values.airflowVersion }}
+{{- if and .Values.triggerer.enabled .Values.triggerer.keda.enabled }}
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
 metadata:
-  name: {{ include "airflow.fullname" . }}-triggerer
+  name: {{ .Release.Name }}-triggerer
   labels:
     tier: airflow
-    component: triggerer
+    component: triggerer-horizontalpodautoscaler
     release: {{ .Release.Name }}
     chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
     heritage: {{ .Release.Service }}
+    deploymentName: {{ .Release.Name }}-triggerer
     {{- if or (.Values.labels) (.Values.triggerer.labels) }}
       {{- mustMerge .Values.triggerer.labels .Values.labels | toYaml | nindent 4 }}
     {{- end }}
 spec:
-  clusterIP: None
-  selector:
-    tier: airflow
-    component: triggerer
-    release: {{ .Release.Name }}
-  ports:
-    - name: triggerer-logs
-      protocol: TCP
-      port: {{ .Values.ports.triggererLogs }}
-      targetPort: {{ .Values.ports.triggererLogs }}
+  scaleTargetRef:
+    kind: {{ ternary "StatefulSet" "Deployment" .Values.triggerer.persistence.enabled }}
+    name: {{ .Release.Name }}-triggerer
+  pollingInterval:  {{ .Values.triggerer.keda.pollingInterval }}
+  cooldownPeriod: {{ .Values.triggerer.keda.cooldownPeriod }}
+  minReplicaCount: {{ .Values.triggerer.keda.minReplicaCount }}
+  maxReplicaCount: {{ .Values.triggerer.keda.maxReplicaCount }}
+  {{- if .Values.triggerer.keda.advanced }}
+  advanced: {{- toYaml .Values.triggerer.keda.advanced | nindent 4 }}
+  {{- end }}
+  triggers:
+    - type: postgresql
+      metadata:
+        targetQueryValue: "1"
+        connectionFromEnv: AIRFLOW_CONN_AIRFLOW_DB
+        query: {{ tpl .Values.triggerer.keda.query . | quote }}
 {{- end }}
 {{- end }}

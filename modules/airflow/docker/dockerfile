@@ -1,3 +1,7 @@
-FROM apache/airflow:2.5.2
+FROM apache/airflow:latest
+RUN pip install --upgrade pip
 COPY requirements.txt /
-RUN pip install --no-cache-dir -r /requirements.txt
+RUN pip install -r /requirements.txt
+RUN pip install -U ray[all]
+RUN pip install -U atom-ml[ray]
+RUN pip install -U modin[ray]
