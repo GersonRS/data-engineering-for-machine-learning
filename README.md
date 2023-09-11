@@ -27,283 +27,225 @@
 
 Há algum tempo, comecei a procurar maneiras de modernizar meu aprendizado de máquina da minha [disertação de mestrado](https://www.sciencedirect.com/science/article/abs/pii/S0957417422011721#!). Uma das primeiras coisas que eu queria fazer era começar a criar modelos e algoritmos de ML e ter uma maneira de orquestrar sua execução. Podemos pensar em um algoritmo de ML como um aplicativo que obtém alguns dados como entrada, é treinado nesses dados para que possa aprender com eles e, em seguida, pode ser usado para trazer resultados quando novos dados são inseridos nele. O modelo ML é a saída de todo esse processo.
 
-<!-- TABLE OF CONTENTS -->
+## Overview
+ML-Kube is a comprehensive Machine Learning infrastructure project built on top of Kubernetes. It leverages Terraform to automate the setup of the Kubernetes cluster using kind (Kubernetes IN Docker). The infrastructure includes essential components such as MetalLB, ArgoCD, Traefik, Cert-Manager, Keycloak, Minio, Postgres, MLflow, and JupyterHub, providing a seamless development and management environment for Machine Learning applications.
 
-# Tabela de Conteúdo
+## Table of Contents
 
-- [Tabela de Conteúdo](#tabela-de-conteúdo)
-- [Objetivo](#objetivo)
-- [Fluxo de versionamento](#fluxo-de-versionamento)
-- [Ferramentas](#ferramentas)
-- [Como Usar](#como-usar)
-  - [Instalação do Cluster](#instalação-do-cluster)
-  - [Instalação das Ferramentas](#instalação-das-ferramentas)
-  - [Observações](#observações)
-- [Estrutura do Projeto](#estrutura-do-projeto)
-- [Requisitos](#requisitos)
-- [Contribuição](#contribuições)
-- [Licença](#licença)
-- [Contato](#contato)
+- [Objective](#objective)
+- [Versioning Flow](#versioning-flow)
+- [Tools](#tools)
+- [Getting Started](#getting-started)
+- [Requirements](#requirements)
+- [Usage](#usage)
+- [Project Structure](#project-structure)
+- [Troubleshooting](#troubleshooting)
+  - [Jupyterhub Login](#jupyterhub-login)
+  - [Install libs Python](#install-libs-python)
+- [Contributions](#sontributions)
+- [License](#license)
+- [Contact](#contact)
+- [Acknowledgments](#acknowledgments)
 
-<!-- ABOUT THE PROJECT -->
+## Objective
+The main objective of this POC is to study and understand the functionalities of MLflow within a Kubernetes environment. By leveraging Terraform and kind, the project can be easily set up to provide a practical playground for exploring MLflow's capabilities for model management, deployment, and tracking.
 
-# Objetivo
 
-Este repositório fornece uma arquitetura `modern data stack` e um processo de MLOps (operações de machine learning) que usa diversas ferramentas open source, para construir uma plataforma que permita construir, testar e implantar meu modelo de detecção de ondas gravitacionais com o máximo de autonomia possível. Esse processo define uma maneira padronizada de mover modelos e pipelines de machine learning do desenvolvimento para a produção, com opções para incluir processos automatizados e manuais. validação e monitoramento.
+## Versioning Flow
+We follow the [Semantic Versioning](https://semver.org/) and [gitflow](https://www.atlassian.com/br/git/tutorials/comparing-workflows/gitflow-workflow) for versioning this project. For the versions available, see the tags on this repository.
 
-# Fluxo de versionamento
-Projeto segue regras de versionamento [gitflow](https://www.atlassian.com/br/git/tutorials/comparing-workflows/gitflow-workflow).
+## Tools
+The following tools are used in this project:
 
-# Ferramentas
+* **Terraform:** Infrastructure-as-Code tool used to automate the setup of the Kubernetes cluster and related resources.
 
-O repositório inclui um conjunto de ferramentas para orquestração de dados e DataOps. Abaixo segue o que foi utilizado na criação deste projeto:
+* **Kubernetes (kind)**: A lightweight Kubernetes implementation that allows running Kubernetes clusters inside Docker containers.
 
-- [Minikube](https://minikube.sigs.k8s.io/docs/start/) - Ferramenta de código aberto que permite criar um ambiente de teste do Kubernetes em sua máquina local. Com o Minikube, é possível criar e implantar aplicativos em um cluster Kubernetes em sua máquina local.
-- [Helm](https://helm.sh/) - Ferramenta de gerenciamento de pacotes de código aberto para o Kubernetes. O Helm permite empacotar aplicativos Kubernetes em um formato padrão chamado de gráfico, que inclui todos os recursos necessários para implantar o aplicativo, incluindo configurações e dependências.
-- [ArgoCD](https://argo-cd.readthedocs.io/en/stable/) - Ferramenta declarativa que usa a abordagem GitOps para implantar aplicações no Kubernetes. O Argo CD é gratuito, tem código aberto, é um projeto incubado pela CNCF, e possui uma interface web de visualização e gerenciamento dos recursos, mas também pode ser configurado via linha de comando.
-- [Spark](https://spark.apache.org/) - O Spark é um framework de processamento de dados distribuído e de código aberto, que permite executar processamento de dados em larga escala, incluindo processamento em batch, streaming, SQL, machine learning e processamento de gráficos. Ele foi projetado para ser executado em clusters de computadores e fornece uma interface de programação fácil de usar para desenvolvedores;
-- [Airflow](https://airflow.apache.org/) - O Airflow é uma plataforma de orquestração de fluxo de trabalho de dados de código aberto que permite criar, agendar e monitorar fluxos de trabalho complexos de processamento de dados. Ele usa uma linguagem de definição de fluxo de trabalho baseada em Python e possui uma ampla gama de conectores pré-construídos para trabalhar com diferentes sistemas de armazenamento de dados, bancos de dados e ferramentas de processamento de dados;
-- [Reflector](https://github.com/emberstack/kubernetes-reflector) - O Reflector é uma ferramenta de sincronização de estado de código aberto que permite sincronizar recursos Kubernetes em diferentes clusters ou namespaces. Ele usa a abordagem de controlador de reconciliação para monitorar e atualizar automaticamente o estado dos recursos Kubernetes com base em um estado desejado especificado;
-- [Minio](https://min.io/) - O Minio é um sistema de armazenamento de objetos de código aberto e de alta performance, compatível com a API Amazon S3. Ele é projetado para ser executado em clusters distribuídos e escaláveis e fornece recursos avançados de segurança e gerenciamento de dados;
-- [Postgres](https://www.postgresql.org/) - O Postgres é um sistema de gerenciamento de banco de dados relacional de código aberto, conhecido por sua confiabilidade, escalabilidade e recursos avançados de segurança. Ele é compatível com SQL e é usado em uma ampla gama de aplicativos, desde pequenos sites até grandes empresas e organizações governamentais.
+* **MetalLB**: A Load Balancer for Kubernetes environments, enabling external access to services in the local environment.
 
-# Como Usar
+* **ArgoCD**: A GitOps Continuous Delivery tool for Kubernetes, facilitating the management of applications.
 
-Para usar esse template, basta criar um novo repositório no GitHub e usar este template como base. O repositório resultante incluirá a estrutura básica do projeto e as ferramentas necessárias para gerenciar seus fluxos de trabalho de dados.
+* **Traefik**: An Ingress Controller for Kubernetes, routing external traffic to applications within the cluster.
 
-Para começar um novo projeto de Engenharia de Dados com este template, siga as instruções abaixo:
+* **Cert-Manager**: A certificate management tool, enabling the use of HTTPS for applications.
 
-## Instalação do Cluster
+* **Keycloak**: An identity management and access control service, securing applications and resources.
 
-O primeiro passo é montar um ambiente com um cluster Kubernetes local para executar a aplicação e o pipeline de dados. Este template usa o cluster de Kubernetes **[minikube](https://minikube.sigs.k8s.io/docs/)**. [Siga este guia de instalação para instalar o Minikube](https://minikube.sigs.k8s.io/docs/start/).
+* **Minio**: A cloud storage server compatible with Amazon S3, providing object storage for applications.
 
-Este template usa o **[helm](https://helm.sh/)** para ajudar a instalar algumas aplicações. [Siga este guia de instalação para instalar o Helm](https://helm.sh/docs/intro/install/).
+* **Postgres**: A relational database used to store application data.
 
-Execute o seguinte comando para iniciar o Minikube:
+* **MLflow**: A Machine Learning lifecycle management platform, simplifying the deployment and tracking of ML models.
 
-```
-minikube start
-```
+* **JupyterHub**: A multi-user Jupyter environment, allowing users to write and share code collaboratively.
 
-Para acessar alguns serviços via loadbalancer no Minikube, é necessário utilizar o [tunelamento do minikube](https://minikube.sigs.k8s.io/docs/handbook/accessing/#example-of-loadbalancer). Para isso, abra uma nova aba no seu terminal e execute o seguinte comando:
+These tools together enable the creation of a complete infrastructure for the development and management of Machine Learning applications in the Kubernetes environment.
+
+## Requirements
+To use MLflow-Kube, you need to have the following prerequisites installed and configured:
+
+1. Terraform:
+    * Installation: Visit the [Terraform website](https://www.terraform.io/downloads.html) and follow the instructions for your operating system.
+2. Docker:
+    * Installation: Install Docker by following the instructions for your operating system from the [Docker website](https://docs.docker.com/get-docker/).
+3. Kubernetes CLI (kubectl):
+    * Installation: Install `kubectl` by following the instructions for your operating system from the [Kubernetes website](https://kubernetes.io/docs/tasks/tools/install-kubectl/).
+4. Helm:
+    * Installation: Install Helm by following the instructions for your operating system from the [Helm website](https://helm.sh/docs/intro/install/).
+
+## Getting Started
+To get started with the MLflow POC, follow these steps:
+
+1. Clone this repository to your local computer.
+    - `git clone https://github.com/GersonRS/mlflow-kube-poc.git`
+2. Change directory to the repository:
+    - `cd mlflow-kube-poc`
+>Make sure you have Terraform installed on your system, along with other necessary dependencies.
+3. Run `terraform init` to initialize Terraform configurations.
+* ```sh
+  terraform init
+  ```
+>`This command will download the necessary Terraform plugins and modules.`
+4. Run `terraform apply` to start the provisioning process. Wait until the infrastructure is ready for use.
+* ```
+  terraform apply
+  ```
+>`Review the changes to be applied and confirm with yes when prompted. Terraform will now set up the Kubernetes cluster and deploy the required resources.`
+5. After the Terraform apply is complete, the output will display URLs for accessing the applications. Use the provided URLs to interact with the applications.
+6. The Terraform output will also provide the credentials necessary for accessing and managing the applications. Run `terraform output` to get the credentials.
+* ```
+  terraform output -json credentials
+  ```
+
+
+## Usage
+Once the infrastructure is successfully provisioned, you can utilize the installed applications, including MLflow, to track and manage your Machine Learning experiments. Access the applications through the provided URLs and log in using the credentials generated during setup. Follow these steps to utilize the Proof of Concept (PoC):
+
+1. Access the JupyterHub URL: After the infrastructure is provisioned using Terraform, you will receive the JupyterHub URL as an output. Open a web browser and navigate to this URL.
+
+2. Log in to JupyterHub: On the JupyterHub login page, click on "Sign in with Keycloak." Use the credentials provided in the output of the Terraform apply command, as mentioned in step 6 of the previous section.
+
+3. Access Jupyter Notebook: Upon successful login, you will have access to a Jupyter Notebook environment. Locate the "/opt/bitnami/jupyterhub-singleuser" directory within the Jupyter environment.
+
+4. Upload Files: Upload the files from the "code" folder of this repository into the "/opt/bitnami/jupyterhub-singleuser" directory.
+
+5. Execute "main.ipynb": Open the "main.ipynb" Jupyter Notebook file and execute it. This notebook contains the necessary code to initiate the Proof of Concept.
+
+6. Monitor Experiment in MLflow: Upon execution of the notebook, the MLflow experiment will be initiated. To monitor the experiment, access the MLflow URL provided in the output of the Terraform apply command. This URL will allow you to track and analyze the results of the PoC.
+
+Please note that these steps provide a high-level overview of the usage process. Ensure you have met all the requirements mentioned in the "Requirements" section before proceeding with the above steps. Additionally, refer to the provided documentation and comments within the code for any further instructions or configurations.
+
+If you encounter any problems, refer to the [Troubleshooting](#troubleshooting) section for potential solutions to common issues that may arise during the setup and usage of the PoC.
+
+
+## Project Structure
+This project follows a structured directory layout to organize its resources effectively:
 ```sh
-minikube tunnel
+    .
+    ├── LICENSE
+    ├── locals.tf
+    ├── main.tf
+    ├── modules
+    │   ├── argocd
+    │   ├── cert-manager
+    │   ├── jupyterhub
+    │   ├── keycloak
+    │   ├── kind
+    │   ├── kube-prometheus-stack
+    │   ├── metallb
+    │   ├── minio
+    │   ├── mlflow
+    │   ├── oidc
+    │   ├── postgresql
+    │   └── traefik
+    ├── outputs.tf
+    ├── README.md
+    ├── s3_buckets.tf
+    ├── terraform.tf
+    └── variables.tf
+
+    15 directories, 83 files
 ```
 
-> Obs: caso não queira usar loadbalancer para acesar suas aplicações, descarte este comando.
-
-## Instalação das ferramentas
-
-Depois do ambiente inicializado será necessario instalar algumas aplicações que serão responsaveis por manter e gerenciar os pipeline de dados.
-
-Estando conectado em no cluster Kubernetes do Minikube local, execute os seguintes comandos para criar todos os namespaces necessarios:
-
-```sh
-kubectl create namespace orchestrator
-kubectl create namespace database
-kubectl create namespace ingestion
-kubectl create namespace processing
-kubectl create namespace datastore
-kubectl create namespace deepstorage
-kubectl create namespace cicd
-kubectl create namespace app
-kubectl create namespace management
-kubectl create namespace misc
-```
+* [**LICENSE**](LICENSE) - License file of the project.
+* [**locals.tf**](locals.tf) - Terraform locals file.
+* [**main.tf**](main.tf) - Main Terraform configuration file.
+* [**modules**](modules/) - Directory containing all the Terraform modules used in the project.
+  * [**argocd**](modules/argocd/) - Directory for configuring ArgoCD application.
+  * [**cert-manager**](modules/cert-manager/) - Directory for managing certificates using Cert Manager.
+  * [**jupyterhub**](modules/jupyterhub/) - Directory for setting up JupyterHub application.
+  * [**keycloak**](modules/keycloak/) - Directory for installing and configuring Keycloak.
+  * [**kind**](modules/kind/) - Directory for creating a Kubernetes cluster using Kind.
+  * [**metallb**](modules/metallb/) - Directory for setting up MetalLB, a load balancer for Kubernetes.
+  * [**minio**](modules/minio/) - Directory for deploying and configuring Minio for object storage.
+  * [**mlflow**](modules/mlflow/) - Directory for setting up MLflow, a machine learning lifecycle management platform.
+  * [**oidc**](modules/oidc/) - Directory for OpenID Connect (OIDC) configuration.
+  * [**postgresql**](modules/postgresql/) - Directory for deploying and configuring PostgreSQL database.
+  * [**traefik**](modules/traefik/) - Directory for setting up Traefik, an ingress controller for Kubernetes.
+* [**outputs.tf**](outputs.tf) - Terraform outputs file.
+* [**README.md**](README.md) - Project's README file, containing important information and guidelines.
+* [**s3_buckets.tf**](s3_buckets.tf) - Terraform configuration for creating S3 buckets.
+* [**terraform.tf**](terraform.tf) - Terraform configuration file for initializing the project.
+* [**variables.tf**](variables.tf) - Terraform variables file, containing input variables for the project.
 
-Instale o argocd que será responsavel por manter as aplicações:
-```sh
-helm repo add argo https://argoproj.github.io/argo-helm
-helm repo update
-helm install argocd argo/argo-cd --namespace cicd --version 5.27.1
-```
+## Troubleshooting
+### Jupyterhub Login:
 
-Altere o service do argo para loadbalancer:
-```sh
-# create a load balancer
-kubectl patch svc argocd-server -n cicd -p '{"spec": {"type": "LoadBalancer"}}'
-```
+If you encounter a login error, specifically an error 500, while attempting to access JupyterHub, follow these steps to resolve the issue:
 
-Em seguida instale o argo cli para fazer a configuração do repositorio:
-```sh
-sudo curl -sSL -o /usr/local/bin/argocd https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
-sudo chmod +x /usr/local/bin/argocd
-```
-Em seguida armazene o ip atribiudo para acessar o argo e faça o login no argo, com os seguintes comandos:
-```sh
-ARGOCD_LB=$(kubectl get services -n cicd -l app.kubernetes.io/name=argocd-server,app.kubernetes.io/instance=argocd -o jsonpath="{.items[0].status.loadBalancer.ingress[0].ip}")
-
-kubectl get secret argocd-initial-admin-secret -n cicd -o jsonpath="{.data.password}" | base64 -d | xargs -t -I {} argocd login $ARGOCD_LB --username admin --password {} --insecure
-```
-> caso queira ver o password do argo para acessar a interface web, execute este comando: `kubectl get secret argocd-initial-admin-secret -n cicd -o jsonpath="{.data.password}" | base64 -d`
-
-Uma vez feita a autenticação não é necessario adicionar um cluster, pois o argo esta configurado para usar o cluster em que ele esta instalado, ou seja, o cluster local já esta adicionado como **`--in-cluster`**, bastando apenas adicionar o seu repositorio com o seguinte comando:
-
-```sh
-argocd repo add git@github.com:GersonRS/big-data-on-k8s.git --ssh-private-key-path ~/.ssh/id_ed25519 --insecure-skip-server-verification
-```
-
-> Lembrando que para este comando funcionar é necessario que você tenha uma `chave ssh` configurada para se conectar com o github no seu computador. Caso não tenha, use [este guia](https://docs.github.com/pt/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent) para criar uma e [adiciona-la ao github](https://docs.github.com/pt/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account).
-
-Agora é hora de adicionar as outras ferramentas necesarias para o nosso pipeline de dados. E para isto precisamos criar `secrets` para armazenar senhas e informações censiveis, que  sejam acessiveis pelas aplicações e processos do **`Spark`**, por isso é necessario que eles estejam no namespace onde esta rodando a aplicação e também no namespace processing, onde será executado os processos do `spark`. Então para isto podemos usar o **[Reflactor](https://github.com/EmberStack/kubernetes-reflector)**, que ajudará a replicar os secrets nos namespaces necessários e a manter a segurança dos dados. Além disso, os comandos para instalar as configurações de acesso são importantes para garantir que apenas as pessoas autorizadas possam acessar os recursos do seu cluster, e para isto execute este comando:
+1. Access MinIO Storage: In case of a login error, navigate to the MinIO Storage using the provided MinIO URL available in the Terraform output.
 
-```sh
-kubectl apply -f manifests/management/reflector.yaml
-```
+2. Single Sign-On (SSO) Login: Log in to MinIO using the Single Sign-On (SSO) credentials. This will establish a session that will allow you to successfully log in to other components.
 
-Após o Reflector estar funcionando, execute o comando que cria os secrets nos namespaces necessários:
+3. Return to JupyterHub: After successfully logging in to MinIO, return to the JupyterHub login page.
 
-> Antes de executar os comandos, você pode alterar os secrets dos arquivos localizados na pasta [`secrets/`](/secrets/) se quiser mudar as senhas de acesso aos bancos de dados e ao storage.
+4. Refresh the Page: Refresh the JupyterHub page. This will complete the login process, and you should now have access to the Jupyter Notebook environment.
 
-```sh
-# secrets
-kubectl apply -f manifests/misc/secrets.yaml
-```
+This troubleshooting procedure is specifically designed to address login errors that result in an error 500 when accessing JupyterHub. By logging in to MinIO using SSO and refreshing the JupyterHub page, you can resolve the issue and continue with the usage of the Proof of Concept.
 
-> Caso não queira instalar o Reflactor para automatizar o processo de criar o secret em vários namespaces diferentes, você pode replicar manualmente o secret para outro namespace executando este comando, por exemplo:
-`kubectl get secret minio-secrets -n deepstorage -o yaml | sed s/"namespace: deepstorage"/"namespace: processing"/| kubectl apply -n processing -f -`
+If you continue to experience login issues or encounter other technical difficulties, please refer to the provided documentation, check for any additional error messages, and ensure that you have followed all the prerequisites and setup instructions accurately.
 
-Uma vez que os secrets estejam configurados, é possível instalar os bancos de dados e o storage do pipeline de dados com o seguinte comando:
+### Install libs Python
 
-```sh
-# databases
-kubectl apply -f manifests/database/postgres.yaml
-# deep storage
-kubectl apply -f manifests/deepstorage/minio.yaml
-```
+Sometimes, during the installation of Python libraries in Jupyter Notebook, you may encounter an issue where the kernel does not recognize the appropriate environment. To resolve this problem, follow these steps:
 
-Por fim, instale o Spark e o Airflow, juntamente com suas permissões para executar os processos do Spark, executando os seguintes comandos:
+1. Select the Correct Kernel:
 
-```sh
-# add & update helm list repos
-helm repo add spark-operator https://googlecloudplatform.github.io/spark-on-k8s-operator
-helm repo add apache-airflow https://airflow.apache.org/
-helm repo update
-```
+When working with Jupyter Notebook, ensure that you are using the correct kernel corresponding to the specific Python environment you intend to use. To do this, follow these steps:
 
-```sh
-# processing
-kubectl apply -f manifests/processing/spark.yaml
-```
+  * a. Click on the "Kernel" option in the Jupyter Notebook toolbar.
 
-Antes de instalar o Airflow, é preciso atender a um requisito: criar um secret contendo sua `chave ssh`, para que o Airflow possa baixar as `DAGs` necessárias por meio do `gitSync`. É possível criar esse secret com o seguinte comando:
+  * b. Choose the "Change Kernel" option.
 
-> Lembrando que você deve ter a `chave ssh` configurada em sua máquina.
+  * c. A dropdown menu will appear showing available kernels. Click on the option that corresponds to the name of the notebook you are working on, such as "main.ipynb" for the "main.ipynb" notebook.
 
-```sh
-kubectl create secret generic airflow-ssh-secret --from-file=gitSshKey=$HOME/.ssh/id_ed25519 -n orchestrator
-```
+  * d. The notebook will now use the selected kernel, ensuring that the required Python libraries are properly recognized and utilized.
 
-```sh
-# orchestrator
-kubectl apply -f manifests/orchestrator/airflow.yaml
-```
+By selecting the appropriate kernel, you can ensure that the Python libraries required for your specific notebook are correctly installed and utilized, mitigating any potential issues related to library compatibility or recognition.
 
-Em seguida, instale as configurações de acesso:
+If you encounter any other issues or difficulties while using the Proof of Concept, refer to this "Troubleshooting" section for solutions to common problems. If the problem persists or if you experience unique challenges, consider consulting the provided documentation or seeking assistance from the community.
 
-```sh
-kubectl apply -f manifests/misc/access-control.yaml
-```
 
-Para que seja possivel o Ariflow executar de maneira independente os processos spark é preciso que ele tenha uma conexão com o cluster, e para isto é necessario passar essa informação ao Airflow. Para adicionar a conexão com o cluster ao Airflow execute:
-```sh
-kubectl get pods --no-headers -o custom-columns=":metadata.name" -n orchestrator | grep scheduler | xargs -i sh -c 'kubectl cp images/airflow/connections.json orchestrator/{}:./ -c scheduler | kubectl -n orchestrator exec {} -- airflow connections import connections.json'
-```
 
-A partir daqui, você pode personalizar o seu projeto de acordo com as necessidades do seu fluxo de trabalho. Para isso, use o ArgoCD para implantar novas aplicações e fluxos de trabalho em seu cluster.
+## Contributions
+Contributions are welcome! Feel free to create a pull request with improvements, bug fixes, or new features. Contributions are what make the open source community an amazing place to learn, inspire, and create. Any contribution you make will be greatly appreciated.
 
-## Observações
+To contribute to the project, follow the steps below:
 
-- Certifique-se de ter as ferramentas listadas em [Ferramentas](#ferramentas) instaladas corretamente em seu sistema.
-- Para saber mais sobre cada ferramenta, consulte a documentação oficial.
-- Certifique-se de testar e validar seus pipelines de dados antes de implantá-los em produção. Isso ajudará a garantir que seus processos estejam funcionando corretamente e que os dados estejam sendo tratados de maneira apropriada.
+1. Fork the project.
+2. Create a branch for your contribution (git checkout -b feature-mycontribution).
+3. Make the desired changes to the code.
+4. Commit your changes (git commit -m 'MyContribution: Adding new feature').
+5. Push the branch to your Fork repository (git push origin feature-mycontribution).
+6. Open a Pull Request on the main branch of the original project. Describe the changes and wait for the community's review and discussion.
 
-# Estrutura do Projeto
+We truly value your interest in contributing to the MLflow-Kube project. Together, we can make it even better!
 
-A estrutura do projeto é a seguinte:
+## License
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-```bash
-.
-├── access-control
-├── dags
-├── images
-│   ├── spark
-│   └── airflow
-├── manifests
-│   ├── database
-│   ├── deepstorage
-│   ├── management
-│   ├── misc
-│   ├── monitoring
-│   ├── orchestrator
-│   └── processing
-└── secrets
-```
-
-- **[access-control](/access-control/)** - Diretório contendo todos os arquivos de controle de acesso crb do cluster kubernetes;
-
-- **[dags](/dags/)** - Diretório contendo as DAGs do Airflow, responsáveis por definir fluxos de trabalho de data pipelines;
-
-- **[images](/images/)** - Diretório contendo as imagens personalizadas utilizadas no projeto;
-
-    - **[airflow](/images/airflow/)** - Diretório contendo a imagem do Airflow e suas dependências;
-
-    - **[spark](/images/spark/)** - Diretório contendo a imagem do Spark e suas dependências;
-
-- **[manifests](/manifests/)** - Diretório contendo todos os arquivos de manifesto de aplicação do `Argo` do projeto. O diretório `manifests` é criado para que o código das aplicações possa ser isolado em um diretório e facilmente portado para outros projetos, se necessário;
-
-  - **[database](/manifests/database/)** - Diretório para guardar os arquivos de manifesto das aplicações de banco de dados, por exemplo, a configuração de instalação da aplicação **[postgres](/manifests/database/postgres.yaml)**;
-
-  - **[deepstorage](/manifests/deepstorage/)** - Diretório para guardar os arquivos de manifesto das aplicações de armazenamento, por exemplo, a configuração de instalação da aplicação **[minio](/manifests/deepstorage/minio.yaml)**;
-
-  - **[management](/manifests/management/)** - Diretório para guardar os arquivos de manifesto das aplicações de gerenciamento, por exemplo, a configuração de instalação da aplicação **[reflector](/manifests/management/reflector.yaml)**;
-
-  - **[misc](/manifests/misc/)** - Diretório para guardar os arquivos de manifesto das aplicações em geral, por exemplo, a configuração de instalação dos **[secrets](/manifests/misc/secrets.yaml)** e **[controle de acesso](/manifests/misc/access-control.yaml)**;
-
-  - **[monitoring](/manifests/monitoring/)** - Diretório contendo arquivos de manifesto para configuração do [Prometheus](/manifests/monitoring/kube-prometheus-stack.yaml), responsável pelo monitoramento do cluster Kubernetes;
-
-  - **[orchestrator](/manifests/orchestrator/)** - Diretório contendo arquivos de manifesto para configuração do [Airflow](/manifests/orchestrator/airflow.yaml), responsável pela orquestração de fluxos de trabalho de data pipelines;
-
-  - **[processing](/manifests/processing/)** - Diretório contendo arquivos de manifesto para configuração do [Spark](/manifests/processing/spark.yaml), responsável pelo processamento de dados em larga escala;
-
-- **[secrets](/secrets/)** - Diretório contendo todos os secrets utilizados pelo cluster Kubernetes.
-
-# Requisitos
-
-Para usar este repositório, você precisa ter o Git e o Python instalados em seu sistema. Além disso, para usar o Docker, você precisará instalar o Docker em seu sistema. As instruções para instalar o Docker podem ser encontradas em https://www.docker.com/get-started.
-
-# Contribuições
-
-Contribuições são bem-vindas! Sinta-se à vontade para criar um pull request com melhorias e correções de bugs. As contribuições são o que fazem a comunidade `open source` um lugar incrível para aprender, inspirar e criar. Qualquer contribuição que você fizer será **muito apreciada**.
-
-1. Faça um Fork do projeto
-2. Crie uma Branch para sua Feature (`git checkout -b feature/FeatureIncrivel`)
-3. Adicione suas mudanças (`git add .`)
-4. Comite suas mudanças (`git commit -m 'Adicionando uma Feature incrível!`)
-5. Faça o Push da Branch (`git push origin feature/FeatureIncrivel`)
-6. Abra um Pull Request
-
-<!-- LICENSE -->
-
-
-# Suporte
-
-Entre em contato comigo em um dos seguintes lugares!
-
-- Linkedin em [Gerson Santos](https://www.linkedin.com/in/gersonrsantos/)
-- Instagram [gersonrsantos](https://www.instagram.com/gersonrsantos/)
-
----
-
-# Licença
-
-<img alt="License" src="https://img.shields.io/badge/license-MIT-%2304D361?color=rgb(89,101,224)">
-
-Distribuído sob a licença MIT. Veja [LICENSE](LICENSE) para mais informações.
-
-# Contato
-
-Me acompanhe nas minhas redes sociais.
+## Contact
+For any inquiries or questions, please contact:
 
 <p align="center">
 
@@ -324,6 +266,6 @@ Me acompanhe nas minhas redes sociais.
 
 </p>
 
----
 
-Feito com ❤️ by **Gerson**
+## Acknowledgments
+We appreciate your interest in using MLflow on Kubernetes PoC. We hope this configuration simplifies the management of your Machine Learning experiments on Kubernetes! 🚀📊
