@@ -3,11 +3,11 @@ output "credentials" {
   value       = nonsensitive(module.oidc.devops_stack_users_passwords)
   sensitive   = true
 }
-output "credentials_mysql" {
-  description = "Map containing the credentials of each created user."
-  value       = module.mysql.credentials
-  sensitive   = true
-}
+# output "credentials_mysql" {
+#   description = "Map containing the credentials of each created user."
+#   value       = module.mysql.credentials
+#   sensitive   = true
+# }
 
 # output "jupyterhub_url" {
 #   value = module.jupyterhub.endpoint
