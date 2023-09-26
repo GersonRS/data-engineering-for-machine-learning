@@ -5,6 +5,8 @@
 *** Obrigado novamente! Agora vamos rodar esse projeto incrível :D
 -->
 
+# Machine Learning Model Orchestration
+
 <!-- PROJECT SHIELDS -->
 
 [![npm](https://img.shields.io/badge/type-Open%20Project-green?&style=plastic)](https://img.shields.io/badge/type-Open%20Project-green)
@@ -23,12 +25,12 @@
 
 <!-- PROJECT LOGO -->
 
-# Engenharia de dados para aprendizado de máquina
 
-Há algum tempo, comecei a procurar maneiras de modernizar meu aprendizado de máquina da minha [disertação de mestrado](https://www.sciencedirect.com/science/article/abs/pii/S0957417422011721#!). Uma das primeiras coisas que eu queria fazer era começar a criar modelos e algoritmos de ML e ter uma maneira de orquestrar sua execução. Podemos pensar em um algoritmo de ML como um aplicativo que obtém alguns dados como entrada, é treinado nesses dados para que possa aprender com eles e, em seguida, pode ser usado para trazer resultados quando novos dados são inseridos nele. O modelo ML é a saída de todo esse processo.
 
 ## Overview
-ML-Kube is a comprehensive Machine Learning infrastructure project built on top of Kubernetes. It leverages Terraform to automate the setup of the Kubernetes cluster using kind (Kubernetes IN Docker). The infrastructure includes essential components such as MetalLB, ArgoCD, Traefik, Cert-Manager, Keycloak, Minio, Postgres, MLflow, and JupyterHub, providing a seamless development and management environment for Machine Learning applications.
+For some time now, I've been exploring ways to modernize my machine learning journey, starting from my [master's dissertation](https://www.sciencedirect.com/science/article/abs/pii/S0957417422011721#!) on gravitational wave detection using neural networks. One of my primary objectives was to create and orchestrate machine learning models and algorithms efficiently.
+
+In the context of this project, think of a machine learning algorithm as an application that takes some data as input, learns from that data during training, and can then make predictions when new data is fed into it. The machine learning model represents the output of this entire process.
 
 ## Table of Contents
 
@@ -42,13 +44,13 @@ ML-Kube is a comprehensive Machine Learning infrastructure project built on top 
 - [Troubleshooting](#troubleshooting)
   - [Jupyterhub Login](#jupyterhub-login)
   - [Install libs Python](#install-libs-python)
-- [Contributions](#sontributions)
+- [Contributions](#contributions)
 - [License](#license)
 - [Contact](#contact)
 - [Acknowledgments](#acknowledgments)
 
 ## Objective
-The main objective of this POC is to study and understand the functionalities of MLflow within a Kubernetes environment. By leveraging Terraform and kind, the project can be easily set up to provide a practical playground for exploring MLflow's capabilities for model management, deployment, and tracking.
+In the realm of machine learning, orchestrating the training and deployment of models can be a complex task. This project aims to streamline and automate the end-to-end machine learning process, encompassing data ingestion, data processing, model training with hyperparameter optimization, experiment tracking, model evaluation, and model deployment in the context of gravitational wave detection using neural networks.
 
 
 ## Versioning Flow
@@ -79,10 +81,16 @@ The following tools are used in this project:
 
 * **JupyterHub**: A multi-user Jupyter environment, allowing users to write and share code collaboratively.
 
+* **Airflow**: An open-source platform to programmatically author, schedule, and monitor workflows.
+
+* **Spark**: An open-source, distributed computing system that provides an interface for programming entire clusters with implicit data parallelism and fault tolerance.
+
+* **Ray**: An open-source distributed computing framework that brings the power of Python to distributed computing.
+
 These tools together enable the creation of a complete infrastructure for the development and management of Machine Learning applications in the Kubernetes environment.
 
 ## Requirements
-To use MLflow-Kube, you need to have the following prerequisites installed and configured:
+To use ML Model Orchestration, you need to have the following prerequisites installed and configured:
 
 1. Terraform:
     * Installation: Visit the [Terraform website](https://www.terraform.io/downloads.html) and follow the instructions for your operating system.
@@ -97,9 +105,9 @@ To use MLflow-Kube, you need to have the following prerequisites installed and c
 To get started with the MLflow POC, follow these steps:
 
 1. Clone this repository to your local computer.
-    - `git clone https://github.com/GersonRS/mlflow-kube-poc.git`
+    - `git clone https://github.com/GersonRS/data-engineering-for-machine-learning`
 2. Change directory to the repository:
-    - `cd mlflow-kube-poc`
+    - `cd data-engineering-for-machine-learning`
 >Make sure you have Terraform installed on your system, along with other necessary dependencies.
 3. Run `terraform init` to initialize Terraform configurations.
 * ```sh
@@ -114,7 +122,7 @@ To get started with the MLflow POC, follow these steps:
 5. After the Terraform apply is complete, the output will display URLs for accessing the applications. Use the provided URLs to interact with the applications.
 6. The Terraform output will also provide the credentials necessary for accessing and managing the applications. Run `terraform output` to get the credentials.
 * ```
-  terraform output -json credentials
+  terraform output -json
   ```
 
 
@@ -268,4 +276,4 @@ For any inquiries or questions, please contact:
 
 
 ## Acknowledgments
-We appreciate your interest in using MLflow on Kubernetes PoC. We hope this configuration simplifies the management of your Machine Learning experiments on Kubernetes! 🚀📊
+We appreciate your interest in using ML Model Orchestration on Kubernetes. We hope this configuration simplifies the management of your Machine Learning experiments on Kubernetes! 🚀📊
