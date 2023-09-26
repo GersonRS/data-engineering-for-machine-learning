@@ -18,7 +18,7 @@
 [![Status](https://img.shields.io/badge/status-active-success.svg)](https://img.shields.io/badge/status-active-success.svg)
 
 <p align="center">
-  <img alt="logo" src="https://github.com/GersonRS/react-native-template-gersonrsantos-basic/raw/main/assets/logo.png"/>
+  <img alt="logo" src=".github/assets/images/logo.png"/>
 </p>
 
 <!-- PROJECT LOGO -->
