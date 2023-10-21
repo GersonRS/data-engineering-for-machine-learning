@@ -47,7 +47,7 @@ resource "argocd_application" "operator" {
 
     source {
       repo_url        = "https://github.com/GersonRS/data-engineering-for-machine-learning.git"
-      path            = "modules/spark/charts/spark-operator"
+      path            = "helm-charts/spark-operator"
       target_revision = var.target_revision
     }
 

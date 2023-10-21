@@ -53,7 +53,7 @@ resource "argocd_application" "operator" {
 
     source {
       repo_url        = "https://github.com/GersonRS/data-engineering-for-machine-learning.git"
-      path            = "modules/keycloak/charts/keycloak-operator"
+      path            = "helm-charts/keycloak-operator"
       target_revision = var.target_revision
     }
 
@@ -107,7 +107,7 @@ resource "argocd_application" "this" {
 
     source {
       repo_url        = "https://github.com/GersonRS/data-engineering-for-machine-learning.git"
-      path            = "modules/keycloak/charts/keycloak"
+      path            = "helm-charts/keycloak"
       target_revision = var.target_revision
       helm {
         values = data.utils_deep_merge_yaml.values.output

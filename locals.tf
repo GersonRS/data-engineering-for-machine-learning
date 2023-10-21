@@ -7,4 +7,6 @@ locals {
 
   username = nonsensitive(keys(module.oidc.devops_stack_users_passwords)[0])
   password = nonsensitive(values(module.oidc.devops_stack_users_passwords)[0])
+
+  target_revision = "main"
 }

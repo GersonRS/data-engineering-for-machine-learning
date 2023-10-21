@@ -69,6 +69,7 @@ module "traefik" {
   base_domain            = "172-18-0-100.nip.io"
   argocd_namespace       = module.argocd_bootstrap.argocd_namespace
   enable_service_monitor = local.enable_service_monitor
+  target_revision        = local.target_revision
   dependency_ids = {
     argocd = module.argocd_bootstrap.id
   }
@@ -78,6 +79,7 @@ module "cert-manager" {
   source                 = "./modules/cert-manager"
   argocd_namespace       = module.argocd_bootstrap.argocd_namespace
   enable_service_monitor = local.enable_service_monitor
+  target_revision        = local.target_revision
   dependency_ids = {
     argocd = module.argocd_bootstrap.id
   }
@@ -114,6 +116,7 @@ module "minio" {
   cluster_issuer         = local.cluster_issuer
   argocd_namespace       = module.argocd_bootstrap.argocd_namespace
   enable_service_monitor = local.enable_service_monitor
+  target_revision        = local.target_revision
   config_minio           = local.minio_config
   oidc                   = module.oidc.oidc
   dependency_ids = {
@@ -130,6 +133,7 @@ module "postgresql" {
   cluster_issuer         = local.cluster_issuer
   argocd_namespace       = module.argocd_bootstrap.argocd_namespace
   enable_service_monitor = local.enable_service_monitor
+  target_revision        = local.target_revision
   dependency_ids = {
     traefik      = module.traefik.id
     cert-manager = module.cert-manager.id
@@ -144,6 +148,7 @@ module "postgresql" {
 #   cluster_issuer         = local.cluster_issuer
 #   argocd_namespace       = module.argocd_bootstrap.argocd_namespace
 #   enable_service_monitor = local.enable_service_monitor
+#   target_revision = local.target_revision
 #   dependency_ids = {
 #     traefik      = module.traefik.id
 #     cert-manager = module.cert-manager.id
@@ -170,6 +175,7 @@ module "mlflow" {
   cluster_issuer         = local.cluster_issuer
   argocd_namespace       = module.argocd_bootstrap.argocd_namespace
   enable_service_monitor = local.enable_service_monitor
+  target_revision        = local.target_revision
   oidc                   = module.oidc.oidc
   storage = {
     bucket_name       = "mlflow"
@@ -213,6 +219,7 @@ module "jupyterhub" {
   cluster_issuer         = local.cluster_issuer
   argocd_namespace       = module.argocd_bootstrap.argocd_namespace
   enable_service_monitor = local.enable_service_monitor
+  target_revision        = local.target_revision
   oidc                   = module.oidc.oidc
   storage = {
     bucket_name       = "jupyterhub"
@@ -249,6 +256,7 @@ module "airflow" {
   cluster_issuer         = local.cluster_issuer
   argocd_namespace       = module.argocd_bootstrap.argocd_namespace
   enable_service_monitor = local.enable_service_monitor
+  target_revision        = local.target_revision
   oidc                   = module.oidc.oidc
   storage = {
     bucket_name       = "airflow"

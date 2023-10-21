@@ -47,7 +47,7 @@ resource "argocd_application" "operator-crds" {
 
     source {
       repo_url        = "https://github.com/GersonRS/data-engineering-for-machine-learning.git"
-      path            = "modules/ray/charts/kuberay-operator/crds"
+      path            = "helm-charts/kuberay-operator/crds"
       target_revision = var.target_revision
     }
 
@@ -96,7 +96,7 @@ resource "argocd_application" "operator" {
 
     source {
       repo_url        = "https://github.com/GersonRS/data-engineering-for-machine-learning.git"
-      path            = "modules/ray/charts/kuberay-operator"
+      path            = "helm-charts/kuberay-operator"
       target_revision = var.target_revision
       helm {
         skip_crds = true
@@ -153,7 +153,7 @@ resource "argocd_application" "this" {
 
     source {
       repo_url        = "https://github.com/GersonRS/data-engineering-for-machine-learning.git"
-      path            = "modules/ray/charts/ray-cluster"
+      path            = "helm-charts/ray-cluster"
       target_revision = var.target_revision
       helm {
         values = data.utils_deep_merge_yaml.values.output

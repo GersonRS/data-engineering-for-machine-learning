@@ -58,7 +58,7 @@ resource "argocd_application" "this" {
 
     source {
       repo_url        = "https://github.com/GersonRS/data-engineering-for-machine-learning.git"
-      path            = "modules/minio/charts/minio"
+      path            = "helm-charts/minio"
       target_revision = var.target_revision
       helm {
         values = data.utils_deep_merge_yaml.values.output
