@@ -33,8 +33,8 @@ locals {
         MLFLOW_TRACKING_URI    = "http://${var.mlflow.cluster_ip}:5000"
         MLFLOW_S3_ENDPOINT_URL = "http://${var.storage.endpoint}"
 
-        # AWS_ACCESS_KEY_ID = "${var.storage.access_key}"
-        # AWS_SECRET_ACCESS_KEY = "${var.storage.secret_access_key}"
+        AWS_ACCESS_KEY_ID = "${var.storage.access_key}"
+        AWS_SECRET_ACCESS_KEY = "${var.storage.secret_access_key}"
         },
         var.ray != null ? local.vars : null
       )
