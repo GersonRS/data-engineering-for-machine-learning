@@ -6,6 +6,10 @@ resource "random_password" "airflow_secretkey" {
   length  = 32
   special = false
 }
+resource "random_password" "jupyterhub_secretkey" {
+  length  = 32
+  special = false
+}
 
 locals {
   minio_config = {
@@ -19,6 +23,19 @@ locals {
           },
           {
             resources = ["arn:aws:s3:::mlflow-bucket/*"]
+            actions   = ["s3:GetObject", "s3:PutObject", "s3:DeleteObject"]
+          }
+        ]
+      },
+      {
+        name = "jupyterhub-policy"
+        statements = [
+          {
+            resources = ["arn:aws:s3:::jupyterhub-bucket"]
+            actions   = ["s3:CreateBucket", "s3:DeleteBucket", "s3:GetBucketLocation", "s3:ListBucket", "s3:ListBucketMultipartUploads"]
+          },
+          {
+            resources = ["arn:aws:s3:::jupyterhub-bucket/*"]
             actions   = ["s3:GetObject", "s3:PutObject", "s3:DeleteObject"]
           }
         ]
@@ -47,6 +64,11 @@ locals {
         accessKey = "airflow-user"
         secretKey = random_password.airflow_secretkey.result
         policy    = "airflow-policy"
+      },
+      {
+        accessKey = "jupterhub-user"
+        secretKey = random_password.jupyterhub_secretkey.result
+        policy    = "jupterhub-policy"
       }
     ],
     buckets = [
@@ -55,6 +77,21 @@ locals {
       },
       {
         name = "airflow"
+      },
+      {
+        name = "landing"
+      },
+      {
+        name = "bronze"
+      },
+      {
+        name = "silver"
+      },
+      {
+        name = "gold"
+      },
+      {
+        name = "ml"
       }
     ]
   }
