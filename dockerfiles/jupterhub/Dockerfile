@@ -63,9 +63,10 @@ RUN conda install --quiet --yes \
     conda clean --all -f -y
 RUN conda install -c conda-forge jupyterlab-git
 RUN pip install -U ray[all]
-RUN pip install -U atom-ml[ray]
 RUN pip install -U optuna ipywidgets modin[all]
 RUN pip install jupyterlab-pullrequests
+RUN pip install evidently
+RUN pip install -U atom-ml[ray]
 
 RUN apt-get update && apt-get install -y \
     software-properties-common \

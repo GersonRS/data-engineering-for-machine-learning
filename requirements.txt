@@ -1,1 +1,5 @@
+aiflow
+deltalake==0.12.0
+fastapi-mlflow
 pre-commit==3.2.2
+uvicorn
