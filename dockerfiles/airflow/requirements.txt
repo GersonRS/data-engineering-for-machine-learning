@@ -11,6 +11,7 @@ boto3
 confluent-kafka
 crc32c
 delta-spark
+deltalake
 evidently
 flake8
 great-expectations
