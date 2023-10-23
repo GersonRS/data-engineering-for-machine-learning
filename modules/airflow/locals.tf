@@ -42,11 +42,11 @@ locals {
     executor                     = "KubernetesExecutor"
     webserverSecretKeySecretName = "my-webserver-secret"
     createUserJob = {
-      useHelmHooks = false
+      useHelmHooks   = false
       applyCustomEnv = false
     }
     migrateDatabaseJob = {
-      enabled = true
+      enabled      = true
       useHelmHooks = false
     }
 
@@ -111,16 +111,40 @@ locals {
         knownHosts   = "|-\n|1|yutcXh9HhbK6KCouq3xMQ38B9ns=|V9zQ39gzVxSZ75WU78CGJiVKCOk= ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBEmKSENjQEezOmxkZMy7opKgwFB9nkt5YRrYMjNuG5N87uRgg6CLrbo5wAdT/y6v0mKV0U2w0WZ2YB/++Tpockg=\n|1|7ww9iNXn8d1jtXlaDjt+fYpsRi0=|vfHsTzw+QATWkCKD7kgG2jhu/1w= ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBEmKSENjQEezOmxkZMy7opKgwFB9nkt5YRrYMjNuG5N87uRgg6CLrbo5wAdT/y6v0mKV0U2w0WZ2YB/++Tpockg="
       }
     }
-    # env = [
-    #   {
-    #     name  = "AIRFLOW_VAR_MINIO_S4"
-    #     value = "aws:///?region_name=eu-west-1&aws_access_key_id=${var.storage.access_key}&aws_secret_access_key=${var.storage.secret_access_key}&endpoint_url=http://${var.storage.endpoint}:9000"
-    #   },
-    #   {
-    #     name  = "AIRFLOW_VAR_MINIKUBE1"
-    #     value = "kubernetes:///?__extra__=%7B%22in_cluster%22%3A+true%2C+%22disable_verify_ssl%22%3A+false%2C+%22disable_tcp_keepalive%22%3A+false%7D"
-    #   }
-    # ]
+    env = [
+      {
+        name  = "MLFLOW_TRACKING_URI"
+        value = "http://${var.mlflow.cluster_ip}:5000"
+      },
+      {
+        name  = "MLFLOW_S3_ENDPOINT_URL"
+        value = "http://${var.storage.endpoint}"
+      },
+      {
+        name  = "AWS_ENDPOINT"
+        value = "http://${var.storage.endpoint}"
+      },
+      {
+        name  = "AWS_ACCESS_KEY_ID"
+        value = "${var.storage.access_key}"
+      },
+      {
+        name  = "AWS_SECRET_ACCESS_KEY"
+        value = "${var.storage.secret_access_key}"
+      },
+      {
+        name  = "AWS_REGION"
+        value = "eu-west-1"
+      },
+      {
+        name  = "AWS_ALLOW_HTTP"
+        value = "true"
+      },
+      {
+        name  = "AWS_S3_ALLOW_UNSAFE_RENAME"
+        value = "true"
+      },
+    ]
 
     secret = [
       {

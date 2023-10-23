@@ -89,9 +89,6 @@ locals {
       },
       {
         name = "gold"
-      },
-      {
-        name = "ml"
       }
     ]
   }
