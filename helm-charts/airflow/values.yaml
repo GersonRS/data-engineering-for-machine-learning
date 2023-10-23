@@ -472,6 +472,9 @@ kerberos:
     default = "FILE:{{ template "airflow_logs_no_quote" . }}/kerberos_libs.log"
     kdc = "FILE:{{ template "airflow_logs_no_quote" . }}/kerberos_kdc.log"
     admin_server = "FILE:{{ template "airflow_logs_no_quote" . }}/kadmind.log"
+    remote_logging = True
+    remote_base_log_folder = s3://airflow/logs
+    remote_log_conn_id = conn_minio_s3
 
     [libdefaults]
     default_realm = FOO.COM

@@ -180,9 +180,15 @@ locals {
         value: "aws:///?region_name=eu-west-1&aws_access_key_id=${var.storage.access_key}&aws_secret_access_key=${var.storage.secret_access_key}&endpoint_url=http://${var.storage.endpoint}:9000"
       - name: AIRFLOW__LOGGING__REMOTE_LOGGING
         value: "True"
+      - name: AIRFLOW__CORE__REMOTE_LOGGING
+        value: "True"
       - name: AIRFLOW__LOGGING__REMOTE_BASE_LOG_FOLDER
         value: "s3://airflow/logs"
+      - name: AIRFLOW__CORE__REMOTE_BASE_LOG_FOLDER
+        value: "s3://airflow/logs"
       - name: AIRFLOW__LOGGING__REMOTE_LOG_CONN_ID
+        value: "conn_minio_s3"
+      - name: AIRFLOW__CORE__REMOTE_LOG_CONN_ID
         value: "conn_minio_s3"
       - name: AIRFLOW__KUBERNETES__DELETE_WORKER_PODS
         value: "True"
