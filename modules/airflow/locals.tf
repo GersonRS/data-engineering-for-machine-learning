@@ -43,16 +43,14 @@ locals {
     webserverSecretKeySecretName = "my-webserver-secret"
     createUserJob = {
       useHelmHooks   = false
-      applyCustomEnv = false
     }
     migrateDatabaseJob = {
-      enabled      = true
       useHelmHooks = false
     }
 
-    defaultUser = {
-      enabled = false
-    }
+    # defaultUser = {
+    #   enabled = false
+    # }
     ingress = {
       enabled = true
       web = {

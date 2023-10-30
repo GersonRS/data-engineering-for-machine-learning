@@ -102,7 +102,7 @@ resource "null_resource" "this" {
 
 data "kubernetes_service" "pinot" {
   metadata {
-    name      = "pinot"
+    name      = "pinot-controller"
     namespace = var.namespace
   }
 
