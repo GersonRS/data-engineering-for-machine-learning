@@ -1,3 +1,7 @@
+resource "random_password" "airflow_fernetKey" {
+  length  = 32
+  special = false
+}
 locals {
   kubernetes_version     = "v1.27.1"
   cluster_name           = "kind"
@@ -9,4 +13,5 @@ locals {
   password = nonsensitive(values(module.oidc.devops_stack_users_passwords)[0])
 
   target_revision = "develop"
+  airflow_fernetKey = base64encode(resource.random_password.airflow_fernetKey.result)
 }

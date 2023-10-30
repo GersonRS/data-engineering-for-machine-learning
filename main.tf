@@ -281,6 +281,7 @@ module "airflow" {
   enable_service_monitor = local.enable_service_monitor
   target_revision        = local.target_revision
   oidc                   = module.oidc.oidc
+  fernetKey              = local.airflow_fernetKey
   storage = {
     bucket_name       = "airflow"
     endpoint          = module.minio.cluster_ip
