@@ -60,7 +60,7 @@ locals {
         }
       ]
       # -- Ingress tls configuration for https access
-      tls : [{
+      tls = [{
         secretName = "mlflow-ingres-tls"
         hosts = [
           "mlflow.apps.${var.cluster_name}.${var.base_domain}"

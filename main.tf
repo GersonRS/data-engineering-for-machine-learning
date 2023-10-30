@@ -156,6 +156,29 @@ module "postgresql" {
 #   }
 # }
 
+module "pinot" {
+  source                 = "./modules/pinot"
+  cluster_name           = local.cluster_name
+  base_domain            = local.base_domain
+  cluster_issuer         = local.cluster_issuer
+  argocd_namespace       = module.argocd_bootstrap.argocd_namespace
+  enable_service_monitor = local.enable_service_monitor
+  target_revision        = local.target_revision
+
+  storage = {
+    bucket_name       = "pinot"
+    endpoint          = module.minio.cluster_dns
+    access_key        = module.minio.minio_root_user_credentials.username
+    secret_access_key = module.minio.minio_root_user_credentials.password
+  }
+  dependency_ids = {
+    traefik      = module.traefik.id
+    cert-manager = module.cert-manager.id
+    oidc         = module.oidc.id
+    minio        = module.minio.id
+  }
+}
+
 module "spark" {
   source           = "./modules/spark"
   cluster_name     = local.cluster_name
