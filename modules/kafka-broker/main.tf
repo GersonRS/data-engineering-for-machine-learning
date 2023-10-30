@@ -30,13 +30,9 @@ resource "argocd_project" "this" {
   }
 }
 
-data "utils_deep_merge_yaml" "values" {
-  input = [for i in concat(local.helm_values, var.helm_values) : yamlencode(i)]
-}
-
-resource "argocd_application" "operator" {
+resource "argocd_application" "this" {
   metadata {
-    name      = "cp-schema-registry"
+    name      = "kafka-broker"
     namespace = var.argocd_namespace
   }
 
@@ -47,10 +43,10 @@ resource "argocd_application" "operator" {
 
     source {
       repo_url        = "https://github.com/GersonRS/data-engineering-for-machine-learning.git"
-      path            = "helm-charts/cp-schema-registry"
+      path            = "yamls/ingestion/broker"
       target_revision = var.target_revision
-      helm {
-        values = data.utils_deep_merge_yaml.values.output
+      directory {
+        recurse = true
       }
     }
 
@@ -87,5 +83,5 @@ resource "argocd_application" "operator" {
 }
 
 resource "null_resource" "this" {
-  depends_on = [ argocd_application.operator ]
+  depends_on = [argocd_application.operator]
 }
