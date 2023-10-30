@@ -157,6 +157,11 @@ locals {
         secretName : "airflow-airflow-connections"
         secretKey : "AIRFLOW_CONN_MINIKUBE"
       },
+      {
+        envName : "conn_postgres"
+        secretName : "airflow-metadata-secret"
+        secretKey : "connection"
+      },
 
     ]
 
@@ -176,8 +181,6 @@ locals {
     }
 
     extraEnv = <<-EOT
-      - name: AIRFLOW_VAR_MINIO_S5
-        value: "aws:///?region_name=eu-west-1&aws_access_key_id=${var.storage.access_key}&aws_secret_access_key=${var.storage.secret_access_key}&endpoint_url=http://${var.storage.endpoint}:9000"
       - name: AIRFLOW__LOGGING__REMOTE_LOGGING
         value: "True"
       - name: AIRFLOW__CORE__REMOTE_LOGGING

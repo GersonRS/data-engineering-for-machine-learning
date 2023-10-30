@@ -1,0 +1,18 @@
+---
+apiVersion: v1
+name: gitlab-pages
+version: 7.0.4
+appVersion: master
+description: Daemon for serving static websites from GitLab projects
+keywords:
+- gitlab
+- pages
+home: https://about.gitlab.com/
+icon: https://gitlab.com/gitlab-com/gitlab-artwork/raw/master/logo/logo-square.svg
+sources:
+- https://gitlab.com/gitlab-org/charts/gitlab/tree/master/charts/gitlab/charts/gitlab-pages
+- https://gitlab.com/gitlab-org/build/CNG/tree/master/gitlab-pages
+- https://gitlab.com/gitlab-org/gitlab-pages
+maintainers:
+- name: GitLab Inc.
+  email: support@gitlab.com

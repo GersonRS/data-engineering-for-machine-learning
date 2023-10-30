@@ -68,13 +68,13 @@ airflowHome: /opt/airflow
 defaultAirflowRepository: apache/airflow
 
 # Default airflow tag to deploy
-defaultAirflowTag: "2.7.0"
+defaultAirflowTag: "2.7.2"
 
 # Default airflow digest. If specified, it takes precedence over tag
 defaultAirflowDigest: ~
 
 # Airflow version (Used to make some decisions based on Airflow Version being deployed)
-airflowVersion: "2.7.0"
+airflowVersion: "2.7.2"
 
 # Images
 images:
@@ -121,7 +121,7 @@ images:
     pullPolicy: IfNotPresent
   gitSync:
     repository: registry.k8s.io/git-sync/git-sync
-    tag: v3.6.3
+    tag: v3.6.9
     pullPolicy: IfNotPresent
 
 # Select certain nodes for airflow pods.
@@ -129,6 +129,7 @@ nodeSelector: {}
 affinity: {}
 tolerations: []
 topologySpreadConstraints: []
+schedulerName: ~
 
 # Add common labels to all objects and pods defined in this chart.
 labels: {}
@@ -728,8 +729,6 @@ workers:
     # Detailed default security context for waitForMigrations for container level
     securityContexts:
       container: {}
-    # container level lifecycle hooks
-    containerLifecycleHooks: {}
 
   env: []
 
@@ -903,8 +902,6 @@ scheduler:
     # Detailed default security context for waitForMigrations for container level
     securityContexts:
       container: {}
-    # container level lifecycle hooks
-    containerLifecycleHooks: {}
 
   env: []
 
@@ -1020,10 +1017,12 @@ migrateDatabaseJob:
   args:
     - "bash"
     - "-c"
-    # The format below is necessary to get `helm lint` happy
-    - |-
+    - >-
       exec \
-      airflow {{ semverCompare ">=2.0.0" .Values.airflowVersion | ternary "db upgrade" "upgradedb" }}
+
+      airflow {{ semverCompare ">=2.7.0" .Values.airflowVersion
+      | ternary "db migrate" (semverCompare ">=2.0.0" .Values.airflowVersion
+      | ternary "db upgrade" "upgradedb") }}
 
   # Annotations on the database migration pod
   annotations: {}
@@ -1303,9 +1302,6 @@ webserver:
     securityContexts:
       container: {}
 
-    # container level lifecycle hooks
-    containerLifecycleHooks: {}
-
   env: []
 
 # Airflow Triggerer Config
@@ -1470,9 +1466,6 @@ triggerer:
     # Detailed default security context for waitForMigrations for container level
     securityContexts:
       container: {}
-
-    # container level lifecycle hooks
-    containerLifecycleHooks: {}
 
   env: []
 
@@ -2076,6 +2069,11 @@ redis:
     # Annotations to add to redis volumes
     annotations: {}
 
+  # Configuration for empty dir volume (if redis.persistence.enabled == false)
+  # emptyDirConfig:
+  #   sizeLimit: 1Gi
+  #   medium: Memory
+
   resources: {}
   #  limits:
   #   cpu: 100m
@@ -2101,6 +2099,7 @@ redis:
   affinity: {}
   tolerations: []
   topologySpreadConstraints: []
+  priorityClassName: ~
 
   # Set to 0 for backwards-compatiblity
   uid: 0
@@ -2223,6 +2222,7 @@ cleanup:
 
   # Detailed default security context for cleanup for container level
   securityContexts:
+    pod: {}
     container: {}
 
   # container level lifecycle hooks
@@ -2355,6 +2355,9 @@ podTemplate: ~
 
 # Git sync
 dags:
+  # Where dags volume will be mounted. Works for both persistence and gitSync.
+  # If not specified, dags mount path will be set to $AIRFLOW_HOME/dags
+  mountPath: ~
   persistence:
     # Annotations for dags PVC
     annotations: {}
@@ -2449,6 +2452,11 @@ dags:
     # - name: ""
     #   value: ""
 
+    # Configuration for empty dir volume
+    # emptyDirConfig:
+    #   sizeLimit: 1Gi
+    #   medium: Memory
+
     resources: {}
     #  limits:
     #   cpu: 100m
@@ -2458,6 +2466,11 @@ dags:
     #   memory: 128Mi
 
 logs:
+  # Configuration for empty dir volume (if logs.persistence.enabled == false)
+  # emptyDirConfig:
+  #   sizeLimit: 1Gi
+  #   medium: Memory
+
   persistence:
     # Enable persistent volume for storing logs
     enabled: false

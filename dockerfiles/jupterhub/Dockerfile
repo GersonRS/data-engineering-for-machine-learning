@@ -137,7 +137,7 @@ RUN conda install --yes \
     'pyarrow' && \
     conda clean --all -f -y
 
-RUN conda install pyspark
+RUN pip install pyspark
 RUN conda install -c conda-forge findspark
 
 EXPOSE 4040
