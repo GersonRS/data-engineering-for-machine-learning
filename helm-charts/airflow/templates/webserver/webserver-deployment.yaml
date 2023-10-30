@@ -167,9 +167,6 @@ spec:
           imagePullPolicy: {{ .Values.images.airflow.pullPolicy }}
           securityContext: {{ $containerSecurityContextWaitForMigrations | nindent 12 }}
           resources: {{- toYaml .Values.webserver.resources | nindent 12 }}
-          {{- if $containerLifecycleHooksWaitForMigrations }}
-          lifecycle: {{- tpl (toYaml $containerLifecycleHooksWaitForMigrations) . | nindent 12 }}
-          {{- end }}
           env:
             {{- include "custom_airflow_environment" . | indent 10 }}
             {{- include "standard_airflow_environment" . | indent 10 }}

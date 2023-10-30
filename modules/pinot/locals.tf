@@ -1,8 +1,5 @@
 locals {
   helm_values = [{
-    cluster = {
-      name = "pinot"
-    }
     controller = {
       ingress = {
         v1 = {
