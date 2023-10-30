@@ -85,6 +85,71 @@ module "cert-manager" {
   }
 }
 
+
+module "postgresql" {
+  source                 = "./modules/postgresql"
+  cluster_name           = local.cluster_name
+  base_domain            = local.base_domain
+  cluster_issuer         = local.cluster_issuer
+  argocd_namespace       = module.argocd_bootstrap.argocd_namespace
+  enable_service_monitor = local.enable_service_monitor
+  target_revision        = local.target_revision
+  dependency_ids = {
+    traefik      = module.traefik.id
+    cert-manager = module.cert-manager.id
+  }
+}
+
+module "spark" {
+  source           = "./modules/spark"
+  cluster_name     = local.cluster_name
+  base_domain      = local.base_domain
+  cluster_issuer   = local.cluster_issuer
+  argocd_namespace = module.argocd_bootstrap.argocd_namespace
+  dependency_ids = {
+    traefik      = module.traefik.id
+    cert-manager = module.cert-manager.id
+  }
+}
+
+module "strimzi" {
+  source           = "./modules/strimzi"
+  cluster_name     = local.cluster_name
+  base_domain      = local.base_domain
+  cluster_issuer   = local.cluster_issuer
+  argocd_namespace = module.argocd_bootstrap.argocd_namespace
+  dependency_ids = {
+    traefik      = module.traefik.id
+    cert-manager = module.cert-manager.id
+  }
+}
+module "cp-schema-registry" {
+  source           = "./modules/cp-schema-registry"
+  cluster_name     = local.cluster_name
+  base_domain      = local.base_domain
+  cluster_issuer   = local.cluster_issuer
+  argocd_namespace = module.argocd_bootstrap.argocd_namespace
+  dependency_ids = {
+    traefik      = module.traefik.id
+    cert-manager = module.cert-manager.id
+  }
+}
+
+# module "mysql" {
+#   source                 = "./modules/mysql"
+#   cluster_name           = local.cluster_name
+#   base_domain            = local.base_domain
+#   cluster_issuer         = local.cluster_issuer
+#   argocd_namespace       = module.argocd_bootstrap.argocd_namespace
+#   enable_service_monitor = local.enable_service_monitor
+#   target_revision = local.target_revision
+#   dependency_ids = {
+#     traefik      = module.traefik.id
+#     cert-manager = module.cert-manager.id
+#     oidc         = module.oidc.id
+#   }
+# }
+
 module "keycloak" {
   source           = "./modules/keycloak"
   cluster_name     = local.cluster_name
@@ -125,36 +190,6 @@ module "minio" {
   }
 }
 
-module "postgresql" {
-  source                 = "./modules/postgresql"
-  cluster_name           = local.cluster_name
-  base_domain            = local.base_domain
-  cluster_issuer         = local.cluster_issuer
-  argocd_namespace       = module.argocd_bootstrap.argocd_namespace
-  enable_service_monitor = local.enable_service_monitor
-  target_revision        = local.target_revision
-  dependency_ids = {
-    traefik      = module.traefik.id
-    cert-manager = module.cert-manager.id
-    oidc         = module.oidc.id
-  }
-}
-
-# module "mysql" {
-#   source                 = "./modules/mysql"
-#   cluster_name           = local.cluster_name
-#   base_domain            = local.base_domain
-#   cluster_issuer         = local.cluster_issuer
-#   argocd_namespace       = module.argocd_bootstrap.argocd_namespace
-#   enable_service_monitor = local.enable_service_monitor
-#   target_revision = local.target_revision
-#   dependency_ids = {
-#     traefik      = module.traefik.id
-#     cert-manager = module.cert-manager.id
-#     oidc         = module.oidc.id
-#   }
-# }
-
 module "pinot" {
   source                 = "./modules/pinot"
   cluster_name           = local.cluster_name
@@ -175,18 +210,6 @@ module "pinot" {
     cert-manager = module.cert-manager.id
     oidc         = module.oidc.id
     minio        = module.minio.id
-  }
-}
-
-module "spark" {
-  source           = "./modules/spark"
-  cluster_name     = local.cluster_name
-  base_domain      = local.base_domain
-  cluster_issuer   = local.cluster_issuer
-  argocd_namespace = module.argocd_bootstrap.argocd_namespace
-  dependency_ids = {
-    traefik      = module.traefik.id
-    cert-manager = module.cert-manager.id
   }
 }
 
