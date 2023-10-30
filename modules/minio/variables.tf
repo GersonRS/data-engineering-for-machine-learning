@@ -72,35 +72,6 @@ variable "dependency_ids" {
 ## Module variables
 #######################
 
-# This variable is used to create policies, users and buckets instead of using hard coded values.
-variable "config_minio" {
-  description = "Variable to create buckets and required users and policies."
-
-  type = object({
-    policies = optional(list(object({
-      name = string
-      statements = list(object({
-        resources = list(string)
-        actions   = list(string)
-      }))
-    })), [])
-    users = optional(list(object({
-      accessKey = string
-      secretKey = string
-      policy    = string
-    })), [])
-    buckets = optional(list(object({
-      name          = string
-      policy        = optional(string, "none")
-      purge         = optional(bool, false)
-      versioning    = optional(bool, false)
-      objectlocking = optional(bool, false)
-    })), [])
-  })
-
-  default = {}
-}
-
 variable "oidc" {
   description = "OIDC configuration to access the MinIO web interface."
 

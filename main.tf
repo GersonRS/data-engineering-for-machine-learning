@@ -117,7 +117,6 @@ module "minio" {
   argocd_namespace       = module.argocd_bootstrap.argocd_namespace
   enable_service_monitor = local.enable_service_monitor
   target_revision        = local.target_revision
-  config_minio           = local.minio_config
   oidc                   = module.oidc.oidc
   dependency_ids = {
     traefik      = module.traefik.id
