@@ -27,7 +27,7 @@ locals {
     primary = {
       initdb = {
         scripts = {
-          init.sql = <<-EOT
+          "init.sql" = <<-EOT
             CREATE DATABASE airflow;
             CREATE DATABASE jupyterhub;
             CREATE DATABASE keycloak;
