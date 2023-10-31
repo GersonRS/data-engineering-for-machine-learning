@@ -1,5 +1,10 @@
 locals {
   helm_values = [{
+
+    service = {
+      type = "LoadBalancer"
+    }
+
     coordinator = {
       jvm = {
         maxHeapSize = "3G"
@@ -53,18 +58,18 @@ locals {
     }
 
     additionalCatalogs = {
-      "pinot.properties" = <<-EOT
+      "pinot" = <<-EOT
         connector.name=pinot
         pinot.controller-urls=${var.pinot_dns}
       EOT
 
-      # kafka.properties: |-
+      # kafka: |-
       # connector.name=kafka
       # kafka.table-names=src-app-users-json,src-app-agent-json,src-app-credit-card-json,src-app-musics-json,src-app-rides-json
       # kafka.nodes=edh-kafka-brokers.ingestion.svc.Cluster.local:9092
       # kafka.hide-internal-columns=false
 
-      # "minio.properties" = <<-EOT
+      # "minio" = <<-EOT
       #   connector.name=hive-hadoop2
       #   hive.metastore=file
       #   hive.s3-file-system-type=TRINO
@@ -86,7 +91,7 @@ locals {
       #   hive.s3.max-connections=5000
       # EOT
 
-      "postgres.properties" = <<-EOT
+      "postgres" = <<-EOT
         connector.name=postgresql
         connection-url=jdbc:postgresql://${var.database.service}:5432/${var.database.database}
         connection-user=${var.database.user}

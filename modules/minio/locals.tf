@@ -161,6 +161,9 @@ locals {
     ],
     buckets = [
       {
+        name = "trino"
+      },
+      {
         name = "mlflow"
       },
       {
