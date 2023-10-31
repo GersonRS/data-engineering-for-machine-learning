@@ -68,7 +68,7 @@ locals {
         connector.name=hive-hadoop2
         hive.metastore=file
         hive.s3-file-system-type=TRINO
-        hive.metastore.catalog.dir=s3://trino/
+        hive.metastore.catalog.dir=s3://${var.storage.bucket_name}/
         hive.allow-drop-table=true
         hive.s3.aws-access-key=${var.storage.access_key}
         hive.s3.aws-secret-key=${var.storage.secret_access_key}
@@ -88,7 +88,7 @@ locals {
 
       postgres.properties = <<-EOT
         connector.name=postgresql
-        connection-url=jdbc:postgresql://${var.database.service}:5432/curated
+        connection-url=jdbc:postgresql://${var.database.service}:5432/${var.database.database}
         connection-user=${var.database.user}
         connection-password=${var.database.password}
       EOT

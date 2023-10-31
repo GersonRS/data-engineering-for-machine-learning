@@ -231,6 +231,36 @@ module "pinot" {
   }
 }
 
+module "trino" {
+  source                 = "./modules/trino"
+  cluster_name           = local.cluster_name
+  base_domain            = local.base_domain
+  cluster_issuer         = local.cluster_issuer
+  argocd_namespace       = module.argocd_bootstrap.argocd_namespace
+  enable_service_monitor = local.enable_service_monitor
+  target_revision        = local.target_revision
+  pinot_dns              = module.pinot.cluster_dns
+  storage = {
+    bucket_name       = "trino"
+    endpoint          = module.minio.cluster_dns
+    access_key        = module.minio.minio_root_user_credentials.username
+    secret_access_key = module.minio.minio_root_user_credentials.password
+  }
+  database = {
+    user     = module.postgresql.credentials.user
+    password = module.postgresql.credentials.password
+    database = "curated"
+    service  = module.postgresql.cluster_ip
+  }
+  dependency_ids = {
+    traefik      = module.traefik.id
+    cert-manager = module.cert-manager.id
+    oidc         = module.oidc.id
+    minio        = module.minio.id
+    postgresql   = module.postgresql.id
+  }
+}
+
 module "mlflow" {
   source                 = "./modules/mlflow"
   cluster_name           = local.cluster_name
