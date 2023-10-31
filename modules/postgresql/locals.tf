@@ -33,6 +33,8 @@ locals {
             CREATE DATABASE keycloak;
             CREATE DATABASE mlflow;
             CREATE DATABASE curated;
+            CREATE DATABASE data;
+            CREATE DATABASE feature_store;
           EOT
         }
       }

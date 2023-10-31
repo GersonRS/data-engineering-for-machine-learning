@@ -156,9 +156,19 @@ locals {
         secretKey : "AIRFLOW_CONN_MINIKUBE"
       },
       {
-        envName : "conn_postgres"
+        envName : "conn_curated"
         secretName : "airflow-airflow-connections"
-        secretKey : "AIRFLOW_CONN_POSTEGRES"
+        secretKey : "AIRFLOW_CONN_POSTEGRES_CURATED"
+      },
+      {
+        envName : "conn_feature_store"
+        secretName : "airflow-airflow-connections"
+        secretKey : "AIRFLOW_CONN_POSTEGRES_FEATURE_STORE"
+      },
+      {
+        envName : "conn_data"
+        secretName : "airflow-airflow-connections"
+        secretKey : "AIRFLOW_CONN_POSTEGRES_DATA"
       },
 
     ]
@@ -174,7 +184,9 @@ locals {
         data = <<-EOT
           AIRFLOW_CONN_MINIKUBE: ${base64encode("kubernetes:///?__extra__=%7B%22in_cluster%22%3A+true%2C+%22disable_verify_ssl%22%3A+false%2C+%22disable_tcp_keepalive%22%3A+false%7D")}
           AIRFLOW_CONN_MINIO_S3: ${base64encode("aws:///?region_name=eu-west-1&aws_access_key_id=${var.storage.access_key}&aws_secret_access_key=${var.storage.secret_access_key}&endpoint_url=http://${var.storage.endpoint}:9000")}
-          AIRFLOW_CONN_POSTEGRES: ${base64encode("postgresql://${var.database.user}:${var.database.password}@${var.database.service}:5432/curated")}
+          AIRFLOW_CONN_POSTEGRES_CURATED: ${base64encode("postgresql://${var.database.user}:${var.database.password}@${var.database.service}:5432/curated")}
+          AIRFLOW_CONN_POSTEGRES_DATA: ${base64encode("postgresql://${var.database.user}:${var.database.password}@${var.database.service}:5432/data")}
+          AIRFLOW_CONN_POSTEGRES_FEATURE_STORE: ${base64encode("postgresql://${var.database.user}:${var.database.password}@${var.database.service}:5432/feature_store")}
         EOT
       }
     }
