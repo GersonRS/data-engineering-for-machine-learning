@@ -83,5 +83,5 @@ resource "argocd_application" "this" {
 }
 
 resource "null_resource" "this" {
-  depends_on = [argocd_application.operator]
+  depends_on = [argocd_application.this]
 }
