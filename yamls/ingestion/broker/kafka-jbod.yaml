@@ -1,7 +1,7 @@
 apiVersion: kafka.strimzi.io/v1beta2
 kind: Kafka
 metadata:
-  name: edh
+  name: my-cluster
 spec:
   kafka:
     version: 3.6.0
@@ -15,16 +15,6 @@ spec:
         port: 9093
         type: internal
         tls: true
-      - name: external
-        port: 9094
-        type: loadbalancer
-        tls: false
-    readinessProbe:
-      initialDelaySeconds: 15
-      timeoutSeconds: 5
-    livenessProbe:
-      initialDelaySeconds: 15
-      timeoutSeconds: 5
     config:
       offsets.topic.replication.factor: 1
       transaction.state.log.replication.factor: 1
@@ -37,35 +27,14 @@ spec:
       volumes:
         - id: 0
           type: persistent-claim
-          size: 5Gi
+          size: 10Gi
           deleteClaim: false
-    resources:
-      requests:
-        memory: 256Mi
-        cpu: "250m"
-      limits:
-        memory: 512Mi
-        cpu: "500m"
   zookeeper:
-    livenessProbe:
-      initialDelaySeconds: 60
-      timeoutSeconds: 5
-    readinessProbe:
-      initialDelaySeconds: 60
-      timeoutSeconds: 5
     replicas: 1
     storage:
       type: persistent-claim
-      size: 5Gi
+      size: 10Gi
       deleteClaim: false
-    resources:
-      # requests and limits
-      requests:
-        memory: 256Mi
-        cpu: "250m"
-      limits:
-        memory: 512Mi
-        cpu: "500m"
   entityOperator:
     topicOperator: {}
     userOperator: {}

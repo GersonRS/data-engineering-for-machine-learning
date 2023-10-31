@@ -43,7 +43,7 @@ resource "argocd_application" "this" {
 
     source {
       repo_url        = "https://github.com/GersonRS/data-engineering-for-machine-learning.git"
-      path            = "yamls/ingestion/broker"
+      path            = "yamls/ingestion/broker-ephemeral"
       target_revision = var.target_revision
       directory {
         recurse = true
