@@ -100,11 +100,13 @@ resource "argocd_application" "this" {
       helm {
         values = data.utils_deep_merge_yaml.values.output
       }
+
     }
 
     destination {
       name      = "in-cluster"
       namespace = var.namespace
+
     }
 
     sync_policy {
@@ -133,7 +135,6 @@ resource "argocd_application" "this" {
     resource.null_resource.dependencies,
   ]
 }
-
 resource "null_resource" "this" {
   depends_on = [
     resource.argocd_application.this,

@@ -8,10 +8,10 @@ metadata:
   labels:
     app: edh
 spec:
-  version: 3.2.3
+  version: 3.5.1
   replicas: 1
   bootstrapServers: edh-kafka-bootstrap:9093
-  image: mateushenrique/owshq-kafka-connect-strimzi:3.2.3
+  image: mateushenrique/owshq-kafka-connect-strimzi:3.5.1
   # imagePullPolicy: Always
   tls:
     trustedCertificates:
