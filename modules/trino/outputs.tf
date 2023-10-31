@@ -9,7 +9,7 @@ output "cluster_dns" {
 }
 output "cluster_ip" {
   description = "trino cluster ip internal"
-  value = data.kubernetes_service.trinoql.spec[0].cluster_ip
+  value = data.kubernetes_service.trino.spec[0].cluster_ip
 }
 
 output "endpoint" {

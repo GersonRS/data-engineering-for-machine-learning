@@ -3,7 +3,7 @@ resource "null_resource" "dependencies" {
 }
 
 resource "argocd_project" "this" {
-  depends_on = [ kubernetes_secret.trino_secret ]
+  depends_on = [ null_resource.dependencies ]
   metadata {
     name      = "trino"
     namespace = var.argocd_namespace

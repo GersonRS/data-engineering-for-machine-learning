@@ -6,7 +6,7 @@ locals {
       }
     }
     server = {
-      workers = 2
+      workers = 1
       config = {
         query = {
           maxMemory             = "2GB"
@@ -53,7 +53,7 @@ locals {
     }
 
     additionalCatalogs = {
-      pinot.properties = <<-EOT
+      "pinot.properties" = <<-EOT
         connector.name=pinot
         pinot.controller-urls=${var.pinot_dns}
       EOT
@@ -64,29 +64,29 @@ locals {
       # kafka.nodes=edh-kafka-brokers.ingestion.svc.Cluster.local:9092
       # kafka.hide-internal-columns=false
 
-      minio.properties = <<-EOT
-        connector.name=hive-hadoop2
-        hive.metastore=file
-        hive.s3-file-system-type=TRINO
-        hive.metastore.catalog.dir=s3://${var.storage.bucket_name}/
-        hive.allow-drop-table=true
-        hive.s3.aws-access-key=${var.storage.access_key}
-        hive.s3.aws-secret-key=${var.storage.secret_access_key}
-        hive.s3.endpoint=http://${var.storage.endpoint}
-        hive.s3.path-style-access=true
-        hive.s3.ssl.enabled=false
-        hive.s3select-pushdown.enabled=true
-        hive.allow-add-column=true
-        hive.allow-drop-column=true
-        hive.allow-drop-table=true
-        hive.allow-rename-table=true
-        hive.allow-rename-column=true
-        hive.s3.multipart.min-file-size=5GB
-        hive.s3.multipart.min-part-size=5GB
-        hive.s3.max-connections=5000
-      EOT
+      # "minio.properties" = <<-EOT
+      #   connector.name=hive-hadoop2
+      #   hive.metastore=file
+      #   hive.s3-file-system-type=TRINO
+      #   hive.metastore.catalog.dir=s3://${var.storage.bucket_name}/
+      #   hive.allow-drop-table=true
+      #   hive.s3.aws-access-key=${var.storage.access_key}
+      #   hive.s3.aws-secret-key=${var.storage.secret_access_key}
+      #   hive.s3.endpoint=http://${var.storage.endpoint}
+      #   hive.s3.path-style-access=true
+      #   hive.s3.ssl.enabled=false
+      #   hive.s3select-pushdown.enabled=true
+      #   hive.allow-add-column=true
+      #   hive.allow-drop-column=true
+      #   hive.allow-drop-table=true
+      #   hive.allow-rename-table=true
+      #   hive.allow-rename-column=true
+      #   hive.s3.multipart.min-file-size=5GB
+      #   hive.s3.multipart.min-part-size=5GB
+      #   hive.s3.max-connections=5000
+      # EOT
 
-      postgres.properties = <<-EOT
+      "postgres.properties" = <<-EOT
         connector.name=postgresql
         connection-url=jdbc:postgresql://${var.database.service}:5432/${var.database.database}
         connection-user=${var.database.user}
