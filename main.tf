@@ -152,6 +152,21 @@ module "cp-schema-registry" {
   }
 }
 
+module "kafka-ui" {
+  source           = "./modules/kafka-ui"
+  cluster_name     = local.cluster_name
+  base_domain      = local.base_domain
+  cluster_issuer   = local.cluster_issuer
+  argocd_namespace = module.argocd_bootstrap.argocd_namespace
+  target_revision  = local.target_revision
+  dependency_ids = {
+    traefik      = module.traefik.id
+    cert-manager = module.cert-manager.id
+    kafka-broker = module.kafka-broker.id
+    cp-schema-registry = module.cp-schema-registry.id
+  }
+}
+
 # module "mysql" {
 #   source                 = "./modules/mysql"
 #   cluster_name           = local.cluster_name

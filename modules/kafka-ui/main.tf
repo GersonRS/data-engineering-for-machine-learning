@@ -30,10 +30,20 @@ resource "argocd_project" "this" {
   }
 }
 
+data "utils_deep_merge_yaml" "values" {
+  input = [for i in concat(local.helm_values, var.helm_values) : yamlencode(i)]
+}
+
 resource "argocd_application" "this" {
+
   metadata {
-    name      = "kafka-broker"
+    name      = "kafka-ui"
     namespace = var.argocd_namespace
+  }
+
+  timeouts {
+    create = "15m"
+    delete = "15m"
   }
 
   wait = var.app_autosync == { "allow_empty" = tobool(null), "prune" = tobool(null), "self_heal" = tobool(null) } ? false : true
@@ -43,10 +53,10 @@ resource "argocd_application" "this" {
 
     source {
       repo_url        = "https://github.com/GersonRS/data-engineering-for-machine-learning.git"
-      path            = "yamls/ingestion/broker-ephemeral"
+      path            = "helm-charts/kafka-ui"
       target_revision = var.target_revision
-      directory {
-        recurse = true
+      helm {
+        values = data.utils_deep_merge_yaml.values.output
       }
     }
 
@@ -83,5 +93,18 @@ resource "argocd_application" "this" {
 }
 
 resource "null_resource" "this" {
-  depends_on = [argocd_application.this]
+  depends_on = [
+    resource.argocd_application.this,
+  ]
+}
+
+data "kubernetes_service" "kafka-ui" {
+  metadata {
+    name      = "kafka-ui"
+    namespace = var.namespace
+  }
+
+  depends_on = [
+    null_resource.this
+  ]
 }
