@@ -16,10 +16,10 @@ output "password" {
 #   value = module.jupyterhub.endpoint
 #   sensitive   = false
 # }
-output "mlflow_url" {
-  value = module.mlflow.endpoint
-  sensitive   = false
-}
+# output "mlflow_url" {
+#   value = module.mlflow.endpoint
+#   sensitive   = false
+# }
 output "minio_url" {
   value = module.minio.endpoint
   sensitive   = false

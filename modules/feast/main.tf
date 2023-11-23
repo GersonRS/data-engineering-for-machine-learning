@@ -1,60 +1,18 @@
-resource "random_password" "airflow_webserver_secret_key" {
-  length  = 16
-  special = false
-}
-resource "kubernetes_namespace" "airflow_namespace" {
-  metadata {
-    annotations = {
-      name = var.namespace
-    }
-    name = var.namespace
-  }
-}
-# data "utils_deep_merge_yaml" "metadata" {
-#   input = [for i in local.metadata : yamlencode(i)]
-# }
-
-resource "kubernetes_secret" "airflow_ssh_secret" {
-  metadata {
-    name      = "airflow-ssh-secret"
-    namespace = var.namespace
-  }
-
-  data = {
-    gitSshKey = file("${var.home_ssh}")
-  }
-
-  depends_on = [kubernetes_namespace.airflow_namespace]
-}
-# resource "kubernetes_secret" "airflow_metadata_secret" {
-#   metadata {
-#     name = "airflow-metadata-secret"
-#     namespace = var.namespace
-#   }
-
-#   data = {
-#     connection = "postgresql://${var.credentials_database.user}:${var.credentials_database.password}@${var.credentials_database.service}:5432/${var.credentials_database.database}"
-#   }
-
-#   depends_on = [ kubernetes_namespace.airflow_namespace ]
-# }
-
 resource "null_resource" "dependencies" {
   triggers = var.dependency_ids
 }
 
 resource "argocd_project" "this" {
   metadata {
-    name      = "airflow"
+    name      = "kafka"
     namespace = var.argocd_namespace
-    annotations = {
-      "modern-devops-stack.io/argocd_namespace" = var.argocd_namespace
-    }
   }
 
   spec {
-    description  = "airflow application project"
-    source_repos = ["https://github.com/GersonRS/data-engineering-for-machine-learning.git"]
+    description  = "kafka application project"
+    source_repos = [
+      "https://github.com/GersonRS/data-engineering-for-machine-learning.git",
+    ]
 
     destination {
       name      = "in-cluster"
@@ -79,7 +37,7 @@ data "utils_deep_merge_yaml" "values" {
 resource "argocd_application" "this" {
 
   metadata {
-    name      = "airflow"
+    name      = "kafka-ui"
     namespace = var.argocd_namespace
   }
 
@@ -95,18 +53,16 @@ resource "argocd_application" "this" {
 
     source {
       repo_url        = "https://github.com/GersonRS/data-engineering-for-machine-learning.git"
-      path            = "helm-charts/airflow"
+      path            = "helm-charts/kafka-ui"
       target_revision = var.target_revision
       helm {
         values = data.utils_deep_merge_yaml.values.output
       }
-
     }
 
     destination {
       name      = "in-cluster"
       namespace = var.namespace
-
     }
 
     sync_policy {
@@ -135,8 +91,20 @@ resource "argocd_application" "this" {
     resource.null_resource.dependencies,
   ]
 }
+
 resource "null_resource" "this" {
   depends_on = [
     resource.argocd_application.this,
+  ]
+}
+
+data "kubernetes_service" "kafka-ui" {
+  metadata {
+    name      = "kafka-ui"
+    namespace = var.namespace
+  }
+
+  depends_on = [
+    null_resource.this
   ]
 }
