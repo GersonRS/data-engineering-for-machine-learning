@@ -53,12 +53,14 @@ module "kind" {
 }
 
 module "metallb" {
-  source = "./modules/metallb"
-  subnet = module.kind.kind_subnet
+  source     = "./modules/metallb"
+  subnet     = module.kind.kind_subnet
+  depends_on = [module.kind]
 }
 
 module "argocd_bootstrap" {
-  source = "./modules/argocd"
+  source     = "./modules/argocd"
+  depends_on = [module.metallb]
 }
 
 module "traefik" {
@@ -73,6 +75,7 @@ module "traefik" {
   dependency_ids = {
     argocd = module.argocd_bootstrap.id
   }
+  depends_on = [module.argocd_bootstrap, module.metallb]
 }
 
 module "cert-manager" {
@@ -83,6 +86,7 @@ module "cert-manager" {
   dependency_ids = {
     argocd = module.argocd_bootstrap.id
   }
+  depends_on = [module.argocd_bootstrap, module.metallb, module.traefik]
 }
 
 
@@ -98,6 +102,7 @@ module "postgresql" {
     traefik      = module.traefik.id
     cert-manager = module.cert-manager.id
   }
+  depends_on = [module.argocd_bootstrap, module.metallb, module.traefik, module.cert-manager]
 }
 
 # module "spark" {
@@ -193,6 +198,13 @@ module "keycloak" {
     traefik      = module.traefik.id
     cert-manager = module.cert-manager.id
   }
+  # database = {
+  #   username = module.postgresql.credentials.user
+  #   password = module.postgresql.credentials.password
+  #   vendor   = "postgres"
+  #   host     = module.postgresql.cluster_dns
+  # }
+  depends_on = [module.argocd_bootstrap, module.metallb, module.traefik, module.cert-manager, module.postgresql]
 }
 
 module "oidc" {
@@ -205,6 +217,7 @@ module "oidc" {
     traefik  = module.traefik.id
     cert     = module.cert-manager.id
   }
+  depends_on = [module.argocd_bootstrap, module.metallb, module.traefik, module.cert-manager, module.postgresql, module.keycloak]
 }
 
 module "minio" {
@@ -221,6 +234,7 @@ module "minio" {
     cert-manager = module.cert-manager.id
     oidc         = module.oidc.id
   }
+  depends_on = [module.argocd_bootstrap, module.metallb, module.traefik, module.cert-manager, module.postgresql, module.keycloak, module.oidc]
 }
 
 # module "pinot" {
@@ -394,38 +408,39 @@ module "minio" {
 #   }
 # }
 
-module "gitlab" {
-  source = "./modules/gitlab"
+# module "gitlab" {
+#   source = "./modules/gitlab"
 
-  cluster_name     = local.cluster_name
-  base_domain      = local.base_domain
-  cluster_issuer   = local.cluster_issuer
-  argocd_namespace = module.argocd_bootstrap.argocd_namespace
+#   cluster_name     = local.cluster_name
+#   base_domain      = local.base_domain
+#   cluster_issuer   = local.cluster_issuer
+#   argocd_namespace = module.argocd_bootstrap.argocd_namespace
 
-  enable_service_monitor = local.enable_service_monitor
+#   enable_service_monitor = local.enable_service_monitor
 
-  oidc = module.oidc.oidc
+#   oidc = module.oidc.oidc
 
-  metrics_storage = {
-    bucket_name       = "registry"
-    endpoint          = module.minio.endpoint
-    access_key        = module.minio.minio_root_user_credentials.username
-    secret_access_key = module.minio.minio_root_user_credentials.password
-  }
+#   metrics_storage = {
+#     bucket_name       = "registry"
+#     endpoint          = module.minio.endpoint
+#     access_key        = module.minio.minio_root_user_credentials.username
+#     secret_access_key = module.minio.minio_root_user_credentials.password
+#   }
 
-  dependency_ids = {
-    traefik      = module.traefik.id
-    cert-manager = module.cert-manager.id
-    oidc         = module.oidc.id
-    minio        = module.minio.id
-    postgresql     = module.postgresql.id
-  }
+#   dependency_ids = {
+#     traefik      = module.traefik.id
+#     cert-manager = module.cert-manager.id
+#     oidc         = module.oidc.id
+#     minio        = module.minio.id
+#     postgresql   = module.postgresql.id
+#   }
 
-  depends_on = [
-    module.traefik,
-    module.cert-manager,
-    module.oidc,
-    module.minio,
-    module.postgresql
-  ]
-}
+#   depends_on = [
+#     module.traefik,
+#     module.cert-manager,
+#     module.oidc,
+#     module.minio,
+#     module.postgresql,
+#     module.metallb
+#   ]
+# }

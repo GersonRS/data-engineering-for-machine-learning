@@ -65,6 +65,7 @@ resource "keycloak_saml_client" "gitlab" {
     "https://gitlab.apps.${var.cluster_name}.${var.base_domain}/*",
     "https://gitlab.apps.${var.cluster_name}.${var.base_domain}/users/auth/saml/callback",
   ]
+  depends_on = [keycloak_realm.modern_devops_stack]
 }
 
 resource "keycloak_role" "gitlab_role_external" {
@@ -72,12 +73,14 @@ resource "keycloak_role" "gitlab_role_external" {
   realm_id    = resource.keycloak_realm.modern_devops_stack.id
   name        = "gitlab:external"
   description = "gitlab:external"
+  depends_on  = [keycloak_saml_client.gitlab]
 }
 resource "keycloak_role" "gitlab_role_access" {
   client_id   = resource.keycloak_saml_client.gitlab.id
   realm_id    = resource.keycloak_realm.modern_devops_stack.id
   name        = "gitlab:access"
   description = "gitlab:access"
+  depends_on  = [keycloak_saml_client.gitlab]
 }
 
 resource "keycloak_openid_client_scope" "modern_devops_stack_groups" {
@@ -108,6 +111,7 @@ resource "keycloak_saml_client_scope" "modern_devops_stack_name" {
   realm_id    = resource.keycloak_realm.modern_devops_stack.id
   name        = "gitlab_name"
   description = "SAML name"
+  depends_on  = [keycloak_saml_client.gitlab, keycloak_realm.modern_devops_stack]
 }
 
 resource "keycloak_saml_user_property_protocol_mapper" "gitlab_name_property" {
@@ -118,11 +122,13 @@ resource "keycloak_saml_user_property_protocol_mapper" "gitlab_name_property" {
   friendly_name              = "Username"
   saml_attribute_name        = "name"
   saml_attribute_name_format = "Basic"
+  depends_on                 = [keycloak_saml_client_scope.modern_devops_stack_name, keycloak_saml_client.gitlab, keycloak_realm.modern_devops_stack]
 }
 resource "keycloak_saml_client_scope" "modern_devops_stack_first_name" {
   realm_id    = resource.keycloak_realm.modern_devops_stack.id
   name        = "gitlab_first_name"
   description = "SAML first_name"
+  depends_on  = [keycloak_saml_client.gitlab, keycloak_realm.modern_devops_stack]
 }
 
 resource "keycloak_saml_user_property_protocol_mapper" "gitlab_first_name_property" {
@@ -133,11 +139,13 @@ resource "keycloak_saml_user_property_protocol_mapper" "gitlab_first_name_proper
   friendly_name              = "First Name"
   saml_attribute_name        = "first_name"
   saml_attribute_name_format = "Basic"
+  depends_on                 = [keycloak_saml_client_scope.modern_devops_stack_first_name, keycloak_saml_client.gitlab, keycloak_realm.modern_devops_stack]
 }
 resource "keycloak_saml_client_scope" "modern_devops_stack_last_name" {
   realm_id    = resource.keycloak_realm.modern_devops_stack.id
   name        = "gitlab_last_name"
   description = "SAML last_name"
+  depends_on  = [keycloak_saml_client.gitlab, keycloak_realm.modern_devops_stack]
 }
 
 resource "keycloak_saml_user_property_protocol_mapper" "gitlab_last_name_property" {
@@ -148,11 +156,13 @@ resource "keycloak_saml_user_property_protocol_mapper" "gitlab_last_name_propert
   friendly_name              = "Last Name"
   saml_attribute_name        = "last_name"
   saml_attribute_name_format = "Basic"
+  depends_on                 = [keycloak_saml_client_scope.modern_devops_stack_last_name, keycloak_saml_client.gitlab, keycloak_realm.modern_devops_stack]
 }
 resource "keycloak_saml_client_scope" "modern_devops_stack_email" {
   realm_id    = resource.keycloak_realm.modern_devops_stack.id
   name        = "gitlab_email"
   description = "SAML email"
+  depends_on  = [keycloak_saml_client.gitlab, keycloak_realm.modern_devops_stack]
 }
 
 resource "keycloak_saml_user_property_protocol_mapper" "gitlab_email_property" {
@@ -163,11 +173,13 @@ resource "keycloak_saml_user_property_protocol_mapper" "gitlab_email_property" {
   friendly_name              = "Email"
   saml_attribute_name        = "email"
   saml_attribute_name_format = "Basic"
+  depends_on                 = [keycloak_saml_client_scope.modern_devops_stack_email, keycloak_saml_client.gitlab, keycloak_realm.modern_devops_stack]
 }
 resource "keycloak_saml_client_scope" "modern_devops_stack_roles" {
   realm_id    = resource.keycloak_realm.modern_devops_stack.id
   name        = "gitlab_roles"
   description = "SAML roles"
+  depends_on  = [keycloak_saml_client.gitlab, keycloak_realm.modern_devops_stack]
 }
 
 
@@ -216,7 +228,16 @@ resource "keycloak_openid_client_default_scopes" "client_default_scopes" {
     resource.keycloak_openid_client_scope.modern_devops_stack_groups.name,
     resource.keycloak_openid_client_scope.modern_devops_stack_minio_policy.name,
   ]
-  depends_on = [keycloak_openid_client.modern_devops_stack]
+  depends_on = [
+    keycloak_realm.modern_devops_stack,
+    keycloak_openid_client.modern_devops_stack,
+    keycloak_openid_user_attribute_protocol_mapper.modern_devops_stack_minio_policy,
+    keycloak_openid_user_attribute_protocol_mapper.modern_devops_stack_username,
+    keycloak_openid_group_membership_protocol_mapper.modern_devops_stack_groups,
+    keycloak_openid_client_scope.modern_devops_stack_groups,
+    keycloak_openid_client_scope.modern_devops_stack_minio_policy,
+    keycloak_openid_client_scope.modern_devops_stack_username
+  ]
 }
 
 resource "keycloak_saml_client_default_scopes" "client_default_scopes" {
@@ -229,6 +250,15 @@ resource "keycloak_saml_client_default_scopes" "client_default_scopes" {
     "gitlab_email",
     "gitlab_name",
     "gitlab_roles"
+  ]
+  depends_on = [
+    keycloak_saml_client.gitlab,
+    keycloak_realm.modern_devops_stack,
+    keycloak_saml_client_scope.modern_devops_stack_roles,
+    keycloak_saml_user_property_protocol_mapper.gitlab_email_property,
+    keycloak_saml_user_property_protocol_mapper.gitlab_first_name_property,
+    keycloak_saml_user_property_protocol_mapper.gitlab_last_name_property,
+    keycloak_saml_user_property_protocol_mapper.gitlab_name_property
   ]
 }
 
@@ -275,15 +305,19 @@ resource "keycloak_user_groups" "modern_devops_stack_admins" {
   group_ids = [
     resource.keycloak_group.modern_devops_stack_admins.id
   ]
-  depends_on = [keycloak_realm.modern_devops_stack, keycloak_user.modern_devops_stack_users, keycloak_group.modern_devops_stack_admins]
+  depends_on = [keycloak_realm.modern_devops_stack,
+    keycloak_user.modern_devops_stack_users,
+  keycloak_group.modern_devops_stack_admins]
 }
 
 resource "null_resource" "this" {
   depends_on = [
-    resource.keycloak_realm.modern_devops_stack,
-    resource.keycloak_group.modern_devops_stack_admins,
-    resource.keycloak_user.modern_devops_stack_users,
-    resource.keycloak_user_groups.modern_devops_stack_admins,
+    keycloak_realm.modern_devops_stack,
+    keycloak_group.modern_devops_stack_admins,
+    keycloak_user.modern_devops_stack_users,
+    keycloak_user_groups.modern_devops_stack_admins,
+    keycloak_saml_client_default_scopes.client_default_scopes,
+    keycloak_openid_client_default_scopes.client_default_scopes
   ]
 }
 

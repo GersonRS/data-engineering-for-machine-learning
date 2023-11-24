@@ -1,5 +1,6 @@
 locals {
   credentials = {
+    admin    = "postgres"
     user     = "moderndevopsadmin"
     password = resource.random_password.password_secret.result
   }
@@ -33,7 +34,6 @@ locals {
             CREATE DATABASE keycloak;
             CREATE DATABASE mlflow;
             CREATE DATABASE curated;
-            CREATE DATABASE data;
             CREATE DATABASE feature_store;
           EOT
         }

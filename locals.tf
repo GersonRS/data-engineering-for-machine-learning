@@ -9,9 +9,6 @@ locals {
   cluster_issuer         = "ca-issuer"
   enable_service_monitor = false
 
-  username = nonsensitive(keys(module.oidc.devops_stack_users_passwords)[0])
-  password = nonsensitive(values(module.oidc.devops_stack_users_passwords)[0])
-
   target_revision = "develop"
   airflow_fernetKey = base64encode(resource.random_password.airflow_fernetKey.result)
 }

@@ -176,3 +176,14 @@ resource "null_resource" "this" {
     resource.null_resource.wait_for_keycloak,
   ]
 }
+
+data "kubernetes_service" "keycloak" {
+  metadata {
+    name      = "keycloak"
+    namespace = var.namespace
+  }
+
+  depends_on = [
+    null_resource.this
+  ]
+}
