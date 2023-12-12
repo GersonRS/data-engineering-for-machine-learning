@@ -4,8 +4,9 @@ apache-airflow-providers-apache-kafka
 apache-airflow-providers-apache-spark
 apache-airflow-providers-cncf-kubernetes
 apache-airflow-providers-papermill
-apache-airflow[amazon,async,celery,cncf.kubernetes,docker,grpc,hashicorp,http,pandas]
-astro-sdk-python[postgres]
+apache-airflow-providers-slack
+apache-airflow[amazon,async,celery,cncf.kubernetes,docker,grpc,hashicorp,http,pandas,crypto]
+astro-sdk-python[postgres, amazon, snowflake]
 black
 boto3
 confluent-kafka

@@ -5,7 +5,7 @@ output "id" {
 
 output "cluster_dns" {
   description = "MinIO cluster dns"
-  value       = "minio.${var.namespace}.svc.cluster.local:9000"
+  value       = "minio.${var.namespace}.svc.cluster.local"
 }
 output "cluster_ip" {
   description = "MinIO cluster ip internal"

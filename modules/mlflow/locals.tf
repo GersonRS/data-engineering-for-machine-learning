@@ -2,7 +2,7 @@ locals {
   helm_values = [{
 
     extraEnvVars = {
-      MLFLOW_S3_ENDPOINT_URL = "http://${var.storage.endpoint}"
+      MLFLOW_S3_ENDPOINT_URL = "http://${var.storage.endpoint}:9000"
       MLFLOW_S3_IGNORE_TLS   = true
       # MLFLOW_S3_UPLOAD_EXTRA_ARGS: '{"ServerSideEncryption": "aws:kms", "SSEKMSKeyId": "1234"}'
       # AWS_DEFAULT_REGION: my_region

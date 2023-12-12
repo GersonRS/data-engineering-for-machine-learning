@@ -8,14 +8,14 @@ output "keycloak_users_credentials" {
 #   value = module.jupyterhub.endpoint
 #   sensitive   = false
 # }
-# output "mlflow_url" {
-#   value = module.mlflow.endpoint
-#   sensitive   = false
-# }
-# output "minio_url" {
-#   value     = module.minio.endpoint
-#   sensitive = false
-# }
+output "mlflow_url" {
+  value = module.mlflow.endpoint
+  sensitive   = false
+}
+output "minio_url" {
+  value     = module.minio.endpoint
+  sensitive = false
+}
 output "keycloak_url" {
   value = module.keycloak.endpoint
 }

@@ -8,6 +8,9 @@ locals {
     volumePermissions = {
       enabled = true
     }
+    metrics = {
+      enabled = false
+    }
     global = {
       postgresql = {
         auth = {

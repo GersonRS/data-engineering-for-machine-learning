@@ -110,17 +110,17 @@ locals {
       }
     }
     env = [
-      {
+      var.mlflow != null ? {
         name  = "MLFLOW_TRACKING_URI"
-        value = "http://${var.mlflow.cluster_ip}:5000"
-      },
+        value = "http://${var.mlflow.endpoint}:5000"
+      } : null,
       {
         name  = "MLFLOW_S3_ENDPOINT_URL"
-        value = "http://${var.storage.endpoint}"
+        value = "http://${var.storage.endpoint}:9000"
       },
       {
         name  = "AWS_ENDPOINT"
-        value = "http://${var.storage.endpoint}"
+        value = "http://${var.storage.endpoint}:9000"
       },
       {
         name  = "AWS_ACCESS_KEY_ID"
@@ -141,6 +141,10 @@ locals {
       {
         name  = "AWS_S3_ALLOW_UNSAFE_RENAME"
         value = "true"
+      },
+      {
+        name  = "GIT_PYTHON_REFRESH"
+        value = "quiet"
       },
     ]
 
@@ -170,6 +174,11 @@ locals {
         secretName : "airflow-airflow-connections"
         secretKey : "AIRFLOW_CONN_POSTEGRES_DATA"
       },
+      {
+        envName : "conn_mlflow"
+        secretName : "airflow-airflow-connections"
+        secretKey : "AIRFLOW_CONN_MLFLOW"
+      },
 
     ]
 
@@ -187,6 +196,7 @@ locals {
           AIRFLOW_CONN_POSTEGRES_CURATED: ${base64encode("postgresql://${var.database.user}:${var.database.password}@${var.database.service}:5432/curated")}
           AIRFLOW_CONN_POSTEGRES_DATA: ${base64encode("postgresql://${var.database.user}:${var.database.password}@${var.database.service}:5432/data")}
           AIRFLOW_CONN_POSTEGRES_FEATURE_STORE: ${base64encode("postgresql://${var.database.user}:${var.database.password}@${var.database.service}:5432/feature_store")}
+          AIRFLOW_CONN_MLFLOW: ${base64encode("http://${var.mlflow.endpoint}:5000/?__extra__=%7B%7D")}
         EOT
       }
     }
@@ -206,6 +216,8 @@ locals {
         value: "conn_minio_s3"
       - name: AIRFLOW__KUBERNETES__DELETE_WORKER_PODS
         value: "True"
+      - name: AIRFLOW__CORE__ALLOWED_DESERIALIZATION_CLASSES
+        value: airflow\.* astro\.*
     EOT
     extraConfigMaps = {
       airflow-airflow-connections = {
