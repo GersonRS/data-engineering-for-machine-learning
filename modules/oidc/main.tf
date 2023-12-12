@@ -277,6 +277,16 @@ resource "random_password" "modern_devops_stack_users" {
 
   length  = 32
   special = false
+  depends_on = [
+    keycloak_realm.modern_devops_stack,
+    keycloak_openid_client.modern_devops_stack,
+    keycloak_openid_user_attribute_protocol_mapper.modern_devops_stack_minio_policy,
+    keycloak_openid_user_attribute_protocol_mapper.modern_devops_stack_username,
+    keycloak_openid_group_membership_protocol_mapper.modern_devops_stack_groups,
+    keycloak_openid_client_scope.modern_devops_stack_groups,
+    keycloak_openid_client_scope.modern_devops_stack_minio_policy,
+    keycloak_openid_client_scope.modern_devops_stack_username
+  ]
 }
 
 resource "keycloak_user" "modern_devops_stack_users" {
@@ -294,7 +304,7 @@ resource "keycloak_user" "modern_devops_stack_users" {
   attributes = {
     "terraform" = "true"
   }
-  depends_on = [keycloak_realm.modern_devops_stack]
+  depends_on = [keycloak_realm.modern_devops_stack, random_password.modern_devops_stack_users]
 }
 
 resource "keycloak_user_groups" "modern_devops_stack_admins" {
