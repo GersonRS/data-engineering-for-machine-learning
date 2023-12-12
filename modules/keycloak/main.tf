@@ -6,6 +6,9 @@ resource "random_password" "db_password" {
   count   = var.database == null ? 1 : 0
   length  = 32
   special = false
+  depends_on = [
+    resource.null_resource.dependencies,
+  ]
 }
 
 resource "argocd_project" "this" {
@@ -34,6 +37,9 @@ resource "argocd_project" "this" {
       kind  = "*"
     }
   }
+  depends_on = [
+    resource.null_resource.dependencies,
+  ]
 }
 
 data "utils_deep_merge_yaml" "values" {

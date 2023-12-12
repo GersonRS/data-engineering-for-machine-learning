@@ -1,6 +1,9 @@
 resource "random_password" "airflow_webserver_secret_key" {
   length  = 16
   special = false
+  depends_on = [
+    resource.null_resource.dependencies,
+  ]
 }
 resource "kubernetes_namespace" "airflow_namespace" {
   metadata {
@@ -9,6 +12,9 @@ resource "kubernetes_namespace" "airflow_namespace" {
     }
     name = var.namespace
   }
+  depends_on = [
+    resource.null_resource.dependencies,
+  ]
 }
 # data "utils_deep_merge_yaml" "metadata" {
 #   input = [for i in local.metadata : yamlencode(i)]
@@ -70,6 +76,9 @@ resource "argocd_project" "this" {
       kind  = "*"
     }
   }
+  depends_on = [
+    resource.null_resource.dependencies,
+  ]
 }
 
 data "utils_deep_merge_yaml" "values" {
