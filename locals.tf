@@ -1,3 +1,7 @@
+resource "random_password" "airflow_fernetKey" {
+  length  = 32
+  special = false
+}
 locals {
   kubernetes_version     = "v1.27.1"
   cluster_name           = "kind"
@@ -5,8 +9,6 @@ locals {
   cluster_issuer         = "ca-issuer"
   enable_service_monitor = false
 
-  username = nonsensitive(keys(module.oidc.devops_stack_users_passwords)[0])
-  password = nonsensitive(values(module.oidc.devops_stack_users_passwords)[0])
-
-  target_revision = "main"
+  target_revision = "develop"
+  airflow_fernetKey = base64encode(resource.random_password.airflow_fernetKey.result)
 }

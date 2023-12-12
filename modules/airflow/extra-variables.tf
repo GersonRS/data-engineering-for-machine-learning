@@ -46,13 +46,13 @@ variable "database" {
 variable "mlflow" {
   description = "mlflow configuration"
   type = object({
-    cluster_ip = string
+    endpoint = string
   })
   default = null
 }
 
 variable "ray" {
-  description = "mlflow configuration"
+  description = "ray configuration"
   type = object({
     endpoint = string
   })

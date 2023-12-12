@@ -1,3 +1,15 @@
+resource "random_password" "mlflow_secretkey" {
+  length  = 32
+  special = false
+}
+resource "random_password" "airflow_secretkey" {
+  length  = 32
+  special = false
+}
+resource "random_password" "jupyterhub_secretkey" {
+  length  = 32
+  special = false
+}
 locals {
   domain      = format("minio.apps.%s", var.base_domain)
   domain_full = format("minio.apps.%s.%s", var.cluster_name, var.base_domain)
@@ -44,7 +56,7 @@ locals {
       {
         mode = "standalone" # Set the deployment mode of MinIO to standalone
         persistence = {
-          size: "50Gi"
+          size : "20Gi"
         }
         resources = {
           requests = {
@@ -80,11 +92,101 @@ locals {
         }
         rootUser     = "root"
         rootPassword = random_password.minio_root_secretkey.result
-        users        = var.config_minio.users
-        buckets      = var.config_minio.buckets
-        policies     = var.config_minio.policies
+        users        = local.minio_config.users
+        buckets      = local.minio_config.buckets
+        policies     = local.minio_config.policies
       },
       local.oidc_config
     )
   }]
+
+  minio_config = {
+    policies = [
+      {
+        name = "mlflow-policy"
+        statements = [
+          {
+            resources = ["arn:aws:s3:::mlflow-bucket"]
+            actions   = ["s3:CreateBucket", "s3:DeleteBucket", "s3:GetBucketLocation", "s3:ListBucket", "s3:ListBucketMultipartUploads"]
+          },
+          {
+            resources = ["arn:aws:s3:::mlflow-bucket/*"]
+            actions   = ["s3:GetObject", "s3:PutObject", "s3:DeleteObject"]
+          }
+        ]
+      },
+      {
+        name = "jupyterhub-policy"
+        statements = [
+          {
+            resources = ["arn:aws:s3:::jupyterhub-bucket"]
+            actions   = ["s3:CreateBucket", "s3:DeleteBucket", "s3:GetBucketLocation", "s3:ListBucket", "s3:ListBucketMultipartUploads"]
+          },
+          {
+            resources = ["arn:aws:s3:::jupyterhub-bucket/*"]
+            actions   = ["s3:GetObject", "s3:PutObject", "s3:DeleteObject"]
+          }
+        ]
+      },
+      {
+        name = "airflow-policy"
+        statements = [
+          {
+            resources = ["arn:aws:s3:::airflow-bucket"]
+            actions   = ["s3:CreateBucket", "s3:DeleteBucket", "s3:GetBucketLocation", "s3:ListBucket", "s3:ListBucketMultipartUploads"]
+          },
+          {
+            resources = ["arn:aws:s3:::airflow-bucket/*"]
+            actions   = ["s3:GetObject", "s3:PutObject", "s3:DeleteObject"]
+          }
+        ]
+      }
+    ],
+    users = [
+      {
+        accessKey = "mlflow-user"
+        secretKey = random_password.mlflow_secretkey.result
+        policy    = "mlflow-policy"
+      },
+      {
+        accessKey = "airflow-user"
+        secretKey = random_password.airflow_secretkey.result
+        policy    = "airflow-policy"
+      },
+      {
+        accessKey = "jupterhub-user"
+        secretKey = random_password.jupyterhub_secretkey.result
+        policy    = "jupterhub-policy"
+      }
+    ],
+    buckets = [
+      {
+        name = "trino"
+      },
+      {
+        name = "mlflow"
+      },
+      {
+        name = "airflow"
+      },
+      {
+        name = "landing"
+      },
+      {
+        name = "processing"
+      },
+      {
+        name = "curated"
+      },
+      {
+        name = "bronze"
+      },
+      {
+        name = "silver"
+      },
+      {
+        name = "gold"
+      }
+    ]
+  }
 }

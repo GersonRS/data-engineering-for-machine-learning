@@ -1,6 +1,6 @@
 locals {
   helm_values = [{
-
+    fernetKey = var.fernetKey
     images = {
       airflow = {
         repository = "gersonrs/airflow"
@@ -42,17 +42,15 @@ locals {
     executor                     = "KubernetesExecutor"
     webserverSecretKeySecretName = "my-webserver-secret"
     createUserJob = {
-      useHelmHooks = false
-      applyCustomEnv = false
+      useHelmHooks   = false
     }
     migrateDatabaseJob = {
-      enabled = true
       useHelmHooks = false
     }
 
-    defaultUser = {
-      enabled = false
-    }
+    # defaultUser = {
+    #   enabled = false
+    # }
     ingress = {
       enabled = true
       web = {
@@ -111,16 +109,44 @@ locals {
         knownHosts   = "|-\n|1|yutcXh9HhbK6KCouq3xMQ38B9ns=|V9zQ39gzVxSZ75WU78CGJiVKCOk= ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBEmKSENjQEezOmxkZMy7opKgwFB9nkt5YRrYMjNuG5N87uRgg6CLrbo5wAdT/y6v0mKV0U2w0WZ2YB/++Tpockg=\n|1|7ww9iNXn8d1jtXlaDjt+fYpsRi0=|vfHsTzw+QATWkCKD7kgG2jhu/1w= ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBEmKSENjQEezOmxkZMy7opKgwFB9nkt5YRrYMjNuG5N87uRgg6CLrbo5wAdT/y6v0mKV0U2w0WZ2YB/++Tpockg="
       }
     }
-    # env = [
-    #   {
-    #     name  = "AIRFLOW_VAR_MINIO_S4"
-    #     value = "aws:///?region_name=eu-west-1&aws_access_key_id=${var.storage.access_key}&aws_secret_access_key=${var.storage.secret_access_key}&endpoint_url=http://${var.storage.endpoint}:9000"
-    #   },
-    #   {
-    #     name  = "AIRFLOW_VAR_MINIKUBE1"
-    #     value = "kubernetes:///?__extra__=%7B%22in_cluster%22%3A+true%2C+%22disable_verify_ssl%22%3A+false%2C+%22disable_tcp_keepalive%22%3A+false%7D"
-    #   }
-    # ]
+    env = [
+      var.mlflow != null ? {
+        name  = "MLFLOW_TRACKING_URI"
+        value = "http://${var.mlflow.endpoint}:5000"
+      } : null,
+      {
+        name  = "MLFLOW_S3_ENDPOINT_URL"
+        value = "http://${var.storage.endpoint}:9000"
+      },
+      {
+        name  = "AWS_ENDPOINT"
+        value = "http://${var.storage.endpoint}:9000"
+      },
+      {
+        name  = "AWS_ACCESS_KEY_ID"
+        value = "${var.storage.access_key}"
+      },
+      {
+        name  = "AWS_SECRET_ACCESS_KEY"
+        value = "${var.storage.secret_access_key}"
+      },
+      {
+        name  = "AWS_REGION"
+        value = "eu-west-1"
+      },
+      {
+        name  = "AWS_ALLOW_HTTP"
+        value = "true"
+      },
+      {
+        name  = "AWS_S3_ALLOW_UNSAFE_RENAME"
+        value = "true"
+      },
+      {
+        name  = "GIT_PYTHON_REFRESH"
+        value = "quiet"
+      },
+    ]
 
     secret = [
       {
@@ -132,6 +158,26 @@ locals {
         envName : "conn_cluster"
         secretName : "airflow-airflow-connections"
         secretKey : "AIRFLOW_CONN_MINIKUBE"
+      },
+      {
+        envName : "conn_curated"
+        secretName : "airflow-airflow-connections"
+        secretKey : "AIRFLOW_CONN_POSTEGRES_CURATED"
+      },
+      {
+        envName : "conn_feature_store"
+        secretName : "airflow-airflow-connections"
+        secretKey : "AIRFLOW_CONN_POSTEGRES_FEATURE_STORE"
+      },
+      {
+        envName : "conn_data"
+        secretName : "airflow-airflow-connections"
+        secretKey : "AIRFLOW_CONN_POSTEGRES_DATA"
+      },
+      {
+        envName : "conn_mlflow"
+        secretName : "airflow-airflow-connections"
+        secretKey : "AIRFLOW_CONN_MLFLOW"
       },
 
     ]
@@ -147,21 +193,31 @@ locals {
         data = <<-EOT
           AIRFLOW_CONN_MINIKUBE: ${base64encode("kubernetes:///?__extra__=%7B%22in_cluster%22%3A+true%2C+%22disable_verify_ssl%22%3A+false%2C+%22disable_tcp_keepalive%22%3A+false%7D")}
           AIRFLOW_CONN_MINIO_S3: ${base64encode("aws:///?region_name=eu-west-1&aws_access_key_id=${var.storage.access_key}&aws_secret_access_key=${var.storage.secret_access_key}&endpoint_url=http://${var.storage.endpoint}:9000")}
+          AIRFLOW_CONN_POSTEGRES_CURATED: ${base64encode("postgresql://${var.database.user}:${var.database.password}@${var.database.service}:5432/curated")}
+          AIRFLOW_CONN_POSTEGRES_DATA: ${base64encode("postgresql://${var.database.user}:${var.database.password}@${var.database.service}:5432/data")}
+          AIRFLOW_CONN_POSTEGRES_FEATURE_STORE: ${base64encode("postgresql://${var.database.user}:${var.database.password}@${var.database.service}:5432/feature_store")}
+          AIRFLOW_CONN_MLFLOW: ${base64encode("http://${var.mlflow.endpoint}:5000/?__extra__=%7B%7D")}
         EOT
       }
     }
 
     extraEnv = <<-EOT
-      - name: AIRFLOW_VAR_MINIO_S5
-        value: "aws:///?region_name=eu-west-1&aws_access_key_id=${var.storage.access_key}&aws_secret_access_key=${var.storage.secret_access_key}&endpoint_url=http://${var.storage.endpoint}:9000"
       - name: AIRFLOW__LOGGING__REMOTE_LOGGING
+        value: "True"
+      - name: AIRFLOW__CORE__REMOTE_LOGGING
         value: "True"
       - name: AIRFLOW__LOGGING__REMOTE_BASE_LOG_FOLDER
         value: "s3://airflow/logs"
+      - name: AIRFLOW__CORE__REMOTE_BASE_LOG_FOLDER
+        value: "s3://airflow/logs"
       - name: AIRFLOW__LOGGING__REMOTE_LOG_CONN_ID
+        value: "conn_minio_s3"
+      - name: AIRFLOW__CORE__REMOTE_LOG_CONN_ID
         value: "conn_minio_s3"
       - name: AIRFLOW__KUBERNETES__DELETE_WORKER_PODS
         value: "True"
+      - name: AIRFLOW__CORE__ALLOWED_DESERIALIZATION_CLASSES
+        value: airflow\.* astro\.*
     EOT
     extraConfigMaps = {
       airflow-airflow-connections = {

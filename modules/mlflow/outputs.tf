@@ -5,7 +5,7 @@ output "id" {
 
 output "cluster_dns" {
   description = "MLflow cluster dns"
-  value       = "mlflow.${var.namespace}.svc.cluster.local:9000"
+  value       = "mlflow.${var.namespace}.svc.cluster.local"
 }
 output "cluster_ip" {
   description = "MLflow cluster ip internal"

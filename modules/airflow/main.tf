@@ -16,7 +16,7 @@ resource "kubernetes_namespace" "airflow_namespace" {
 
 resource "kubernetes_secret" "airflow_ssh_secret" {
   metadata {
-    name = "airflow-ssh-secret"
+    name      = "airflow-ssh-secret"
     namespace = var.namespace
   }
 
@@ -24,7 +24,7 @@ resource "kubernetes_secret" "airflow_ssh_secret" {
     gitSshKey = file("${var.home_ssh}")
   }
 
-  depends_on = [ kubernetes_namespace.airflow_namespace ]
+  depends_on = [kubernetes_namespace.airflow_namespace]
 }
 # resource "kubernetes_secret" "airflow_metadata_secret" {
 #   metadata {
@@ -100,11 +100,13 @@ resource "argocd_application" "this" {
       helm {
         values = data.utils_deep_merge_yaml.values.output
       }
+
     }
 
     destination {
       name      = "in-cluster"
       namespace = var.namespace
+
     }
 
     sync_policy {
@@ -133,7 +135,6 @@ resource "argocd_application" "this" {
     resource.null_resource.dependencies,
   ]
 }
-
 resource "null_resource" "this" {
   depends_on = [
     resource.argocd_application.this,

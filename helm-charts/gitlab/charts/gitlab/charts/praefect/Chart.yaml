@@ -1,0 +1,20 @@
+---
+apiVersion: v1
+name: praefect
+version: 7.0.4
+appVersion: master
+description: Praefect is a router and transaction manager for Gitaly, and a required
+  component for running a Gitaly Cluster.
+keywords:
+- gitlab
+- gitaly
+- praefect
+home: https://about.gitlab.com/
+icon: https://gitlab.com/gitlab-com/gitlab-artwork/raw/master/logo/logo-square.svg
+sources:
+- https://gitlab.com/gitlab-org/charts/gitlab/tree/master/charts/gitlab/charts/praefect
+- https://gitlab.com/gitlab-org/build/CNG/tree/master/gitaly
+- https://gitlab.com/gitlab-org/gitaly/-/tree/master/cmd/praefect
+maintainers:
+- name: GitLab Inc.
+  email: support@gitlab.com

@@ -67,3 +67,8 @@ variable "dependency_ids" {
   type        = map(string)
   default     = {}
 }
+
+variable "fernetKey" {
+  description = "Fernet key settings. The Fernet key used to encrypt passwords (can only be set during install, not upgrade)."
+  type        = string
+}

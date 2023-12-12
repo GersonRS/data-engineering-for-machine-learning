@@ -2882,7 +2882,7 @@
       "x-docsSection": "Kubernetes"
     },
     "airflowVersion": {
-      "default": "2.7.0",
+      "default": "2.7.2",
       "description": "Airflow version (Used to make some decisions based on Airflow Version being deployed).",
       "type": "string",
       "x-docsSection": "Common"
@@ -3866,35 +3866,6 @@
           "additionalProperties": false,
           "description": "wait-for-airflow-migrations init container.",
           "properties": {
-            "containerLifecycleHooks": {
-              "$ref": "#/definitions/io.k8s.api.core.v1.Lifecycle",
-              "default": {},
-              "description": "Container Lifecycle Hooks definition for the wait for migrations. If not set, the values from global `containerLifecycleHooks` will be used.",
-              "examples": [
-                {
-                  "postStart": {
-                    "exec": {
-                      "command": [
-                        "/bin/sh",
-                        "-c",
-                        "echo postStart handler > /usr/share/message"
-                      ]
-                    }
-                  },
-                  "preStop": {
-                    "exec": {
-                      "command": [
-                        "/bin/sh",
-                        "-c",
-                        "echo preStop handler > /usr/share/message"
-                      ]
-                    }
-                  }
-                }
-              ],
-              "type": "object",
-              "x-docsSection": "Kubernetes"
-            },
             "enabled": {
               "default": true,
               "description": "Enable wait-for-airflow-migrations init container.",
@@ -4011,6 +3982,12 @@
               "default": 1,
               "description": "Repository depth.",
               "type": "integer"
+            },
+            "emptyDirConfig": {
+              "$ref": "#/definitions/io.k8s.api.core.v1.EmptyDirVolumeSource",
+              "default": null,
+              "description": "Configuration for dags empty dir volume.",
+              "type": "object"
             },
             "enabled": {
               "default": false,
@@ -4158,6 +4135,14 @@
             }
           },
           "type": "object"
+        },
+        "mountPath": {
+          "default": null,
+          "description": "Where dags volume will be mounted. Works for both `persistence` and `gitSync`. If not specified, dags mount path will be set to `$AIRFLOW_HOME/dags`",
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "persistence": {
           "additionalProperties": false,
@@ -4383,7 +4368,7 @@
       "x-docsSection": "Common"
     },
     "defaultAirflowTag": {
-      "default": "2.7.0",
+      "default": "2.7.2",
       "description": "Default airflow tag to deploy.",
       "type": "string",
       "x-docsSection": "Common"
@@ -5233,7 +5218,7 @@
               "type": "string"
             },
             "tag": {
-              "default": "v3.6.3",
+              "default": "v3.6.9",
               "description": "The gitSync image tag.",
               "type": "string"
             }
@@ -5703,6 +5688,12 @@
       "additionalProperties": false,
       "description": "Logs settings.",
       "properties": {
+        "emptyDirConfig": {
+          "$ref": "#/definitions/io.k8s.api.core.v1.EmptyDirVolumeSource",
+          "default": null,
+          "description": "Configuration for logs empty dir volume.",
+          "type": "object"
+        },
         "persistence": {
           "additionalProperties": false,
           "description": "Persistence configuration.",
@@ -5775,7 +5766,7 @@
           "default": [
             "bash",
             "-c",
-            "exec \\\nairflow {{ semverCompare \">=2.0.0\" .Values.airflowVersion | ternary \"db upgrade\" \"upgradedb\" }}"
+            "exec \\\nairflow {{ semverCompare \">=2.7.0\" .Values.airflowVersion | ternary \"db migrate\" (semverCompare \">=2.0.0\" .Values.airflowVersion | ternary \"db upgrade\" \"upgradedb\") }}"
           ],
           "description": "Args to use when running migrate database job (templated).",
           "items": {
@@ -6890,6 +6881,12 @@
           "type": "object",
           "x-docsSection": "Kubernetes"
         },
+        "emptyDirConfig": {
+          "$ref": "#/definitions/io.k8s.api.core.v1.EmptyDirVolumeSource",
+          "default": null,
+          "description": "Configuration for redis empty dir volume.",
+          "type": "object"
+        },
         "enabled": {
           "default": true,
           "description": "Enable the Redis provisioned by the chart (you can also use an external Redis instance with `data.brokerUrl` or `data.brokerUrlSecretName`).",
@@ -6959,6 +6956,14 @@
           "default": {},
           "description": "Annotations to add to the redis pods.",
           "type": "object"
+        },
+        "priorityClassName": {
+          "default": null,
+          "description": "Specify priority for redis pods.",
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "resources": {
           "$ref": "#/definitions/io.k8s.api.core.v1.ResourceRequirements",
@@ -7611,35 +7616,6 @@
           "additionalProperties": false,
           "description": "wait-for-airflow-migrations init container.",
           "properties": {
-            "containerLifecycleHooks": {
-              "$ref": "#/definitions/io.k8s.api.core.v1.Lifecycle",
-              "default": {},
-              "description": "Container Lifecycle Hooks definition for the wait for migrations. If not set, the values from global `containerLifecycleHooks` will be used.",
-              "examples": [
-                {
-                  "postStart": {
-                    "exec": {
-                      "command": [
-                        "/bin/sh",
-                        "-c",
-                        "echo postStart handler > /usr/share/message"
-                      ]
-                    }
-                  },
-                  "preStop": {
-                    "exec": {
-                      "command": [
-                        "/bin/sh",
-                        "-c",
-                        "echo preStop handler > /usr/share/message"
-                      ]
-                    }
-                  }
-                }
-              ],
-              "type": "object",
-              "x-docsSection": "Kubernetes"
-            },
             "enabled": {
               "default": true,
               "description": "Enable wait-for-airflow-migrations init container.",
@@ -7696,6 +7672,15 @@
       },
       "type": "object",
       "x-docsSection": "Scheduler"
+    },
+    "schedulerName": {
+      "default": null,
+      "description": "Specify kube scheduler name for Pods.",
+      "type": [
+        "string",
+        "null"
+      ],
+      "x-docsSection": "Common"
     },
     "secret": {
       "default": [],
@@ -8568,35 +8553,6 @@
           "additionalProperties": false,
           "description": "wait-for-airflow-migrations init container.",
           "properties": {
-            "containerLifecycleHooks": {
-              "$ref": "#/definitions/io.k8s.api.core.v1.Lifecycle",
-              "default": {},
-              "description": "Container Lifecycle Hooks definition for the wait for migrations. If not set, the values from global `containerLifecycleHooks` will be used.",
-              "examples": [
-                {
-                  "postStart": {
-                    "exec": {
-                      "command": [
-                        "/bin/sh",
-                        "-c",
-                        "echo postStart handler > /usr/share/message"
-                      ]
-                    }
-                  },
-                  "preStop": {
-                    "exec": {
-                      "command": [
-                        "/bin/sh",
-                        "-c",
-                        "echo preStop handler > /usr/share/message"
-                      ]
-                    }
-                  }
-                }
-              ],
-              "type": "object",
-              "x-docsSection": "Kubernetes"
-            },
             "enabled": {
               "default": true,
               "description": "Enable wait-for-airflow-migrations init container.",
@@ -9331,35 +9287,6 @@
           "additionalProperties": false,
           "description": "wait-for-airflow-migrations init container.",
           "properties": {
-            "containerLifecycleHooks": {
-              "$ref": "#/definitions/io.k8s.api.core.v1.Lifecycle",
-              "default": {},
-              "description": "Container Lifecycle Hooks definition for the wait for migrations. If not set, the values from global `containerLifecycleHooks` will be used.",
-              "examples": [
-                {
-                  "postStart": {
-                    "exec": {
-                      "command": [
-                        "/bin/sh",
-                        "-c",
-                        "echo postStart handler > /usr/share/message"
-                      ]
-                    }
-                  },
-                  "preStop": {
-                    "exec": {
-                      "command": [
-                        "/bin/sh",
-                        "-c",
-                        "echo preStop handler > /usr/share/message"
-                      ]
-                    }
-                  }
-                }
-              ],
-              "type": "object",
-              "x-docsSection": "Kubernetes"
-            },
             "enabled": {
               "default": true,
               "description": "Enable wait-for-airflow-migrations init container.",
@@ -10106,35 +10033,6 @@
           "additionalProperties": false,
           "description": "wait-for-airflow-migrations init container.",
           "properties": {
-            "containerLifecycleHooks": {
-              "$ref": "#/definitions/io.k8s.api.core.v1.Lifecycle",
-              "default": {},
-              "description": "Container Lifecycle Hooks definition for the worker. If not set, the values from global `containerLifecycleHooks` will be used.",
-              "examples": [
-                {
-                  "postStart": {
-                    "exec": {
-                      "command": [
-                        "/bin/sh",
-                        "-c",
-                        "echo postStart handler > /usr/share/message"
-                      ]
-                    }
-                  },
-                  "preStop": {
-                    "exec": {
-                      "command": [
-                        "/bin/sh",
-                        "-c",
-                        "echo preStop handler > /usr/share/message"
-                      ]
-                    }
-                  }
-                }
-              ],
-              "type": "object",
-              "x-docsSection": "Kubernetes"
-            },
             "enabled": {
               "default": true,
               "description": "Enable wait-for-airflow-migrations init container.",

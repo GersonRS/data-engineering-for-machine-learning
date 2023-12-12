@@ -4,14 +4,16 @@ apache-airflow-providers-apache-kafka
 apache-airflow-providers-apache-spark
 apache-airflow-providers-cncf-kubernetes
 apache-airflow-providers-papermill
-apache-airflow[amazon,async,celery,cncf.kubernetes,docker,grpc,hashicorp,http,pandas]
-astro-sdk-python
-astro-sdk-python[postgres]
+apache-airflow-providers-slack
+apache-airflow[amazon,async,celery,cncf.kubernetes,docker,grpc,hashicorp,http,pandas,crypto]
+astro-sdk-python[postgres, amazon, snowflake]
 black
 boto3
 confluent-kafka
 crc32c
 delta-spark
+deltalake
+evidently
 flake8
 great-expectations
 h5py
@@ -36,6 +38,7 @@ pytest-docker-tools
 pytest-helpers-namespace
 pytest-mock
 python-snappy
+s3fs
 scikit-image
 scikit-learn
 scipy

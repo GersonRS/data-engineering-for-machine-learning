@@ -16,3 +16,11 @@ output "devops_stack_users_passwords" {
   }
   sensitive = true
 }
+
+# show certificate of first key:
+output "certificate" {
+  value = data.keycloak_realm_keys.realm_keys.keys[0].certificate
+}
+output "fingerprint" {
+  value = local.oidc.fingerprint
+}

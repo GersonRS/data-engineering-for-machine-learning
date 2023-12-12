@@ -8,3 +8,17 @@ output "admin_credentials" {
   value       = data.kubernetes_secret.admin_credentials.data
   sensitive   = true
 }
+
+output "cluster_dns" {
+  description = "Keycloak cluster dns"
+  value       = "keycloak.${var.namespace}.svc.cluster.local"
+}
+output "cluster_ip" {
+  description = "Keycloak cluster ip internal"
+  value       = data.kubernetes_service.keycloak.spec[0].cluster_ip
+}
+
+output "endpoint" {
+  description = "Keycloak endpoint external"
+  value       = "https://keycloak.apps.${var.cluster_name}.${var.base_domain}"
+}
