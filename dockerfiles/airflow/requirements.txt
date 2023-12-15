@@ -17,6 +17,7 @@ evidently
 flake8
 great-expectations
 h5py
+hdbcli
 ipdb
 ipykernel
 kafka-python

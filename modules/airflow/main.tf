@@ -16,9 +16,6 @@ resource "kubernetes_namespace" "airflow_namespace" {
     resource.null_resource.dependencies,
   ]
 }
-# data "utils_deep_merge_yaml" "metadata" {
-#   input = [for i in local.metadata : yamlencode(i)]
-# }
 
 resource "kubernetes_secret" "airflow_ssh_secret" {
   metadata {
@@ -32,18 +29,6 @@ resource "kubernetes_secret" "airflow_ssh_secret" {
 
   depends_on = [kubernetes_namespace.airflow_namespace]
 }
-# resource "kubernetes_secret" "airflow_metadata_secret" {
-#   metadata {
-#     name = "airflow-metadata-secret"
-#     namespace = var.namespace
-#   }
-
-#   data = {
-#     connection = "postgresql://${var.credentials_database.user}:${var.credentials_database.password}@${var.credentials_database.service}:5432/${var.credentials_database.database}"
-#   }
-
-#   depends_on = [ kubernetes_namespace.airflow_namespace ]
-# }
 
 resource "null_resource" "dependencies" {
   triggers = var.dependency_ids
@@ -142,8 +127,63 @@ resource "argocd_application" "this" {
 
   depends_on = [
     resource.null_resource.dependencies,
+    kubernetes_secret.airflow_ssh_secret
   ]
 }
+
+resource "argocd_application" "access_control" {
+  metadata {
+    name      = "access-control"
+    namespace = var.argocd_namespace
+  }
+
+  wait = var.app_autosync == { "allow_empty" = tobool(null), "prune" = tobool(null), "self_heal" = tobool(null) } ? false : true
+
+  spec {
+    project = argocd_project.this.metadata.0.name
+
+    source {
+      repo_url        = "https://github.com/GersonRS/data-engineering-for-machine-learning.git"
+      path            = "yamls/access-control"
+      target_revision = var.target_revision
+      directory {
+        recurse = true
+      }
+    }
+
+    destination {
+      name      = "in-cluster"
+      namespace = var.namespace
+    }
+
+    sync_policy {
+      automated {
+        allow_empty = var.app_autosync.allow_empty
+        prune       = var.app_autosync.prune
+        self_heal   = var.app_autosync.self_heal
+      }
+
+      retry {
+        backoff {
+          duration     = ""
+          max_duration = ""
+          factor       = "2"
+        }
+        limit = "0"
+      }
+
+      sync_options = [
+        "CreateNamespace=true"
+      ]
+    }
+  }
+
+  depends_on = [
+    resource.null_resource.dependencies,
+    argocd_application.this
+  ]
+}
+
 resource "null_resource" "this" {
   depends_on = [
     resource.argocd_application.this,
