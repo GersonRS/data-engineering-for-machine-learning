@@ -2882,7 +2882,7 @@
       "x-docsSection": "Kubernetes"
     },
     "airflowVersion": {
-      "default": "2.7.2",
+      "default": "2.7.1",
       "description": "Airflow version (Used to make some decisions based on Airflow Version being deployed).",
       "type": "string",
       "x-docsSection": "Common"
@@ -3983,12 +3983,6 @@
               "description": "Repository depth.",
               "type": "integer"
             },
-            "emptyDirConfig": {
-              "$ref": "#/definitions/io.k8s.api.core.v1.EmptyDirVolumeSource",
-              "default": null,
-              "description": "Configuration for dags empty dir volume.",
-              "type": "object"
-            },
             "enabled": {
               "default": false,
               "description": "Enable Git sync.",
@@ -4135,14 +4129,6 @@
             }
           },
           "type": "object"
-        },
-        "mountPath": {
-          "default": null,
-          "description": "Where dags volume will be mounted. Works for both `persistence` and `gitSync`. If not specified, dags mount path will be set to `$AIRFLOW_HOME/dags`",
-          "type": [
-            "string",
-            "null"
-          ]
         },
         "persistence": {
           "additionalProperties": false,
@@ -4368,7 +4354,7 @@
       "x-docsSection": "Common"
     },
     "defaultAirflowTag": {
-      "default": "2.7.2",
+      "default": "2.7.1",
       "description": "Default airflow tag to deploy.",
       "type": "string",
       "x-docsSection": "Common"
@@ -5688,12 +5674,6 @@
       "additionalProperties": false,
       "description": "Logs settings.",
       "properties": {
-        "emptyDirConfig": {
-          "$ref": "#/definitions/io.k8s.api.core.v1.EmptyDirVolumeSource",
-          "default": null,
-          "description": "Configuration for logs empty dir volume.",
-          "type": "object"
-        },
         "persistence": {
           "additionalProperties": false,
           "description": "Persistence configuration.",
@@ -6881,12 +6861,6 @@
           "type": "object",
           "x-docsSection": "Kubernetes"
         },
-        "emptyDirConfig": {
-          "$ref": "#/definitions/io.k8s.api.core.v1.EmptyDirVolumeSource",
-          "default": null,
-          "description": "Configuration for redis empty dir volume.",
-          "type": "object"
-        },
         "enabled": {
           "default": true,
           "description": "Enable the Redis provisioned by the chart (you can also use an external Redis instance with `data.brokerUrl` or `data.brokerUrlSecretName`).",
@@ -6956,14 +6930,6 @@
           "default": {},
           "description": "Annotations to add to the redis pods.",
           "type": "object"
-        },
-        "priorityClassName": {
-          "default": null,
-          "description": "Specify priority for redis pods.",
-          "type": [
-            "string",
-            "null"
-          ]
         },
         "resources": {
           "$ref": "#/definitions/io.k8s.api.core.v1.ResourceRequirements",

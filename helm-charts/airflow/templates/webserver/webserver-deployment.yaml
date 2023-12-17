@@ -163,13 +163,6 @@ spec:
         {{- end }}
         {{- if .Values.webserver.extraInitContainers }}
           {{- toYaml .Values.webserver.extraInitContainers | nindent 8 }}
-          image: {{ template "airflow_image" . }}
-          imagePullPolicy: {{ .Values.images.airflow.pullPolicy }}
-          securityContext: {{ $containerSecurityContextWaitForMigrations | nindent 12 }}
-          resources: {{- toYaml .Values.webserver.resources | nindent 12 }}
-          env:
-            {{- include "custom_airflow_environment" . | indent 10 }}
-            {{- include "standard_airflow_environment" . | indent 10 }}
         {{- end }}
       containers:
         - name: webserver
@@ -281,7 +274,7 @@ spec:
             claimName: {{ template "airflow_dags_volume_claim" . }}
         {{- else if .Values.dags.gitSync.enabled }}
         - name: dags
-          emptyDir: {{- toYaml (default (dict) .Values.dags.gitSync.emptyDirConfig) | nindent 12 }}
+          emptyDir: {}
         {{- if  .Values.dags.gitSync.sshKeySecret }}
           {{- include "git_sync_ssh_key_volume" . | indent 8 }}
         {{- end }}

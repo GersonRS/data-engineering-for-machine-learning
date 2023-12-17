@@ -42,10 +42,15 @@ locals {
     executor                     = "KubernetesExecutor"
     webserverSecretKeySecretName = "my-webserver-secret"
     createUserJob = {
-      useHelmHooks   = false
+      useHelmHooks = false
+      applyCustomEnv = false
     }
     migrateDatabaseJob = {
       useHelmHooks = false
+      applyCustomEnv = false
+      jobAnnotations = {
+        "argocd.argoproj.io/hook": "Sync"
+      }
     }
 
     # defaultUser = {
