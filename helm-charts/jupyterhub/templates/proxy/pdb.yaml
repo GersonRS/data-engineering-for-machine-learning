@@ -1,23 +1,18 @@
-{{- /*
-Copyright VMware, Inc.
-SPDX-License-Identifier: APACHE-2.0
-*/}}
-
-{{- if .Values.proxy.pdb.create -}}
-apiVersion: {{ include "common.capabilities.policy.apiVersion" . }}
+{{- if .Values.proxy.chp.pdb.enabled -}}
+apiVersion: policy/v1
 kind: PodDisruptionBudget
 metadata:
-  labels: {{- include "common.labels.standard" . | nindent 4 }}
-    app.kubernetes.io/component: proxy
-    {{- if .Values.commonLabels }}
-    {{- include "common.tplvalues.render" ( dict "value" .Values.commonLabels "context" $ ) | nindent 4 }}
-    {{- end }}
-  name: {{ include "jupyterhub.proxy.name" . }}
-  namespace: {{ .Release.Namespace | quote }}
+  name: {{ include "jupyterhub.proxy.fullname" . }}
+  labels:
+    {{- include "jupyterhub.labels" . | nindent 4 }}
 spec:
-  minAvailable: {{ .Values.proxy.pdb.minAvailable }}
-  maxUnavailable: {{ .Values.proxy.pdb.maxUnavailable }}
+  {{- if not (typeIs "<nil>" .Values.proxy.chp.pdb.maxUnavailable) }}
+  maxUnavailable: {{ .Values.proxy.chp.pdb.maxUnavailable }}
+  {{- end }}
+  {{- if not (typeIs "<nil>" .Values.proxy.chp.pdb.minAvailable) }}
+  minAvailable: {{ .Values.proxy.chp.pdb.minAvailable }}
+  {{- end }}
   selector:
-    matchLabels: {{- include "common.labels.matchLabels" . | nindent 6 }}
-      app.kubernetes.io/component: proxy
+    matchLabels:
+      {{- include "jupyterhub.matchLabels" . | nindent 6 }}
 {{- end }}

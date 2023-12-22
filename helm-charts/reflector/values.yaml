@@ -1,0 +1,63 @@
+affinity: {}
+autoscaling:
+  enabled: false
+  maxReplicas: 100
+  minReplicas: 1
+  targetCPUUtilizationPercentage: 80
+configuration:
+  kubernetes:
+    skipTlsVerify: false
+  logging:
+    minimumLevel: Information
+  watcher:
+    timeout: ""
+cron:
+  activeDeadlineSeconds: 600
+  enabled: false
+  schedule: '*/15 * * * *'
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+extraEnv: []
+fullnameOverride: ""
+healthcheck:
+  httpGet:
+    path: /healthz
+    port: http
+image:
+  pullPolicy: IfNotPresent
+  repository: emberstack/kubernetes-reflector
+  tag: ""
+imagePullSecrets: []
+livenessProbe:
+  initialDelaySeconds: 5
+  periodSeconds: 10
+nameOverride: ""
+nodeSelector: {}
+podAnnotations: {}
+podLabels: {}
+podSecurityContext:
+  fsGroup: 2000
+priorityClassName: ""
+rbac:
+  enabled: true
+readinessProbe:
+  initialDelaySeconds: 5
+  periodSeconds: 10
+replicaCount: 1
+resources: {}
+securityContext:
+  capabilities:
+    drop:
+    - ALL
+  readOnlyRootFilesystem: false
+  runAsNonRoot: true
+  runAsUser: 1000
+serviceAccount:
+  annotations: {}
+  create: true
+  name: ""
+startupProbe:
+  failureThreshold: 10
+  periodSeconds: 5
+tolerations: []

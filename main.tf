@@ -62,12 +62,22 @@ module "argocd_bootstrap" {
   depends_on = [module.metallb]
 }
 
+module "reflector" {
+  source           = "./modules/reflector"
+  argocd_namespace = module.argocd_bootstrap.argocd_namespace
+  target_revision  = local.target_revision
+  dependency_ids = {
+    argocd = module.argocd_bootstrap.id
+  }
+  depends_on = [module.argocd_bootstrap, module.metallb]
+}
+
 module "traefik" {
   source       = "./modules/traefik"
   cluster_name = local.cluster_name
   # TODO fix: the base domain is defined later. Proposal: remove redirection from traefik module and add it in dependent modules.
   # For now random value is passed to base_domain. Redirections will not work before fix.
-  base_domain            = "172-29-0-100.nip.io"
+  base_domain            = "172-18-0-100.nip.io"
   argocd_namespace       = module.argocd_bootstrap.argocd_namespace
   enable_service_monitor = local.enable_service_monitor
   target_revision        = local.target_revision
@@ -164,9 +174,9 @@ module "kafka-ui" {
   argocd_namespace = module.argocd_bootstrap.argocd_namespace
   target_revision  = local.target_revision
   dependency_ids = {
-    traefik      = module.traefik.id
-    cert-manager = module.cert-manager.id
-    kafka-broker = module.kafka-broker.id
+    traefik            = module.traefik.id
+    cert-manager       = module.cert-manager.id
+    kafka-broker       = module.kafka-broker.id
     cp-schema-registry = module.cp-schema-registry.id
   }
 }
