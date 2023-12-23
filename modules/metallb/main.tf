@@ -1,4 +1,4 @@
-    # metallb_crds release is a hack to make sure CRDs are installed before CRs.
+# metallb_crds release is a hack to make sure CRDs are installed before CRs.
 # Subchart is decompressed in this module on purpose
 # TODO find a better way to manage this.
 resource "helm_release" "metallb_crds" {

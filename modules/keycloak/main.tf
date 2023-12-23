@@ -149,6 +149,7 @@ resource "argocd_application" "this" {
 
   depends_on = [
     resource.argocd_application.operator,
+    random_password.db_password
   ]
 }
 
@@ -174,12 +175,14 @@ data "kubernetes_secret" "admin_credentials" {
   }
   depends_on = [
     resource.null_resource.wait_for_keycloak,
+    resource.argocd_application.this
   ]
 }
 
 resource "null_resource" "this" {
   depends_on = [
     resource.null_resource.wait_for_keycloak,
+    resource.argocd_application.this,
   ]
 }
 
@@ -190,6 +193,7 @@ data "kubernetes_service" "keycloak" {
   }
 
   depends_on = [
-    null_resource.this
+    null_resource.this,
+    resource.argocd_application.this,
   ]
 }

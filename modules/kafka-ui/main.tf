@@ -4,12 +4,12 @@ resource "null_resource" "dependencies" {
 
 resource "argocd_project" "this" {
   metadata {
-    name      = "kafka"
+    name      = "kafka-ui"
     namespace = var.argocd_namespace
   }
 
   spec {
-    description  = "kafka application project"
+    description = "kafka-ui application project"
     source_repos = [
       "https://github.com/GersonRS/data-engineering-for-machine-learning.git",
     ]

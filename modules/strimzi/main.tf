@@ -4,12 +4,12 @@ resource "null_resource" "dependencies" {
 
 resource "argocd_project" "this" {
   metadata {
-    name      = "kafka"
+    name      = "strimzi-kafka-operator"
     namespace = var.argocd_namespace
   }
 
   spec {
-    description = "kafka application project"
+    description = "strimzi-kafka-operator application project"
     source_repos = [
       "https://github.com/GersonRS/data-engineering-for-machine-learning.git",
     ]
@@ -87,5 +87,5 @@ resource "argocd_application" "operator" {
 }
 
 resource "null_resource" "this" {
-  depends_on = [ argocd_application.operator ]
+  depends_on = [argocd_application.operator]
 }

@@ -1,9 +1,9 @@
 locals {
   helm_values = [{
+    # fullnameOverride is used to set the service name in traefik data source.
+    # TODO check further if setting this value is necessary.
+    fullnameOverride = "traefik"
     traefik = {
-      # fullnameOverride is used to set the service name in traefik data source.
-      # TODO check further if setting this value is necessary.
-      fullnameOverride = "traefik"
       deployment = {
         replicas = var.replicas
       }
@@ -31,6 +31,13 @@ locals {
           minVersion = "VersionTLS12"
         }
       }
+      ports = var.enable_https_redirection ? {
+        web = {
+          redirectTo = {
+            port = "websecure"
+          }
+        }
+      } : null
       ressources = {
         limits = {
           cpu    = "250m"

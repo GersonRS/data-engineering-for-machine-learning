@@ -18,12 +18,12 @@ locals {
 
   # TODO fix later: use app version read from Chart.yaml
   # argocd_version = yamldecode(file("${path.module}/../charts/argocd/charts/argo-cd/Chart.yaml")).appVersion
-  argocd_version = "v2.6.6"
+  argocd_version = "v2.8.3"
 
   argocd_chart = {
     repository = "https://argoproj.github.io/argo-helm"
-    chart      = "argo-cd"
-    version    = "5.42.0"
+    name       = "argo-cd"
+    version    = "5.45.3"
   }
 
   helm_values = [{

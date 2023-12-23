@@ -14,17 +14,22 @@ resource "kubernetes_namespace" "postgresql_namespace" {
 
 resource "kubernetes_secret" "postgresql_secret" {
   metadata {
-    name = "postgres-secrets"
+    name      = "postgres-secrets"
     namespace = var.namespace
+    annotations = {
+      "reflector.v1.k8s.emberstack.com/reflection-auto-enabled" : "true"
+      "reflector.v1.k8s.emberstack.com/reflection-allowed" : "true"
+      "reflector.v1.k8s.emberstack.com/reflection-allowed-namespaces" : "${var.namespace},processing"
+    }
   }
 
   data = {
-    password = "${resource.random_password.password_secret.result}"
-    postgres-password = "${resource.random_password.password_secret.result}"
+    password               = "${resource.random_password.password_secret.result}"
+    postgres-password      = "${resource.random_password.password_secret.result}"
     replicationPasswordKey = "${resource.random_password.password_secret.result}"
   }
 
-  depends_on = [ kubernetes_namespace.postgresql_namespace ]
+  depends_on = [kubernetes_namespace.postgresql_namespace]
 }
 
 resource "null_resource" "dependencies" {
@@ -32,7 +37,7 @@ resource "null_resource" "dependencies" {
 }
 
 resource "argocd_project" "this" {
-  depends_on = [ kubernetes_secret.postgresql_secret ]
+  depends_on = [kubernetes_secret.postgresql_secret]
   metadata {
     name      = "postgresql"
     namespace = var.argocd_namespace

@@ -63,6 +63,48 @@ locals {
     #     tls = true
     #   }
     # }
+    proxy = {
+      https = {
+        enabled = true
+      }
+    }
+    hub = {
+      image = {
+        name = "gersonrs/k8s-hub"
+        tag  = "latest"
+      }
+      config = {
+        GenericOAuthenticator = {
+          client_id          = "${var.oidc.client_id}"
+          client_secret      = "${var.oidc.client_secret}"
+          oauth_callback_url = "https://jupyterhub.apps.${var.cluster_name}.${var.base_domain}/hub/oauth_callback"
+          authorize_url      = "${var.oidc.oauth_url}"
+          token_url          = "${var.oidc.token_url}"
+          userdata_method    = "POST"
+          userdata_url       = "${var.oidc.api_url}"
+          login_service      = "keycloak"
+          username_claim     = "email"
+          scope              = ["openid", "email", "groups"]
+          tls_verify         = false
+          userdata_params = {
+            state = "state"
+          }
+          # In order to use keycloak client's roles as authorization layer
+          claim_groups_key = "groups"
+          allowed_groups   = ["user", "modern-devops-stack-admins"]
+          admin_groups     = ["admin", "modern-devops-stack-admins"]
+        }
+        JupyterHub = {
+          authenticator_class = "generic-oauth"
+        }
+      }
+    }
+    singleuser = {
+      image = {
+        name = "quay.io/jupyter/all-spark-notebook"
+        tag  = "latest"
+      }
+    }
     ingress = {
       enabled = true
       annotations = {

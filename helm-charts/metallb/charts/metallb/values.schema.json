@@ -1,137 +1,23 @@
 {
   "$schema": "https://json-schema.org/draft-07/schema#",
-  "controller": {
-    "allOf": [
-      {
-        "$ref": "#/definitions/component"
-      },
-      {
-        "description": "MetalLB Controller",
-        "properties": {
-          "command": {
-            "type": "string"
-          },
-          "strategy": {
-            "properties": {
-              "type": {
-                "type": "string"
-              }
-            },
-            "required": [
-              "type"
-            ],
-            "type": "object"
-          },
-          "webhookMode": {
-            "type": "string"
-          }
-        },
-        "type": "object"
-      }
-    ]
-  },
+  "title": "Values",
+  "type": "object",
   "definitions": {
-    "component": {
+    "prometheusAlert": {
+      "type": "object",
       "properties": {
-        "affinity": {
-          "type": "object"
-        },
         "enabled": {
           "type": "boolean"
         },
-        "image": {
-          "properties": {
-            "pullPolicy": {
-              "anyOf": [
-                {
-                  "type": "null"
-                },
-                {
-                  "enum": [
-                    "Always",
-                    "IfNotPresent",
-                    "Never"
-                  ],
-                  "type": "string"
-                }
-              ]
-            },
-            "repository": {
-              "type": "string"
-            },
-            "tag": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ]
-            }
-          },
-          "type": "object"
-        },
-        "livenessProbe": {
-          "$ref": "#/definitions/probe"
-        },
-        "logLevel": {
-          "enum": [
-            "all",
-            "debug",
-            "info",
-            "warn",
-            "error",
-            "none"
-          ],
-          "type": "string"
-        },
-        "nodeSelector": {
-          "type": "object"
-        },
-        "podAnnotations": {
-          "type": "object"
-        },
-        "priorityClassName": {
-          "type": "string"
-        },
-        "readinessProbe": {
-          "$ref": "#/definitions/probe"
-        },
-        "resources": {
-          "type": "object"
-        },
-        "runtimeClassName": {
-          "type": "string"
-        },
-        "serviceAccount": {
-          "properties": {
-            "annotations": {
-              "type": "object"
-            },
-            "create": {
-              "type": "boolean"
-            },
-            "name": {
-              "type": "string"
-            }
-          },
-          "type": "object"
-        },
-        "tolerations": {
-          "items": {
-            "type": "object"
-          },
-          "type": "array"
+        "labels": {
+          "type": "object",
+          "additionalProperties": { "type": "string" }
         }
       },
-      "required": [
-        "image",
-        "serviceAccount"
-      ],
-      "type": "object"
+      "required": [ "enabled" ]
     },
     "probe": {
+      "type": "object",
       "properties": {
         "enabled": {
           "type": "boolean"
@@ -158,182 +44,247 @@
         "periodSeconds",
         "successThreshold",
         "timeoutSeconds"
-      ],
-      "type": "object"
+      ]
     },
-    "prometheusAlert": {
+    "component": {
+      "type": "object",
       "properties": {
         "enabled": {
           "type": "boolean"
         },
-        "labels": {
-          "additionalProperties": {
-            "type": "string"
-          },
+        "logLevel": {
+          "type": "string",
+          "enum": [ "all", "debug", "info", "warn", "error", "none" ]
+        },
+        "image": {
+          "type": "object",
+          "properties": {
+            "repository": {
+              "type": "string"
+            },
+            "tag": {
+              "anyOf": [
+                { "type": "string" },
+                { "type": "null" }
+              ]
+            },
+            "pullPolicy": {
+              "anyOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "type": "string",
+                  "enum": [ "Always", "IfNotPresent", "Never" ]
+                }
+              ]
+            }
+          }
+        },
+        "serviceAccount": {
+          "type": "object",
+          "properties": {
+            "create": {
+              "type": "boolean"
+            },
+            "name": {
+              "type": "string"
+            },
+            "annotations": {
+              "type": "object"
+            }
+          }
+        },
+        "resources": {
           "type": "object"
+        },
+        "nodeSelector": {
+          "type": "object"
+        },
+        "tolerations": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "priorityClassName": {
+          "type":"string"
+        },
+        "runtimeClassName": {
+          "type":"string"
+        },
+        "affinity": {
+          "type": "object"
+        },
+        "podAnnotations": {
+          "type": "object"
+        },
+        "livenessProbe": {
+          "$ref": "#/definitions/probe"
+        },
+        "readinessProbe": {
+          "$ref": "#/definitions/probe"
         }
       },
       "required": [
-        "enabled"
-      ],
-      "type": "object"
+        "image",
+        "serviceAccount"
+      ]
     }
   },
   "properties": {
-    "configInLine": {
-      "description": "MetalLB configuration",
-      "type": "object"
-    },
-    "crds": {
-      "description": "CRD configuration",
-      "properties": {
-        "enabled": {
-          "description": "Enable CRDs",
-          "type": "boolean"
-        },
-        "validationFailurePolicy": {
-          "description": "Failure policy to use with validating webhooks",
-          "enum": [
-            "Ignore",
-            "Fail"
-          ],
-          "type": "string"
-        }
-      },
-      "type": "object"
-    },
-    "fullNameOverride": {
-      "description": "Override fully qualified app name",
-      "type": "string"
-    },
     "imagePullSecrets": {
       "description": "Secrets used for pulling images",
+      "type": "array",
       "items": {
-        "additionalProperties": false,
+        "type": "object",
         "properties": {
           "name": {
             "type": "string"
           }
         },
-        "required": [
-          "name"
-        ],
-        "type": "object"
-      },
-      "type": "array"
-    },
-    "loadBalancerClass": {
-      "type": "string"
+        "required": [ "name" ],
+        "additionalProperties": false
+      }
     },
     "nameOverride": {
       "description": "Override chart name",
       "type": "string"
     },
+    "fullNameOverride": {
+      "description": "Override fully qualified app name",
+      "type": "string"
+    },
+    "configInLine": {
+      "description": "MetalLB configuration",
+      "type": "object"
+    },
+    "loadBalancerClass": {
+      "type":"string"
+    },
+    "rbac": {
+      "description": "RBAC configuration",
+      "type": "object",
+      "properties": {
+        "create": {
+          "description": "Enable RBAC",
+          "type": "boolean"
+        }
+      }
+    },
     "prometheus": {
       "description": "Prometheus monitoring config",
+      "type": "object",
       "properties": {
-        "metricsPort": {
-          "type": "integer"
-        },
-        "namespace": {
-          "type": "string"
+        "scrapeAnnotations": { "type": "boolean" },
+        "metricsPort": { "type": "integer" },
+        "secureMetricsPort": { "type": "integer" },
+        "rbacPrometheus": { "type": "boolean" },
+        "serviceAccount": { "type": "string" },
+        "namespace": { "type": "string" },
+        "rbacProxy": {
+          "description": "kube-rbac-proxy configuration",
+          "type": "object",
+          "properties": {
+            "repository": { "type": "string" },
+            "tag": { "type": "string" }
+          }
         },
         "podMonitor": {
           "description": "Prometheus Operator PodMonitors",
+          "type": "object",
           "properties": {
-            "additionalMonitors": {
-              "type": "object"
-            },
-            "enabled": {
-              "type": "boolean"
-            },
+            "enabled": { "type": "boolean" },
+            "additionalMonitors": { "type": "object" },
+            "jobLabel": { "type": "string" },
             "interval": {
               "anyOf": [
-                {
-                  "type": "integer"
-                },
-                {
-                  "type": "null"
-                }
+                { "type": "integer" },
+                { "type": "null" }
               ]
             },
-            "jobLabel": {
-              "type": "string"
-            },
             "metricRelabelings": {
+              "type": "array",
               "items": {
                 "type": "object"
-              },
-              "type": "array"
+              }
             },
             "relabelings": {
+              "type": "array",
               "items": {
                 "type": "object"
-              },
-              "type": "array"
+              }
             }
-          },
-          "type": "object"
+          }
+        },
+        "serviceMonitor": {
+          "description": "Prometheus Operator ServiceMonitors",
+          "type": "object",
+          "properties": {
+            "enabled": { "type": "boolean" },
+            "jobLabel": { "type": "string" },
+            "interval": {
+              "anyOf": [
+                { "type": "integer" },
+                { "type": "null" }
+              ]
+            },
+            "metricRelabelings": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            },
+            "relabelings": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            }
+          }
         },
         "prometheusRule": {
           "description": "Prometheus Operator alertmanager alerts",
+          "type": "object",
           "properties": {
-            "additionalMonitors": {
-              "type": "object"
-            },
-            "addressPoolExhausted": {
-              "$ref": "#/definitions/prometheusAlert"
-            },
+            "enabled": { "type": "boolean" },
+            "additionalMonitors": { "type": "object" },
+            "staleConfig": { "$ref": "#/definitions/prometheusAlert" },
+            "configNotLoaded": { "$ref": "#/definitions/prometheusAlert" },
+            "addressPoolExhausted": { "$ref": "#/definitions/prometheusAlert" },
             "addressPoolUsage": {
+              "type": "object",
               "properties": {
                 "enabled": {
                   "type": "boolean"
                 },
                 "thresholds": {
+                  "type": "array",
                   "items": {
+                    "type": "object",
                     "properties": {
-                      "labels": {
-                        "additionalProperties": {
-                          "type": "string"
-                        },
-                        "type": "object"
-                      },
                       "percent": {
-                        "maximum": 100,
+                        "type": "integer",
                         "minimum": 0,
-                        "type": "integer"
+                        "maximum": 100
+                      },
+                      "labels": {
+                        "type": "object",
+                        "additionalProperties": { "type": "string" }
                       }
                     },
-                    "required": [
-                      "percent"
-                    ],
-                    "type": "object"
-                  },
-                  "type": "array"
+                    "required": [ "percent" ]
+                  }
                 }
               },
-              "required": [
-                "enabled"
-              ],
-              "type": "object"
+              "required": [ "enabled" ]
             },
-            "bgpSessionDown": {
-              "$ref": "#/definitions/prometheusAlert"
-            },
-            "configNotLoaded": {
-              "$ref": "#/definitions/prometheusAlert"
-            },
-            "enabled": {
-              "type": "boolean"
-            },
+            "bgpSessionDown": { "$ref": "#/definitions/prometheusAlert" },
             "extraAlerts": {
+              "type": "array",
               "items": {
                 "type": "object"
-              },
-              "type": "array"
-            },
-            "staleConfig": {
-              "$ref": "#/definitions/prometheusAlert"
+              }
             }
           },
           "required": [
@@ -343,145 +294,50 @@
             "addressPoolExhausted",
             "addressPoolUsage",
             "bgpSessionDown"
-          ],
-          "type": "object"
-        },
-        "rbacPrometheus": {
-          "type": "boolean"
-        },
-        "rbacProxy": {
-          "description": "kube-rbac-proxy configuration",
+          ]
+        }
+      },
+      "required": [ "podMonitor", "prometheusRule" ]
+    },
+    "speaker": { 
+      "allOf": [
+        { "$ref": "#/definitions/component" },
+        { "description": "MetalLB Speaker",
+          "type": "object",
           "properties": {
-            "repository": {
-              "type": "string"
-            },
-            "tag": {
-              "type": "string"
-            }
-          },
-          "type": "object"
-        },
-        "scrapeAnnotations": {
-          "type": "boolean"
-        },
-        "secureMetricsPort": {
-          "type": "integer"
-        },
-        "serviceAccount": {
-          "type": "string"
-        },
-        "serviceMonitor": {
-          "description": "Prometheus Operator ServiceMonitors",
-          "properties": {
-            "enabled": {
+            "tolerateMaster": {
               "type": "boolean"
             },
-            "interval": {
-              "anyOf": [
-                {
-                  "type": "integer"
-                },
-                {
-                  "type": "null"
-                }
-              ]
-            },
-            "jobLabel": {
-              "type": "string"
-            },
-            "metricRelabelings": {
-              "items": {
-                "type": "object"
-              },
-              "type": "array"
-            },
-            "relabelings": {
-              "items": {
-                "type": "object"
-              },
-              "type": "array"
-            }
-          },
-          "type": "object"
-        }
-      },
-      "required": [
-        "podMonitor",
-        "prometheusRule"
-      ],
-      "type": "object"
-    },
-    "rbac": {
-      "description": "RBAC configuration",
-      "properties": {
-        "create": {
-          "description": "Enable RBAC",
-          "type": "boolean"
-        }
-      },
-      "type": "object"
-    },
-    "speaker": {
-      "allOf": [
-        {
-          "$ref": "#/definitions/component"
-        },
-        {
-          "description": "MetalLB Speaker",
-          "properties": {
-            "command": {
-              "type": "string"
-            },
-            "frr": {
-              "description": "Install FRR container in speaker deployment",
-              "properties": {
-                "enabled": {
-                  "type": "boolean"
-                },
-                "image": {
-                  "$ref": "#/definitions/component/properties/image"
-                },
-                "metricsPort": {
-                  "type": "integer"
-                },
-                "resources:": {
-                  "type": "object"
-                },
-                "secureMetricsPort": {
-                  "type": "integer"
-                }
-              },
-              "required": [
-                "enabled"
-              ],
-              "type": "object"
-            },
-            "frrMetrics": {
-              "properties": {
-                "resources": {
-                  "type": "object"
-                }
-              },
-              "type": "object"
-            },
             "memberlist": {
+              "type": "object",
               "properties": {
                 "enabled": {
                   "type": "boolean"
                 },
                 "mlBindPort": {
                   "type": "integer"
+                },
+                "mlSecretKeyPath": {
+                  "type": "string"
                 }
-              },
-              "type": "object"
+              }
             },
-            "reloader": {
+            "excludeInterfaces": {
+              "type": "object",
               "properties": {
-                "resources": {
-                  "type": "object"
+                "enabled": {
+                  "type": "boolean"
+                }
+              }
+            },
+            "updateStrategy": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string"
                 }
               },
-              "type": "object"
+              "required": [ "type" ]
             },
             "runtimeClassName": {
               "type": "string"
@@ -489,33 +345,83 @@
             "secretName": {
               "type": "string"
             },
-            "tolerateMaster": {
-              "type": "boolean"
-            },
-            "updateStrategy": {
+            "frr": {
+              "description": "Install FRR container in speaker deployment",
+              "type": "object",
               "properties": {
-                "type": {
-                  "type": "string"
-                }
+                "enabled": {
+                  "type": "boolean"
+                },
+                "image": { "$ref": "#/definitions/component/properties/image" },
+                "metricsPort": { "type": "integer" },
+                "secureMetricsPort": { "type": "integer" },
+                "resources:": { "type": "object" }
               },
-              "required": [
-                "type"
-              ],
-              "type": "object"
+              "required": [ "enabled" ]
+            },
+            "command" : {
+              "type": "string"
+            },
+            "reloader": {
+              "type": "object",
+              "properties": {
+                "resources": { "type": "object" }
+              }
+            },
+            "frrMetrics": {
+              "type": "object",
+              "properties": {
+                "resources": { "type": "object" }
+              }
             }
           },
-          "required": [
-            "tolerateMaster"
-          ],
-          "type": "object"
+          "required": [ "tolerateMaster" ]
         }
       ]
+    },
+    "crds": {
+      "description": "CRD configuration",
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "description": "Enable CRDs",
+          "type": "boolean"
+        },
+        "validationFailurePolicy": {
+          "description": "Failure policy to use with validating webhooks",
+          "type": "string",
+          "enum": [ "Ignore", "Fail" ]
+        }
+      }
     }
+  },
+  "controller": { 
+    "allOf": [
+      { "$ref": "#/definitions/component" },
+      { "description": "MetalLB Controller",
+        "type": "object",
+        "properties": {
+          "strategy": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string"
+              }
+            },
+            "required": [ "type" ]
+          },
+          "command" : {
+            "type": "string"
+          },
+          "webhookMode" : {
+            "type": "string"
+          }
+        }
+      }
+    ]
   },
   "required": [
     "controller",
     "speaker"
-  ],
-  "title": "Values",
-  "type": "object"
+  ]
 }

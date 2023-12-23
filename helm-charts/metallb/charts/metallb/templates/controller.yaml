@@ -3,9 +3,13 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ template "metallb.fullname" . }}-controller
+  namespace: {{ .Release.Namespace | quote }}
   labels:
     {{- include "metallb.labels" . | nindent 4 }}
     app.kubernetes.io/component: controller
+    {{- range $key, $value := .Values.controller.labels }}
+    {{ $key }}: {{ $value | quote }}
+    {{- end }}
 spec:
   {{- if .Values.controller.strategy }}
   strategy: {{- toYaml .Values.controller.strategy | nindent 4 }}
@@ -29,6 +33,9 @@ spec:
       labels:
         {{- include "metallb.selectorLabels" . | nindent 8 }}
         app.kubernetes.io/component: controller
+        {{- range $key, $value := .Values.controller.labels }}
+        {{ $key }}: {{ $value | quote }}
+        {{- end }}
     spec:
       {{- with .Values.controller.runtimeClassName }}
       runtimeClassName: {{ . | quote }}
@@ -110,7 +117,7 @@ spec:
         {{- end }}
         {{- with .Values.controller.resources }}
         resources:
-          {{- toYaml . | nindent 12 }}
+          {{- toYaml . | nindent 10 }}
         {{- end }}
         securityContext:
           allowPrivilegeEscalation: false
@@ -121,7 +128,7 @@ spec:
       {{- if .Values.prometheus.secureMetricsPort }}
       - name: kube-rbac-proxy
         image: {{ .Values.prometheus.rbacProxy.repository }}:{{ .Values.prometheus.rbacProxy.tag }}
-        imagePullPolicy: IfNotPresent
+        imagePullPolicy: {{ .Values.prometheus.rbacProxy.pullPolicy }}
         args:
           - --logtostderr
           - --secure-listen-address=:{{ .Values.prometheus.secureMetricsPort }}

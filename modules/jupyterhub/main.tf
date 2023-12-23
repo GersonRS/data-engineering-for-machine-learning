@@ -101,7 +101,7 @@ resource "null_resource" "this" {
 
 data "kubernetes_service" "jupyterhub" {
   metadata {
-    name      = "jupyterhub-hub"
+    name      = "proxy-public"
     namespace = var.namespace
   }
   depends_on = [

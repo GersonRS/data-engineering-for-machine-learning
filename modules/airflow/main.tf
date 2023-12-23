@@ -1,3 +1,8 @@
+
+resource "null_resource" "dependencies" {
+  triggers = var.dependency_ids
+}
+
 resource "random_password" "airflow_webserver_secret_key" {
   length  = 16
   special = false
@@ -28,10 +33,6 @@ resource "kubernetes_secret" "airflow_ssh_secret" {
   }
 
   depends_on = [kubernetes_namespace.airflow_namespace]
-}
-
-resource "null_resource" "dependencies" {
-  triggers = var.dependency_ids
 }
 
 resource "argocd_project" "this" {
@@ -180,7 +181,7 @@ resource "argocd_application" "access_control" {
 
   depends_on = [
     resource.null_resource.dependencies,
-    argocd_application.this
+    kubernetes_namespace.airflow_namespace
   ]
 }
 

@@ -5,36 +5,37 @@
 variable "argocd_namespace" {
   description = "Namespace used by Argo CD where the Application and AppProject resources should be created."
   type        = string
+  default     = "argocd"
+}
+
+variable "argocd_project" {
+  description = "Name of the Argo CD AppProject where the Application should be created. If not set, the Application will be created in a new AppProject only for this Application."
+  type        = string
+  default     = null
+}
+
+variable "argocd_labels" {
+  description = "Labels to attach to the Argo CD Application resource."
+  type        = map(string)
+  default     = {}
+}
+
+variable "destination_cluster" {
+  description = "Destination cluster where the application should be deployed."
+  type        = string
+  default     = "in-cluster"
 }
 
 variable "target_revision" {
   description = "Override of target revision of the application chart."
   type        = string
-  default     = "main" # x-release-please-version
+  default     = "develop" # x-release-please-version
 }
 
 variable "namespace" {
   description = "Namespace where the applications's Kubernetes resources should be created. Namespace will be created in case it doesn't exist."
   type        = string
   default     = "cert-manager"
-}
-
-variable "use_default_dns01_solver" {
-  description = "Whether to use the default dns01 solver configuration."
-  type        = bool
-  default     = true
-}
-
-variable "use_default_http01_solver" {
-  description = "Whether to use the default http01 solver configuration."
-  type        = bool
-  default     = true
-}
-
-variable "custom_solver_configurations" {
-  description = "List of additional solver configurations, appended to the default dns01 and http01 solvers (if enabled)."
-  type        = list(any)
-  default     = []
 }
 
 variable "enable_service_monitor" {
@@ -78,3 +79,27 @@ variable "dependency_ids" {
 #######################
 ## Module variables
 #######################
+
+variable "letsencrypt_issuer_email_main" {
+  description = "E-mail address used to register with Let's Encrypt."
+  type        = string
+  default     = null # This value needs to be null and it is the variants job to make the outside variable required.
+}
+
+variable "use_default_dns01_solver" {
+  description = "Whether to use the default dns01 solver configuration."
+  type        = bool
+  default     = true
+}
+
+variable "use_default_http01_solver" {
+  description = "Whether to use the default http01 solver configuration."
+  type        = bool
+  default     = true
+}
+
+variable "custom_solver_configurations" {
+  description = "List of additional solver configurations, appended to the default dns01 and http01 solvers (if enabled)."
+  type        = list(any)
+  default     = []
+}
