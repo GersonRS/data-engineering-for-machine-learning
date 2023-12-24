@@ -95,32 +95,32 @@ module "loki-stack" {
   }
 }
 
-# module "thanos" {
-#   source           = "./modules/thanos/kind"
-#   cluster_name     = local.cluster_name
-#   base_domain      = local.base_domain
-#   cluster_issuer   = local.cluster_issuer
-#   argocd_namespace = module.argocd_bootstrap.argocd_namespace
-#   app_autosync     = local.app_autosync
-#   metrics_storage = {
-#     bucket_name = "thanos-bucket"
-#     endpoint    = module.minio.cluster_dns
-#     access_key  = module.minio.minio_root_user_credentials.username
-#     secret_key  = module.minio.minio_root_user_credentials.password
-#   }
-#   thanos = {
-#     oidc = module.oidc.oidc
-#   }
-#   target_revision = local.target_revision
-#   dependency_ids = {
-#     argocd       = module.argocd_bootstrap.id
-#     traefik      = module.traefik.id
-#     cert-manager = module.cert-manager.id
-#     minio        = module.minio.id
-#     keycloak     = module.keycloak.id
-#     oidc         = module.oidc.id
-#   }
-# }
+module "thanos" {
+  source           = "./modules/thanos/kind"
+  cluster_name     = local.cluster_name
+  base_domain      = local.base_domain
+  cluster_issuer   = local.cluster_issuer
+  argocd_namespace = module.argocd_bootstrap.argocd_namespace
+  app_autosync     = local.app_autosync
+  metrics_storage = {
+    bucket_name = "thanos-bucket"
+    endpoint    = module.minio.cluster_dns
+    access_key  = module.minio.minio_root_user_credentials.username
+    secret_key  = module.minio.minio_root_user_credentials.password
+  }
+  thanos = {
+    oidc = module.oidc.oidc
+  }
+  target_revision = local.target_revision
+  dependency_ids = {
+    argocd       = module.argocd_bootstrap.id
+    traefik      = module.traefik.id
+    cert-manager = module.cert-manager.id
+    minio        = module.minio.id
+    keycloak     = module.keycloak.id
+    oidc         = module.oidc.id
+  }
+}
 
 # module "kube-prometheus-stack" {
 #   source           = "./modules/kube-prometheus-stack/kind"
