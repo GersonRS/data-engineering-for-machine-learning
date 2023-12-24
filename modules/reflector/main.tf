@@ -2,11 +2,6 @@ resource "null_resource" "dependencies" {
   triggers = var.dependency_ids
 }
 
-resource "random_password" "reflector_root_secretkey" {
-  length  = 16
-  special = false
-}
-
 resource "argocd_project" "this" {
   count = var.argocd_project == null ? 1 : 0
 
@@ -109,16 +104,5 @@ resource "argocd_application" "this" {
 resource "null_resource" "this" {
   depends_on = [
     resource.argocd_application.this,
-  ]
-}
-
-data "kubernetes_service" "reflector" {
-  metadata {
-    name      = "reflector"
-    namespace = var.namespace
-  }
-
-  depends_on = [
-    null_resource.this
   ]
 }

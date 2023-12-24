@@ -19,8 +19,6 @@ resource "random_uuid" "jti" {
 }
 
 resource "argocd_project" "this" {
-  count = var.argocd_project == null ? 1 : 0
-
   metadata {
     name      = "argocd"
     namespace = var.argocd_namespace
@@ -58,17 +56,13 @@ resource "argocd_application" "this" {
   metadata {
     name      = "argocd"
     namespace = var.argocd_namespace
-    labels = merge({
-      "application" = "argocd"
-      "cluster"     = "in-cluster"
-    }, var.argocd_labels)
   }
 
   wait    = var.app_autosync == { "allow_empty" = tobool(null), "prune" = tobool(null), "self_heal" = tobool(null) } ? false : true
   cascade = false
 
   spec {
-    project = var.argocd_project == null ? argocd_project.this[0].metadata.0.name : var.argocd_project
+    project = argocd_project.this.metadata.0.name
 
     source {
       path            = "charts/argocd"

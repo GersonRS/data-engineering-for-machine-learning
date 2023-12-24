@@ -8,11 +8,6 @@ output "argocd_namespace" {
   value       = helm_release.argocd.metadata.0.namespace
 }
 
-output "argocd_project_names" {
-  description = "The names of all the Argo CD AppProjects created by the bootstrap module."
-  value       = [for i in argocd_project.devops_stack_applications : i.metadata.0.name]
-}
-
 output "argocd_server_secretkey" {
   description = "The Argo CD server secret key."
   value       = random_password.argocd_server_secretkey.result

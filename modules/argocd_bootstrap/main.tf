@@ -1,3 +1,12 @@
+locals {
+  argocd_chart = {
+    name       = "argo-cd"
+    repository = "https://argoproj.github.io/argo-helm"
+    version    = "5.45.3"
+  }
+}
+
+# argocd secret key for token generation, it should be passed to next argocd generation
 resource "random_password" "argocd_server_secretkey" {
   length  = 32
   special = false
@@ -31,42 +40,6 @@ resource "helm_release" "argocd" {
   }
 }
 
-# TODO Consider chosing better names than control_plane and workers
-resource "argocd_project" "devops_stack_applications" {
-  for_each = var.argocd_projects
-
-  metadata {
-    name      = each.key
-    namespace = var.namespace
-    annotations = {
-      "devops-stack.io/argocd_namespace" = var.namespace
-    }
-  }
-
-  spec {
-    description  = "DevOps Stack applications in cluster ${each.value.destination_cluster}"
-    source_repos = each.value.allowed_source_repos
-
-    dynamic "destination" {
-      for_each = each.value.allowed_namespaces
-
-      content {
-        name      = each.value.destination_cluster
-        namespace = destination.value
-      }
-    }
-
-    orphaned_resources {
-      warn = true
-    }
-
-    cluster_resource_whitelist {
-      group = "*"
-      kind  = "*"
-    }
-  }
-}
-
 data "utils_deep_merge_yaml" "values" {
   input       = [for i in concat([local.helm_values.0.argo-cd], [var.helm_values.0.argo-cd]) : yamlencode(i)]
   append_list = true
@@ -75,7 +48,5 @@ data "utils_deep_merge_yaml" "values" {
 resource "null_resource" "this" {
   depends_on = [
     resource.helm_release.argocd,
-    resource.random_password.argocd_server_secretkey,
-    resource.argocd_project.devops_stack_applications,
   ]
 }

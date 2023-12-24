@@ -79,48 +79,48 @@ module "minio" {
   }
 }
 
-module "loki-stack" {
-  source           = "./modules/loki-stack/kind"
-  argocd_namespace = module.argocd_bootstrap.argocd_namespace
-  app_autosync     = local.app_autosync
-  logs_storage = {
-    bucket_name = "loki-bucket"
-    endpoint    = module.minio.cluster_dns
-    access_key  = module.minio.minio_root_user_credentials.username
-    secret_key  = module.minio.minio_root_user_credentials.password
-  }
-  target_revision = local.target_revision
-  dependency_ids = {
-    minio = module.minio.id
-  }
-}
+# module "loki-stack" {
+#   source           = "./modules/loki-stack/kind"
+#   argocd_namespace = module.argocd_bootstrap.argocd_namespace
+#   app_autosync     = local.app_autosync
+#   logs_storage = {
+#     bucket_name = "loki-bucket"
+#     endpoint    = module.minio.cluster_dns
+#     access_key  = module.minio.minio_root_user_credentials.username
+#     secret_key  = module.minio.minio_root_user_credentials.password
+#   }
+#   target_revision = local.target_revision
+#   dependency_ids = {
+#     minio = module.minio.id
+#   }
+# }
 
-module "thanos" {
-  source           = "./modules/thanos/kind"
-  cluster_name     = local.cluster_name
-  base_domain      = local.base_domain
-  cluster_issuer   = local.cluster_issuer
-  argocd_namespace = module.argocd_bootstrap.argocd_namespace
-  app_autosync     = local.app_autosync
-  metrics_storage = {
-    bucket_name = "thanos-bucket"
-    endpoint    = module.minio.cluster_dns
-    access_key  = module.minio.minio_root_user_credentials.username
-    secret_key  = module.minio.minio_root_user_credentials.password
-  }
-  thanos = {
-    oidc = module.oidc.oidc
-  }
-  target_revision = local.target_revision
-  dependency_ids = {
-    argocd       = module.argocd_bootstrap.id
-    traefik      = module.traefik.id
-    cert-manager = module.cert-manager.id
-    minio        = module.minio.id
-    keycloak     = module.keycloak.id
-    oidc         = module.oidc.id
-  }
-}
+# module "thanos" {
+#   source           = "./modules/thanos/kind"
+#   cluster_name     = local.cluster_name
+#   base_domain      = local.base_domain
+#   cluster_issuer   = local.cluster_issuer
+#   argocd_namespace = module.argocd_bootstrap.argocd_namespace
+#   app_autosync     = local.app_autosync
+#   metrics_storage = {
+#     bucket_name = "thanos-bucket"
+#     endpoint    = module.minio.cluster_dns
+#     access_key  = module.minio.minio_root_user_credentials.username
+#     secret_key  = module.minio.minio_root_user_credentials.password
+#   }
+#   thanos = {
+#     oidc = module.oidc.oidc
+#   }
+#   target_revision = local.target_revision
+#   dependency_ids = {
+#     argocd       = module.argocd_bootstrap.id
+#     traefik      = module.traefik.id
+#     cert-manager = module.cert-manager.id
+#     minio        = module.minio.id
+#     keycloak     = module.keycloak.id
+#     oidc         = module.oidc.id
+#   }
+# }
 
 module "kube-prometheus-stack" {
   source           = "./modules/kube-prometheus-stack/kind"
@@ -177,7 +177,7 @@ module "argocd" {
   rbac = {
     policy_csv = <<-EOT
       g, pipeline, role:admin
-      g, devops-stack-admins, role:admin
+      g, modern-devops-stack-admins, role:admin
     EOT
   }
   target_revision = local.target_revision
@@ -208,7 +208,7 @@ module "reflector" {
 #   cluster_name           = local.cluster_name
 #   base_domain            = local.base_domain
 #   cluster_issuer         = local.cluster_issuer
-#   argocd_namespace       = module.argocd.argocd_namespace
+#   argocd_namespace       = module.argocd_bootstrap.argocd_namespace
 #   enable_service_monitor = local.enable_service_monitor
 #   target_revision        = local.target_revision
 #   dependency_ids = {
@@ -222,7 +222,7 @@ module "reflector" {
 #   cluster_name     = local.cluster_name
 #   base_domain      = local.base_domain
 #   cluster_issuer   = local.cluster_issuer
-#   argocd_namespace = module.argocd.argocd_namespace
+#   argocd_namespace = module.argocd_bootstrap.argocd_namespace
 #   target_revision  = local.target_revision
 #   dependency_ids = {
 #     traefik      = module.traefik.id
@@ -235,7 +235,7 @@ module "reflector" {
 #   cluster_name     = local.cluster_name
 #   base_domain      = local.base_domain
 #   cluster_issuer   = local.cluster_issuer
-#   argocd_namespace = module.argocd.argocd_namespace
+#   argocd_namespace = module.argocd_bootstrap.argocd_namespace
 #   target_revision  = local.target_revision
 #   dependency_ids = {
 #     traefik      = module.traefik.id
@@ -243,16 +243,16 @@ module "reflector" {
 #   }
 # }
 # module "kafka-broker" {
-#   source           = "./modules/kafka-broker"
-#   cluster_name     = local.cluster_name
-#   base_domain      = local.base_domain
-#   cluster_issuer   = local.cluster_issuer
-#   argocd_namespace = module.argocd.argocd_namespace
-#   target_revision  = local.target_revision
+#   source                 = "./modules/kafka-broker"
+#   cluster_name           = local.cluster_name
+#   base_domain            = local.base_domain
+#   cluster_issuer         = local.cluster_issuer
+#   argocd_namespace       = module.argocd_bootstrap.argocd_namespace
+#   app_autosync           = local.app_autosync
+#   enable_service_monitor = local.enable_service_monitor
+#   target_revision        = local.target_revision
 #   dependency_ids = {
-#     traefik      = module.traefik.id
-#     cert-manager = module.cert-manager.id
-#     strimzi      = module.strimzi.id
+#     strimzi = module.strimzi.id
 #   }
 # }
 # module "cp-schema-registry" {
@@ -260,7 +260,7 @@ module "reflector" {
 #   cluster_name     = local.cluster_name
 #   base_domain      = local.base_domain
 #   cluster_issuer   = local.cluster_issuer
-#   argocd_namespace = module.argocd.argocd_namespace
+#   argocd_namespace = module.argocd_bootstrap.argocd_namespace
 #   target_revision  = local.target_revision
 #   dependency_ids = {
 #     traefik      = module.traefik.id
@@ -274,7 +274,7 @@ module "reflector" {
 #   cluster_name     = local.cluster_name
 #   base_domain      = local.base_domain
 #   cluster_issuer   = local.cluster_issuer
-#   argocd_namespace = module.argocd.argocd_namespace
+#   argocd_namespace = module.argocd_bootstrap.argocd_namespace
 #   target_revision  = local.target_revision
 #   dependency_ids = {
 #     traefik            = module.traefik.id
@@ -289,7 +289,7 @@ module "reflector" {
 #   cluster_name           = local.cluster_name
 #   base_domain            = local.base_domain
 #   cluster_issuer         = local.cluster_issuer
-#   argocd_namespace       = module.argocd.argocd_namespace
+#   argocd_namespace       = module.argocd_bootstrap.argocd_namespace
 #   enable_service_monitor = local.enable_service_monitor
 #   target_revision        = local.target_revision
 #   dependency_ids = {
@@ -304,7 +304,7 @@ module "reflector" {
 #   cluster_name           = local.cluster_name
 #   base_domain            = local.base_domain
 #   cluster_issuer         = local.cluster_issuer
-#   argocd_namespace       = module.argocd.argocd_namespace
+#   argocd_namespace       = module.argocd_bootstrap.argocd_namespace
 #   enable_service_monitor = local.enable_service_monitor
 #   target_revision        = local.target_revision
 
@@ -327,7 +327,7 @@ module "reflector" {
 #   cluster_name           = local.cluster_name
 #   base_domain            = local.base_domain
 #   cluster_issuer         = local.cluster_issuer
-#   argocd_namespace       = module.argocd.argocd_namespace
+#   argocd_namespace       = module.argocd_bootstrap.argocd_namespace
 #   enable_service_monitor = local.enable_service_monitor
 #   target_revision        = local.target_revision
 #   pinot_dns              = module.pinot.cluster_dns
@@ -357,7 +357,7 @@ module "reflector" {
 #   cluster_name           = local.cluster_name
 #   base_domain            = local.base_domain
 #   cluster_issuer         = local.cluster_issuer
-#   argocd_namespace       = module.argocd.argocd_namespace
+#   argocd_namespace       = module.argocd_bootstrap.argocd_namespace
 #   enable_service_monitor = local.enable_service_monitor
 #   target_revision        = local.target_revision
 #   oidc                   = module.oidc.oidc
@@ -387,7 +387,7 @@ module "reflector" {
 #   cluster_name     = local.cluster_name
 #   base_domain      = local.base_domain
 #   cluster_issuer   = local.cluster_issuer
-#   argocd_namespace = module.argocd.argocd_namespace
+#   argocd_namespace = module.argocd_bootstrap.argocd_namespace
 #   target_revision  = local.target_revision
 #   dependency_ids = {
 #     traefik      = module.traefik.id
@@ -402,7 +402,7 @@ module "reflector" {
 #   cluster_name           = local.cluster_name
 #   base_domain            = local.base_domain
 #   cluster_issuer         = local.cluster_issuer
-#   argocd_namespace       = module.argocd.argocd_namespace
+#   argocd_namespace       = module.argocd_bootstrap.argocd_namespace
 #   enable_service_monitor = local.enable_service_monitor
 #   target_revision        = local.target_revision
 #   oidc                   = module.oidc.oidc
@@ -439,7 +439,7 @@ module "reflector" {
 #   cluster_name           = local.cluster_name
 #   base_domain            = local.base_domain
 #   cluster_issuer         = local.cluster_issuer
-#   argocd_namespace       = module.argocd.argocd_namespace
+#   argocd_namespace       = module.argocd_bootstrap.argocd_namespace
 #   enable_service_monitor = local.enable_service_monitor
 #   target_revision        = local.target_revision
 #   oidc                   = module.oidc.oidc
@@ -486,7 +486,7 @@ module "reflector" {
 #   cluster_name     = local.cluster_name
 #   base_domain      = local.base_domain
 #   cluster_issuer   = local.cluster_issuer
-#   argocd_namespace = module.argocd.argocd_namespace
+#   argocd_namespace = module.argocd_bootstrap.argocd_namespace
 
 #   enable_service_monitor = local.enable_service_monitor
 

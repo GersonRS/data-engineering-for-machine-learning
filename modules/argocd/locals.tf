@@ -75,9 +75,6 @@ locals {
           name      = "kustomized-helm-cmp-tmp"
         }
       ]
-      # The extra containers of the repo_server pod must have resource requests/limits in order to allow this component 
-      # to autoscale properly.
-      resources = var.resources.repo_server # TODO Maybe this resources should be different from the repo_server one.
     },
     {
       name    = "helmfile-cmp"
@@ -104,9 +101,6 @@ locals {
           name      = "helmfile-cmp-tmp"
         }
       ]
-      # The extra containers of the repo_server pod must have resource requests/limits in order to allow this component 
-      # to autoscale properly.
-      resources = var.resources.repo_server # TODO Maybe this resources should be different from the repo_server one.
     }
   ]
 
@@ -147,6 +141,10 @@ locals {
         ssh = {
           knownHosts = var.ssh_known_hosts
         }
+        cm = {
+          "admin.enabled" = var.admin_enabled
+          "exec.enabled"  = var.exec_enabled
+        }
         rbac = {
           scopes           = var.rbac.scopes
           "policy.default" = var.rbac.policy_default
@@ -160,36 +158,17 @@ locals {
           }, local.extra_accounts_tokens)
         }
       })
-      applicationSet = {
-        replicas  = var.high_availability.enabled ? var.high_availability.application_set.replicas : null
-        resources = var.resources.application_set
-      }
       controller = {
-        replicas  = var.high_availability.enabled ? var.high_availability.controller.replicas : null
-        resources = var.resources.controller
         metrics = {
           enabled = true
-          serviceMonitor = {
-            enabled = true
-          }
         }
       }
       dex = {
         enabled = false
       }
       repoServer = {
-        replicas = var.high_availability.enabled && !var.high_availability.repo_server.autoscaling.enabled ? var.high_availability.server.replicas : null
-        autoscaling = var.high_availability.repo_server.autoscaling.enabled ? {
-          enabled     = true
-          minReplicas = var.high_availability.repo_server.autoscaling.min_replicas
-          maxReplicas = var.high_availability.repo_server.autoscaling.max_replicas
-        } : null
-        resources = var.resources.repo_server
         metrics = {
           enabled = true
-          serviceMonitor = {
-            enabled = true
-          }
         }
         volumes         = local.repo_server_volumes
         extraContainers = local.repo_server_extra_containers
@@ -201,25 +180,16 @@ locals {
       }
       extraObjects = local.extra_objects
       server = {
-        replicas = var.high_availability.enabled && !var.high_availability.server.autoscaling.enabled ? var.high_availability.server.replicas : null
-        autoscaling = var.high_availability.server.autoscaling.enabled ? {
-          enabled     = true
-          minReplicas = var.high_availability.server.autoscaling.min_replicas
-          maxReplicas = var.high_availability.server.autoscaling.max_replicas
-        } : null
-        resources = var.resources.server
         extraArgs = [
           "--insecure",
         ]
         config = merge({ for account in var.extra_accounts : format("accounts.%s", account) => "apiKey" }, {
           "url"                           = "https://${local.argocd_hostname_withclustername}"
-          "admin.enabled"                 = tostring(var.admin_enabled)
-          "exec.enabled"                  = tostring(var.exec_enabled)
           "accounts.pipeline"             = "apiKey"
           "oidc.config"                   = <<-EOT
             ${yamlencode(merge(var.oidc, { clientSecret = "$oidc.default.clientSecret" }))}
           EOT
-          "oidc.tls.insecure.skip.verify" = tostring(var.cluster_issuer != "letsencrypt-prod")
+          "oidc.tls.insecure.skip.verify" = tostring(var.cluster_issuer == "ca-issuer" || var.cluster_issuer == "letsencrypt-staging")
           "resource.customizations"       = <<-EOT
             argoproj.io/Application: # https://argo-cd.readthedocs.io/en/stable/operator-manual/health/#argocd-app
               health.lua: |
@@ -268,26 +238,7 @@ locals {
         }
         metrics = {
           enabled = true
-          serviceMonitor = {
-            enabled = true
-          }
         }
-      }
-      notifications = {
-        resources = var.resources.notifications
-      }
-      # When the Redis HA is enabled, the default Redis chart is not used, so we change the value to null.
-      redis = !var.high_availability.enabled ? {
-        resources = var.resources.redis
-      } : null
-      redis-ha = var.high_availability.enabled ? {
-        enabled = true
-        redis = {
-          resources = var.resources.redis
-        }
-        } : {
-        enabled = false
-        redis   = null
       }
     }
   }]
