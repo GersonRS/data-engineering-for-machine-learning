@@ -104,7 +104,7 @@ resource "null_resource" "this" {
 
 data "kubernetes_service" "traefik" {
   metadata {
-    name      = replace(format("%s%s", local.helm_values.0.traefik.fullnameOverride, null_resource.dependencies.id), null_resource.dependencies.id, "")
+    name      = replace(format("%s%s", local.helm_values.0.traefik.fullnameOverride, null_resource.this.id), null_resource.this.id, "")
     namespace = var.namespace
   }
 }

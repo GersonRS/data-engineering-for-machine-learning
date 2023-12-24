@@ -1,11 +1,11 @@
 output "id" {
   description = "ID to pass other modules in order to refer to this module as a dependency."
-  value       = module.cert-manager.id
+  value       = module.self-signed.id
 }
 
 output "cluster_issuers" {
   description = "List of cluster issuers created by cert-manager."
-  value       = module.cert-manager.cluster_issuers
+  value       = module.self-signed.cluster_issuers
 }
 
 output "ca_issuer_certificate" {

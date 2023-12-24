@@ -6,25 +6,24 @@ resource "random_password" "db_password" {
   count   = var.database == null ? 1 : 0
   length  = 32
   special = false
-  depends_on = [
-    resource.null_resource.dependencies,
-  ]
 }
 
 resource "argocd_project" "this" {
+  count = var.argocd_project == null ? 1 : 0
+
   metadata {
-    name      = "keycloak"
+    name      = var.destination_cluster != "in-cluster" ? "keycloak-${var.destination_cluster}" : "keycloak"
     namespace = var.argocd_namespace
   }
 
   spec {
-    description = "Keycloak application project"
+    description = "Keycloak application project for cluster ${var.destination_cluster}"
     source_repos = [
       "https://github.com/GersonRS/data-engineering-for-machine-learning.git",
     ]
 
     destination {
-      name      = "in-cluster"
+      name      = var.destination_cluster
       namespace = var.namespace
     }
 
@@ -37,9 +36,6 @@ resource "argocd_project" "this" {
       kind  = "*"
     }
   }
-  depends_on = [
-    resource.null_resource.dependencies,
-  ]
 }
 
 data "utils_deep_merge_yaml" "values" {
@@ -48,14 +44,18 @@ data "utils_deep_merge_yaml" "values" {
 
 resource "argocd_application" "operator" {
   metadata {
-    name      = "keycloak-operator"
+    name      = var.destination_cluster != "in-cluster" ? "keycloak-operator-${var.destination_cluster}" : "keycloak-operator"
     namespace = var.argocd_namespace
+    labels = merge({
+      "application" = "keycloak-operator"
+      "cluster"     = var.destination_cluster
+    }, var.argocd_labels)
   }
 
   wait = var.app_autosync == { "allow_empty" = tobool(null), "prune" = tobool(null), "self_heal" = tobool(null) } ? false : true
 
   spec {
-    project = argocd_project.this.metadata.0.name
+    project = var.argocd_project == null ? argocd_project.this[0].metadata.0.name : var.argocd_project
 
     source {
       repo_url        = "https://github.com/GersonRS/data-engineering-for-machine-learning.git"
@@ -64,24 +64,27 @@ resource "argocd_application" "operator" {
     }
 
     destination {
-      name      = "in-cluster"
+      name      = var.destination_cluster
       namespace = var.namespace
     }
 
     sync_policy {
-      automated {
-        allow_empty = var.app_autosync.allow_empty
-        prune       = var.app_autosync.prune
-        self_heal   = var.app_autosync.self_heal
+      dynamic "automated" {
+        for_each = toset(var.app_autosync == { "allow_empty" = tobool(null), "prune" = tobool(null), "self_heal" = tobool(null) } ? [] : [var.app_autosync])
+        content {
+          prune       = automated.value.prune
+          self_heal   = automated.value.self_heal
+          allow_empty = automated.value.allow_empty
+        }
       }
 
       retry {
         backoff {
-          duration     = ""
-          max_duration = ""
+          duration     = "20s"
+          max_duration = "2m"
           factor       = "2"
         }
-        limit = "0"
+        limit = "5"
       }
 
       sync_options = [
@@ -97,8 +100,12 @@ resource "argocd_application" "operator" {
 
 resource "argocd_application" "this" {
   metadata {
-    name      = "keycloak"
+    name      = var.destination_cluster != "in-cluster" ? "keycloak-${var.destination_cluster}" : "keycloak"
     namespace = var.argocd_namespace
+    labels = merge({
+      "application" = "keycloak"
+      "cluster"     = var.destination_cluster
+    }, var.argocd_labels)
   }
 
   timeouts {
@@ -109,7 +116,7 @@ resource "argocd_application" "this" {
   wait = var.app_autosync == { "allow_empty" = tobool(null), "prune" = tobool(null), "self_heal" = tobool(null) } ? false : true
 
   spec {
-    project = argocd_project.this.metadata.0.name
+    project = var.argocd_project == null ? argocd_project.this[0].metadata.0.name : var.argocd_project
 
     source {
       repo_url        = "https://github.com/GersonRS/data-engineering-for-machine-learning.git"
@@ -121,24 +128,26 @@ resource "argocd_application" "this" {
     }
 
     destination {
-      name      = "in-cluster"
+      name      = var.destination_cluster
       namespace = var.namespace
     }
 
     sync_policy {
-      automated {
-        allow_empty = var.app_autosync.allow_empty
-        prune       = var.app_autosync.prune
-        self_heal   = var.app_autosync.self_heal
+      dynamic "automated" {
+        for_each = toset(var.app_autosync == { "allow_empty" = tobool(null), "prune" = tobool(null), "self_heal" = tobool(null) } ? [] : [var.app_autosync])
+        content {
+          prune       = automated.value.prune
+          self_heal   = automated.value.self_heal
+          allow_empty = automated.value.allow_empty
+        }
       }
-
       retry {
         backoff {
-          duration     = ""
-          max_duration = ""
+          duration     = "20s"
+          max_duration = "5m"
           factor       = "2"
         }
-        limit = "0"
+        limit = "5"
       }
 
       sync_options = [
@@ -149,7 +158,6 @@ resource "argocd_application" "this" {
 
   depends_on = [
     resource.argocd_application.operator,
-    random_password.db_password
   ]
 }
 
@@ -175,20 +183,18 @@ data "kubernetes_secret" "admin_credentials" {
   }
   depends_on = [
     resource.null_resource.wait_for_keycloak,
-    resource.argocd_application.this
   ]
 }
 
 resource "null_resource" "this" {
   depends_on = [
     resource.null_resource.wait_for_keycloak,
-    resource.argocd_application.this,
   ]
 }
 
 data "kubernetes_service" "keycloak" {
   metadata {
-    name      = "keycloak"
+    name      = local.helm_values[0].keycloak.name
     namespace = var.namespace
   }
 

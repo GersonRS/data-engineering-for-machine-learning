@@ -19,8 +19,8 @@ module "traefik" {
   cluster_name           = local.cluster_name
   base_domain            = "172-18-0-100.nip.io"
   argocd_namespace       = module.argocd.argocd_namespace
-  app_autosync           = local.app_autosync
   enable_service_monitor = local.enable_service_monitor
+  app_autosync           = local.app_autosync
   target_revision        = local.target_revision
   dependency_ids = {
     argocd = module.argocd.id
@@ -144,38 +144,35 @@ module "cert-manager" {
 #   }
 # }
 
-# module "keycloak" {
-#   source           = "./modules/keycloak"
-#   cluster_name     = local.cluster_name
-#   base_domain      = local.base_domain
-#   cluster_issuer   = local.cluster_issuer
-#   argocd_namespace = module.argocd.argocd_namespace
-#   target_revision  = local.target_revision
-#   dependency_ids = {
-#     traefik      = module.traefik.id
-#     cert-manager = module.cert-manager.id
-#   }
-#   # database = {
-#   #   username = module.postgresql.credentials.user
-#   #   password = module.postgresql.credentials.password
-#   #   vendor   = "postgres"
-#   #   host     = module.postgresql.cluster_dns
-#   # }
-#   depends_on = [module.argocd, module.metallb, module.traefik, module.cert-manager, module.postgresql]
-# }
+module "keycloak" {
+  source           = "./modules/keycloak"
+  cluster_name     = local.cluster_name
+  base_domain      = local.base_domain
+  cluster_issuer   = local.cluster_issuer
+  argocd_namespace = module.argocd.argocd_namespace
+  app_autosync     = local.app_autosync
+  target_revision  = local.target_revision
+  dependency_ids = {
+    traefik      = module.traefik.id
+    cert-manager = module.cert-manager.id
+  }
+  # database = {
+  #   username = module.postgresql.credentials.user
+  #   password = module.postgresql.credentials.password
+  #   vendor   = "postgres"
+  #   host     = module.postgresql.cluster_dns
+  # }
+}
 
-# module "oidc" {
-#   source         = "./modules/oidc"
-#   cluster_name   = local.cluster_name
-#   base_domain    = local.base_domain
-#   cluster_issuer = local.cluster_issuer
-#   dependency_ids = {
-#     keycloak = module.keycloak.id
-#     traefik  = module.traefik.id
-#     cert     = module.cert-manager.id
-#   }
-#   depends_on = [module.argocd, module.metallb, module.traefik, module.cert-manager, module.postgresql, module.keycloak]
-# }
+module "oidc" {
+  source         = "./modules/oidc"
+  cluster_name   = local.cluster_name
+  base_domain    = local.base_domain
+  cluster_issuer = local.cluster_issuer
+  dependency_ids = {
+    keycloak = module.keycloak.id
+  }
+}
 
 # module "minio" {
 #   source                 = "./modules/minio"

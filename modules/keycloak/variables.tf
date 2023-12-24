@@ -18,6 +18,24 @@ variable "argocd_namespace" {
   default     = "argocd"
 }
 
+variable "argocd_project" {
+  description = "Name of the Argo CD AppProject where the Application should be created. If not set, the Application will be created in a new AppProject only for this Application."
+  type        = string
+  default     = null
+}
+
+variable "argocd_labels" {
+  description = "Labels to attach to the Argo CD Application resource."
+  type        = map(string)
+  default     = {}
+}
+
+variable "destination_cluster" {
+  description = "Destination cluster where the application should be deployed."
+  type        = string
+  default     = "in-cluster"
+}
+
 variable "target_revision" {
   description = "Override of target revision of the application chart."
   type        = string

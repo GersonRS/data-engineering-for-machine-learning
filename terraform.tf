@@ -39,8 +39,8 @@ provider "helm" {
 }
 
 provider "argocd" {
-  auth_token                  = module.argocd_bootstrap.argocd_auth_token
-  port_forward_with_namespace = module.argocd_bootstrap.argocd_namespace
+  auth_token                  = module.argocd.argocd_auth_token
+  port_forward_with_namespace = module.argocd.argocd_namespace
   insecure                    = true
   plain_text                  = true
   kubernetes {
