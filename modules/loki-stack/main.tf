@@ -2,16 +2,21 @@ resource "null_resource" "dependencies" {
   triggers = var.dependency_ids
 }
 
-resource "random_password" "minio_root_secretkey" {
-  length  = 16
-  special = false
+resource "random_password" "loki_password" {
+  count  = var.ingress != null ? 1 : 0
+  length = 30
+}
+
+resource "htpasswd_password" "loki_password_hash" {
+  count    = var.ingress != null ? 1 : 0
+  password = random_password.loki_password.0.result
 }
 
 resource "argocd_project" "this" {
   count = var.argocd_project == null ? 1 : 0
 
   metadata {
-    name      = var.destination_cluster != "in-cluster" ? "minio-${var.destination_cluster}" : "minio"
+    name      = var.destination_cluster != "in-cluster" ? "loki-stack-${var.destination_cluster}" : "loki-stack"
     namespace = var.argocd_namespace
     annotations = {
       "devops-stack.io/argocd_namespace" = var.argocd_namespace
@@ -19,7 +24,7 @@ resource "argocd_project" "this" {
   }
 
   spec {
-    description  = "MinIO application project for cluster ${var.destination_cluster}"
+    description  = "Loki application project for cluster ${var.destination_cluster}"
     source_repos = ["https://github.com/GersonRS/data-engineering-for-machine-learning.git"]
 
     destination {
@@ -44,10 +49,10 @@ data "utils_deep_merge_yaml" "values" {
 
 resource "argocd_application" "this" {
   metadata {
-    name      = var.destination_cluster != "in-cluster" ? "minio-${var.destination_cluster}" : "minio"
+    name      = var.destination_cluster != "in-cluster" ? "loki-stack-${var.destination_cluster}" : "loki-stack"
     namespace = var.argocd_namespace
     labels = merge({
-      "application" = "minio"
+      "application" = "loki-stack"
       "cluster"     = var.destination_cluster
     }, var.argocd_labels)
   }
@@ -64,7 +69,7 @@ resource "argocd_application" "this" {
 
     source {
       repo_url        = "https://github.com/GersonRS/data-engineering-for-machine-learning.git"
-      path            = "helm-charts/minio"
+      path            = "helm-charts/loki-microservice"
       target_revision = var.target_revision
       helm {
         values = data.utils_deep_merge_yaml.values.output
@@ -109,16 +114,5 @@ resource "argocd_application" "this" {
 resource "null_resource" "this" {
   depends_on = [
     resource.argocd_application.this,
-  ]
-}
-
-data "kubernetes_service" "minio" {
-  metadata {
-    name      = "minio"
-    namespace = var.namespace
-  }
-
-  depends_on = [
-    null_resource.this
   ]
 }

@@ -10,6 +10,14 @@ resource "random_password" "jupyterhub_secretkey" {
   length  = 32
   special = false
 }
+resource "random_password" "loki_secretkey" {
+  length  = 32
+  special = false
+}
+resource "random_password" "thanos_secretkey" {
+  length  = 32
+  special = false
+}
 locals {
   domain      = format("minio.apps.%s", var.base_domain)
   domain_full = format("minio.apps.%s.%s", var.cluster_name, var.base_domain)

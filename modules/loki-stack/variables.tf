@@ -2,16 +2,6 @@
 ## Standard variables
 #######################
 
-variable "cluster_name" {
-  description = "Name given to the cluster. Value used for naming some the resources created by the module."
-  type        = string
-}
-
-variable "base_domain" {
-  description = "Base domain of the cluster. Value used for the ingress' URL of the application."
-  type        = string
-}
-
 variable "argocd_namespace" {
   description = "Namespace used by Argo CD where the Application and AppProject resources should be created."
   type        = string
@@ -42,22 +32,10 @@ variable "target_revision" {
   default     = "develop" # x-release-please-version
 }
 
-variable "cluster_issuer" {
-  description = "SSL certificate issuer to use. Usually you would configure this value as `letsencrypt-staging` or `letsencrypt-prod` on your root `*.tf` files."
-  type        = string
-  default     = "ca-issuer"
-}
-
 variable "namespace" {
   description = "Namespace where the applications's Kubernetes resources should be created. Namespace will be created in case it doesn't exist."
   type        = string
-  default     = "minio"
-}
-
-variable "enable_service_monitor" {
-  description = "Enable Prometheus ServiceMonitor in the Helm chart."
-  type        = bool
-  default     = true
+  default     = "loki-stack"
 }
 
 variable "helm_values" {
@@ -90,47 +68,34 @@ variable "dependency_ids" {
 ## Module variables
 #######################
 
-# This variable is used to create policies, users and buckets instead of using hard coded values.
-variable "config_minio" {
-  description = "Variable to create buckets and required users and policies."
-
+variable "ingress" {
+  description = "Loki frontend ingress configuration."
   type = object({
-    policies = optional(list(object({
-      name = string
-      statements = list(object({
-        resources = list(string)
-        actions   = list(string)
-      }))
-    })), [])
-    users = optional(list(object({
-      accessKey = string
-      secretKey = string
-      policy    = string
-    })), [])
-    buckets = optional(list(object({
-      name          = string
-      policy        = optional(string, "none")
-      purge         = optional(bool, false)
-      versioning    = optional(bool, false)
-      objectlocking = optional(bool, false)
-    })), [])
+    hosts          = list(string)
+    cluster_issuer = string
+    allowed_ips    = optional(list(string), [])
   })
-
-  default = {}
+  default = null
 }
 
-variable "oidc" {
-  description = "OIDC configuration to access the MinIO web interface."
+variable "retention" {
+  description = "Logs retention period. To deactivate retention, pass 0s."
+  type        = string
+  default     = "30d"
 
+  validation {
+    condition     = var.retention != null
+    error_message = "Variable must not be null."
+  }
+}
+
+variable "logs_storage" {
+  description = "MinIO S3 bucket configuration values for the bucket where the logs will be stored."
   type = object({
-    issuer_url              = string
-    oauth_url               = string
-    token_url               = string
-    api_url                 = string
-    client_id               = string
-    client_secret           = string
-    oauth2_proxy_extra_args = optional(list(string), [])
+    bucket_name = string
+    endpoint    = string
+    access_key  = string
+    secret_key  = string
+    insecure    = optional(bool, true)
   })
-
-  default = null
 }

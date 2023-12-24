@@ -8,6 +8,10 @@ terraform {
       source  = "cloudposse/utils"
       version = ">= 1"
     }
+    htpasswd = {
+      source  = "loafoe/htpasswd"
+      version = ">= 1"
+    }
     random = {
       source  = "hashicorp/random"
       version = ">= 3"

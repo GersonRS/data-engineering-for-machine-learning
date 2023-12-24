@@ -1,0 +1,121 @@
+{{- with .Values.eventHandler }}
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: grafana-agent-eventhandler
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: grafana-agent-eventhandler
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - events
+  verbs:
+  - get
+  - list
+  - watch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: grafana-agent-eventhandler
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: grafana-agent-eventhandler
+subjects:
+- kind: ServiceAccount
+  name: grafana-agent-eventhandler
+  namespace: {{ .namespace }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: grafana-agent-eventhandler-svc
+spec:
+  ports:
+  - port: 12345
+    name: http-metrics
+  clusterIP: None
+  selector:
+    name: grafana-agent-eventhandler
+---
+kind: ConfigMap
+metadata:
+  name: grafana-agent-eventhandler
+apiVersion: v1
+data:
+  agent.yaml: |
+    server:
+      log_level: info
+
+    integrations:
+      eventhandler:
+        cache_path: "/etc/eventhandler/eventhandler.cache"
+
+    logs:
+      configs:
+      - name: default
+        clients:
+        - url: {{ .lokiURL }}
+          external_labels:
+            {{- toYaml .labels | nindent 12 }}
+        positions:
+          filename: /tmp/positions0.yaml
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: grafana-agent-eventhandler
+spec:
+  serviceName: "grafana-agent-eventhandler-svc"
+  selector:
+    matchLabels:
+      name: grafana-agent-eventhandler
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        name: grafana-agent-eventhandler
+    spec:
+      terminationGracePeriodSeconds: 10
+      containers:
+      - name: agent
+        image: grafana/agent:{{ .grafanaAgentTag }}
+        imagePullPolicy: IfNotPresent
+        args:
+        - -config.file=/etc/agent/agent.yaml
+        - -enable-features=integrations-next
+        - -server.http.address=0.0.0.0:12345
+        command:
+        - /bin/agent
+        env:
+        - name: HOSTNAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        ports:
+        - containerPort: 12345
+          name: http-metrics
+        volumeMounts:
+        - name: grafana-agent
+          mountPath: /etc/agent
+        - name: eventhandler-cache
+          mountPath: /etc/eventhandler
+      serviceAccount: grafana-agent-eventhandler
+      volumes:
+        - configMap:
+            name: grafana-agent-eventhandler
+          name: grafana-agent
+  volumeClaimTemplates:
+  - metadata:
+      name: eventhandler-cache
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 1Gi
+{{- end }}
