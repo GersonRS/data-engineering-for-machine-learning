@@ -180,8 +180,9 @@ module "minio" {
   base_domain            = local.base_domain
   cluster_issuer         = local.cluster_issuer
   argocd_namespace       = module.argocd.argocd_namespace
-  app_autosync           = local.app_autosync
   enable_service_monitor = local.enable_service_monitor
+  app_autosync           = local.app_autosync
+  target_revision        = local.target_revision
   oidc                   = module.oidc.oidc
   dependency_ids = {
     traefik      = module.traefik.id
@@ -194,9 +195,10 @@ module "loki-stack" {
   source           = "./modules/loki-stack"
   argocd_namespace = module.argocd_bootstrap.argocd_namespace
   app_autosync     = local.app_autosync
+  target_revision  = local.target_revision
   logs_storage = {
-    bucket_name = local.minio_config.buckets.0.name
-    endpoint    = module.minio.endpoint
+    bucket_name = "loki-bucket"
+    endpoint    = module.minio.cluster_dns
     access_key  = module.minio.minio_root_user_credentials.username
     secret_key  = module.minio.minio_root_user_credentials.password
   }
