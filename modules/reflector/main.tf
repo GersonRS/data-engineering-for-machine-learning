@@ -2,6 +2,11 @@ resource "null_resource" "dependencies" {
   triggers = var.dependency_ids
 }
 
+resource "random_password" "reflector_root_secretkey" {
+  length  = 16
+  special = false
+}
+
 resource "argocd_project" "this" {
   count = var.argocd_project == null ? 1 : 0
 
@@ -22,11 +27,6 @@ resource "argocd_project" "this" {
       namespace = var.namespace
     }
 
-    destination {
-      name      = var.destination_cluster
-      namespace = "kube-system"
-    }
-
     orphaned_resources {
       warn = true
     }
@@ -39,8 +39,7 @@ resource "argocd_project" "this" {
 }
 
 data "utils_deep_merge_yaml" "values" {
-  input       = [for i in concat(local.helm_values, var.helm_values) : yamlencode(i)]
-  append_list = var.deep_merge_append_list
+  input = [for i in concat(local.helm_values, var.helm_values) : yamlencode(i)]
 }
 
 resource "argocd_application" "this" {
@@ -51,6 +50,11 @@ resource "argocd_application" "this" {
       "application" = "reflector"
       "cluster"     = var.destination_cluster
     }, var.argocd_labels)
+  }
+
+  timeouts {
+    create = "15m"
+    delete = "15m"
   }
 
   wait = var.app_autosync == { "allow_empty" = tobool(null), "prune" = tobool(null), "self_heal" = tobool(null) } ? false : true
@@ -70,13 +74,6 @@ resource "argocd_application" "this" {
     destination {
       name      = var.destination_cluster
       namespace = var.namespace
-    }
-
-    ignore_difference {
-      group         = "admissionregistration.k8s.io"
-      kind          = "ValidatingWebhookConfiguration"
-      name          = format("%s-webhook", var.destination_cluster != "in-cluster" ? "reflector-${var.destination_cluster}" : "reflector")
-      json_pointers = ["/webhooks/0/namespaceSelector/matchExpressions"]
     }
 
     sync_policy {
@@ -112,5 +109,16 @@ resource "argocd_application" "this" {
 resource "null_resource" "this" {
   depends_on = [
     resource.argocd_application.this,
+  ]
+}
+
+data "kubernetes_service" "reflector" {
+  metadata {
+    name      = "reflector"
+    namespace = var.namespace
+  }
+
+  depends_on = [
+    null_resource.this
   ]
 }

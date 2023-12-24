@@ -45,11 +45,11 @@ variable "user_map" {
     last_name  = string
   }))
   default = {
-    devopsadmin = {
-      username   = "devopsadmin"
-      email      = "devopsadmin@devops-stack.io"
+    moderndevopsadmin = {
+      username   = "moderndevopsadmin"
+      email      = "moderndevopsadmin@modern-devops-stack.io"
       first_name = "Administrator"
-      last_name  = "DevOps Stack"
+      last_name  = "Modern DevOps Stack"
     }
   }
 }
