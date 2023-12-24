@@ -38,6 +38,64 @@ module "cert-manager" {
   }
 }
 
+
+# module "keycloak" {
+#   source           = "./modules/keycloak"
+#   cluster_name     = local.cluster_name
+#   base_domain      = local.base_domain
+#   cluster_issuer   = local.cluster_issuer
+#   argocd_namespace = module.argocd.argocd_namespace
+#   app_autosync     = local.app_autosync
+#   target_revision  = local.target_revision
+#   dependency_ids = {
+#     traefik      = module.traefik.id
+#     cert-manager = module.cert-manager.id
+#   }
+# }
+
+# module "oidc" {
+#   source         = "./modules/oidc"
+#   cluster_name   = local.cluster_name
+#   base_domain    = local.base_domain
+#   cluster_issuer = local.cluster_issuer
+#   dependency_ids = {
+#     keycloak = module.keycloak.id
+#   }
+# }
+
+# module "minio" {
+#   source                 = "./modules/minio"
+#   cluster_name           = local.cluster_name
+#   base_domain            = local.base_domain
+#   cluster_issuer         = local.cluster_issuer
+#   argocd_namespace       = module.argocd.argocd_namespace
+#   enable_service_monitor = local.enable_service_monitor
+#   app_autosync           = local.app_autosync
+#   target_revision        = local.target_revision
+#   oidc                   = module.oidc.oidc
+#   dependency_ids = {
+#     traefik      = module.traefik.id
+#     cert-manager = module.cert-manager.id
+#     oidc         = module.oidc.id
+#   }
+# }
+
+# module "loki-stack" {
+#   source           = "./modules/loki-stack"
+#   argocd_namespace = module.argocd.argocd_namespace
+#   app_autosync     = local.app_autosync
+#   target_revision  = local.target_revision
+#   logs_storage = {
+#     bucket_name = "loki-bucket"
+#     endpoint    = module.minio.cluster_dns
+#     access_key  = module.minio.minio_root_user_credentials.username
+#     secret_key  = module.minio.minio_root_user_credentials.password
+#   }
+#   dependency_ids = {
+#     minio = module.minio.id
+#   }
+# }
+
 # module "reflector" {
 #   source           = "./modules/reflector"
 #   argocd_namespace = module.argocd.argocd_namespace
@@ -143,69 +201,6 @@ module "cert-manager" {
 #     oidc         = module.oidc.id
 #   }
 # }
-
-module "keycloak" {
-  source           = "./modules/keycloak"
-  cluster_name     = local.cluster_name
-  base_domain      = local.base_domain
-  cluster_issuer   = local.cluster_issuer
-  argocd_namespace = module.argocd.argocd_namespace
-  app_autosync     = local.app_autosync
-  target_revision  = local.target_revision
-  dependency_ids = {
-    traefik      = module.traefik.id
-    cert-manager = module.cert-manager.id
-  }
-  # database = {
-  #   username = module.postgresql.credentials.user
-  #   password = module.postgresql.credentials.password
-  #   vendor   = "postgres"
-  #   host     = module.postgresql.cluster_dns
-  # }
-}
-
-module "oidc" {
-  source         = "./modules/oidc"
-  cluster_name   = local.cluster_name
-  base_domain    = local.base_domain
-  cluster_issuer = local.cluster_issuer
-  dependency_ids = {
-    keycloak = module.keycloak.id
-  }
-}
-
-module "minio" {
-  source                 = "./modules/minio"
-  cluster_name           = local.cluster_name
-  base_domain            = local.base_domain
-  cluster_issuer         = local.cluster_issuer
-  argocd_namespace       = module.argocd.argocd_namespace
-  enable_service_monitor = local.enable_service_monitor
-  app_autosync           = local.app_autosync
-  target_revision        = local.target_revision
-  oidc                   = module.oidc.oidc
-  dependency_ids = {
-    traefik      = module.traefik.id
-    cert-manager = module.cert-manager.id
-    oidc         = module.oidc.id
-  }
-}
-
-module "loki-stack" {
-  source           = "./modules/loki-stack"
-  argocd_namespace = module.argocd.argocd_namespace
-  app_autosync     = local.app_autosync
-  target_revision  = local.target_revision
-  logs_storage = {
-    bucket_name = "loki-bucket"
-    endpoint    = module.minio.cluster_dns
-    access_key  = module.minio.minio_root_user_credentials.username
-    secret_key  = module.minio.minio_root_user_credentials.password
-  }
-  dependency_ids = {
-    minio = module.minio.id
-  }
-}
 
 # module "pinot" {
 #   source                 = "./modules/pinot"
