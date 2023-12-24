@@ -79,22 +79,21 @@ module "minio" {
   }
 }
 
-# module "loki-stack" {
-#   source           = "./modules/loki-stack/kind"
-#   argocd_namespace = module.argocd_bootstrap.argocd_namespace
-#   app_autosync     = local.app_autosync
-#   distributed_mode = true
-#   logs_storage = {
-#     bucket_name = "loki-bucket"
-#     endpoint    = module.minio.cluster_dns
-#     access_key  = module.minio.minio_root_user_credentials.username
-#     secret_key  = module.minio.minio_root_user_credentials.password
-#   }
-#   target_revision = local.target_revision
-#   dependency_ids = {
-#     minio = module.minio.id
-#   }
-# }
+module "loki-stack" {
+  source           = "./modules/loki-stack/kind"
+  argocd_namespace = module.argocd_bootstrap.argocd_namespace
+  app_autosync     = local.app_autosync
+  logs_storage = {
+    bucket_name = "loki-bucket"
+    endpoint    = module.minio.cluster_dns
+    access_key  = module.minio.minio_root_user_credentials.username
+    secret_key  = module.minio.minio_root_user_credentials.password
+  }
+  target_revision = local.target_revision
+  dependency_ids = {
+    minio = module.minio.id
+  }
+}
 
 # module "thanos" {
 #   source           = "./modules/thanos/kind"

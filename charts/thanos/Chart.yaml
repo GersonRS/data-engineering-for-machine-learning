@@ -2,6 +2,6 @@ apiVersion: v2
 dependencies:
 - name: thanos
   repository: https://charts.bitnami.com/bitnami
-  version: 12.13.2
+  version: 12.13.13
 name: thanos
 version: "0"
