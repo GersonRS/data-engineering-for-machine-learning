@@ -7,7 +7,7 @@ locals {
   cluster_name           = "kind"
   base_domain            = format("%s.nip.io", replace(module.traefik.external_ip, ".", "-"))
   cluster_issuer         = "ca-issuer"
-  enable_service_monitor = true # Can be enabled after the first bootstrap.
+  enable_service_monitor = false # Can be enabled after the first bootstrap.
   app_autosync           = true ? { allow_empty = false, prune = true, self_heal = true } : {}
   target_revision        = "develop"
   airflow_fernetKey      = base64encode(resource.random_password.airflow_fernetKey.result)

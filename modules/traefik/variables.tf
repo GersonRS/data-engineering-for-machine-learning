@@ -38,7 +38,7 @@ variable "destination_cluster" {
 variable "target_revision" {
   description = "Override of target revision of the application chart."
   type        = string
-  default     = "v4.1.0" # x-release-please-version
+  default     = "develop" # x-release-please-version
 }
 
 variable "namespace" {

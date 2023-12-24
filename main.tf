@@ -38,46 +38,46 @@ module "cert-manager" {
   }
 }
 
-# module "keycloak" {
-#   source           = "./modules/keycloak"
-#   cluster_name     = local.cluster_name
-#   base_domain      = local.base_domain
-#   cluster_issuer   = local.cluster_issuer
-#   argocd_namespace = module.argocd_bootstrap.argocd_namespace
-#   app_autosync     = local.app_autosync
-#   target_revision  = local.target_revision
-#   dependency_ids = {
-#     traefik      = module.traefik.id
-#     cert-manager = module.cert-manager.id
-#   }
-# }
+module "keycloak" {
+  source           = "./modules/keycloak"
+  cluster_name     = local.cluster_name
+  base_domain      = local.base_domain
+  cluster_issuer   = local.cluster_issuer
+  argocd_namespace = module.argocd_bootstrap.argocd_namespace
+  app_autosync     = local.app_autosync
+  target_revision  = local.target_revision
+  dependency_ids = {
+    traefik      = module.traefik.id
+    cert-manager = module.cert-manager.id
+  }
+}
 
-# module "oidc" {
-#   source         = "./modules/oidc"
-#   cluster_name   = local.cluster_name
-#   base_domain    = local.base_domain
-#   cluster_issuer = local.cluster_issuer
-#   dependency_ids = {
-#     keycloak = module.keycloak.id
-#   }
-# }
+module "oidc" {
+  source         = "./modules/oidc"
+  cluster_name   = local.cluster_name
+  base_domain    = local.base_domain
+  cluster_issuer = local.cluster_issuer
+  dependency_ids = {
+    keycloak = module.keycloak.id
+  }
+}
 
-# module "minio" {
-#   source                 = "./modules/minio"
-#   cluster_name           = local.cluster_name
-#   base_domain            = local.base_domain
-#   cluster_issuer         = local.cluster_issuer
-#   argocd_namespace       = module.argocd_bootstrap.argocd_namespace
-#   app_autosync           = local.app_autosync
-#   enable_service_monitor = local.enable_service_monitor
-#   oidc                   = module.oidc.oidc
-#   target_revision        = local.target_revision
-#   dependency_ids = {
-#     traefik      = module.traefik.id
-#     cert-manager = module.cert-manager.id
-#     oidc         = module.oidc.id
-#   }
-# }
+module "minio" {
+  source                 = "./modules/minio"
+  cluster_name           = local.cluster_name
+  base_domain            = local.base_domain
+  cluster_issuer         = local.cluster_issuer
+  argocd_namespace       = module.argocd_bootstrap.argocd_namespace
+  app_autosync           = local.app_autosync
+  enable_service_monitor = local.enable_service_monitor
+  oidc                   = module.oidc.oidc
+  target_revision        = local.target_revision
+  dependency_ids = {
+    traefik      = module.traefik.id
+    cert-manager = module.cert-manager.id
+    oidc         = module.oidc.id
+  }
+}
 
 # module "loki-stack" {
 #   source           = "./modules/loki-stack/kind"
