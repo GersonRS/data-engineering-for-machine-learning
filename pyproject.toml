@@ -1,0 +1,15 @@
+[tool.poetry]
+name = "data-engineering-for-machine-learning"
+version = "0.1.0"
+description = ""
+authors = ["GersonRS <gersonrodriguessantos8@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+pre-commit = "^3.6.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

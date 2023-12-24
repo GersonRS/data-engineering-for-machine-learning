@@ -8,28 +8,10 @@ variable "argocd_namespace" {
   default     = "argocd"
 }
 
-variable "argocd_project" {
-  description = "Name of the Argo CD AppProject where the Application should be created. If not set, the Application will be created in a new AppProject only for this Application."
-  type        = string
-  default     = null
-}
-
-variable "argocd_labels" {
-  description = "Labels to attach to the Argo CD Application resource."
-  type        = map(string)
-  default     = {}
-}
-
-variable "destination_cluster" {
-  description = "Destination cluster where the application should be deployed."
-  type        = string
-  default     = "in-cluster"
-}
-
 variable "target_revision" {
   description = "Override of target revision of the application chart."
   type        = string
-  default     = "develop" # x-release-please-version
+  default     = "v4.0.2" # x-release-please-version
 }
 
 variable "namespace" {
@@ -68,6 +50,12 @@ variable "dependency_ids" {
 ## Module variables
 #######################
 
+variable "distributed_mode" {
+  description = "Boolean to activate Loki in distributed mode."
+  type        = bool
+  default     = false
+}
+
 variable "ingress" {
   description = "Loki frontend ingress configuration."
   type = object({
@@ -78,8 +66,14 @@ variable "ingress" {
   default = null
 }
 
+variable "enable_filebeat" {
+  description = "" # TODO
+  type        = bool
+  default     = false
+}
+
 variable "retention" {
-  description = "Logs retention period. To deactivate retention, pass 0s."
+  description = "Logs retention period.To deactivate retention, pass 0s."
   type        = string
   default     = "30d"
 
@@ -87,15 +81,4 @@ variable "retention" {
     condition     = var.retention != null
     error_message = "Variable must not be null."
   }
-}
-
-variable "logs_storage" {
-  description = "MinIO S3 bucket configuration values for the bucket where the logs will be stored."
-  type = object({
-    bucket_name = string
-    endpoint    = string
-    access_key  = string
-    secret_key  = string
-    insecure    = optional(bool, true)
-  })
 }

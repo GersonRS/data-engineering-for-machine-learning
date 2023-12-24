@@ -3,10 +3,8 @@ resource "null_resource" "dependencies" {
 }
 
 resource "argocd_project" "this" {
-  count = var.argocd_project == null ? 1 : 0
-
   metadata {
-    name      = var.destination_cluster != "in-cluster" ? "traefik-${var.destination_cluster}" : "traefik"
+    name      = "traefik"
     namespace = var.argocd_namespace
     annotations = {
       "devops-stack.io/argocd_namespace" = var.argocd_namespace
@@ -14,11 +12,11 @@ resource "argocd_project" "this" {
   }
 
   spec {
-    description  = "Traefik application project for cluster ${var.destination_cluster}"
-    source_repos = ["https://github.com/GersonRS/data-engineering-for-machine-learning.git"]
+    description  = "Traefik application project"
+    source_repos = ["https://github.com/camptocamp/devops-stack-module-traefik.git"]
 
     destination {
-      name      = var.destination_cluster
+      name      = "in-cluster"
       namespace = var.namespace
     }
 
@@ -39,22 +37,18 @@ data "utils_deep_merge_yaml" "values" {
 
 resource "argocd_application" "this" {
   metadata {
-    name      = var.destination_cluster != "in-cluster" ? "traefik-${var.destination_cluster}" : "traefik"
+    name      = "traefik"
     namespace = var.argocd_namespace
-    labels = merge({
-      "application" = "traefik"
-      "cluster"     = var.destination_cluster
-    }, var.argocd_labels)
   }
 
   wait = var.app_autosync == { "allow_empty" = tobool(null), "prune" = tobool(null), "self_heal" = tobool(null) } ? false : true
 
   spec {
-    project = var.argocd_project == null ? argocd_project.this[0].metadata.0.name : var.argocd_project
+    project = argocd_project.this.metadata.0.name
 
     source {
-      repo_url        = "https://github.com/GersonRS/data-engineering-for-machine-learning.git"
-      path            = "helm-charts/traefik"
+      repo_url        = "https://github.com/camptocamp/devops-stack-module-traefik.git"
+      path            = "charts/traefik"
       target_revision = var.target_revision
       helm {
         values = data.utils_deep_merge_yaml.values.output
@@ -62,7 +56,7 @@ resource "argocd_application" "this" {
     }
 
     destination {
-      name      = var.destination_cluster
+      name      = "in-cluster"
       namespace = var.namespace
     }
 
@@ -100,11 +94,4 @@ resource "null_resource" "this" {
   depends_on = [
     resource.argocd_application.this,
   ]
-}
-
-data "kubernetes_service" "traefik" {
-  metadata {
-    name      = replace(format("%s%s", local.helm_values.0.traefik.fullnameOverride, null_resource.this.id), null_resource.this.id, "")
-    namespace = var.namespace
-  }
 }

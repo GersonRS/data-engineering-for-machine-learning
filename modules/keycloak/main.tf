@@ -9,21 +9,19 @@ resource "random_password" "db_password" {
 }
 
 resource "argocd_project" "this" {
-  count = var.argocd_project == null ? 1 : 0
-
   metadata {
-    name      = var.destination_cluster != "in-cluster" ? "keycloak-${var.destination_cluster}" : "keycloak"
+    name      = "keycloak"
     namespace = var.argocd_namespace
   }
 
   spec {
-    description = "Keycloak application project for cluster ${var.destination_cluster}"
+    description = "Keycloak application project"
     source_repos = [
       "https://github.com/GersonRS/data-engineering-for-machine-learning.git",
     ]
 
     destination {
-      name      = var.destination_cluster
+      name      = "in-cluster"
       namespace = var.namespace
     }
 
@@ -44,27 +42,23 @@ data "utils_deep_merge_yaml" "values" {
 
 resource "argocd_application" "operator" {
   metadata {
-    name      = var.destination_cluster != "in-cluster" ? "keycloak-operator-${var.destination_cluster}" : "keycloak-operator"
+    name      = "keycloak-operator"
     namespace = var.argocd_namespace
-    labels = merge({
-      "application" = "keycloak-operator"
-      "cluster"     = var.destination_cluster
-    }, var.argocd_labels)
   }
 
   wait = var.app_autosync == { "allow_empty" = tobool(null), "prune" = tobool(null), "self_heal" = tobool(null) } ? false : true
 
   spec {
-    project = var.argocd_project == null ? argocd_project.this[0].metadata.0.name : var.argocd_project
+    project = argocd_project.this.metadata.0.name
 
     source {
       repo_url        = "https://github.com/GersonRS/data-engineering-for-machine-learning.git"
-      path            = "helm-charts/keycloak-operator"
+      path            = "charts/keycloak-operator"
       target_revision = var.target_revision
     }
 
     destination {
-      name      = var.destination_cluster
+      name      = "in-cluster"
       namespace = var.namespace
     }
 
@@ -100,12 +94,8 @@ resource "argocd_application" "operator" {
 
 resource "argocd_application" "this" {
   metadata {
-    name      = var.destination_cluster != "in-cluster" ? "keycloak-${var.destination_cluster}" : "keycloak"
+    name      = "keycloak"
     namespace = var.argocd_namespace
-    labels = merge({
-      "application" = "keycloak"
-      "cluster"     = var.destination_cluster
-    }, var.argocd_labels)
   }
 
   timeouts {
@@ -116,11 +106,11 @@ resource "argocd_application" "this" {
   wait = var.app_autosync == { "allow_empty" = tobool(null), "prune" = tobool(null), "self_heal" = tobool(null) } ? false : true
 
   spec {
-    project = var.argocd_project == null ? argocd_project.this[0].metadata.0.name : var.argocd_project
+    project = argocd_project.this.metadata.0.name
 
     source {
       repo_url        = "https://github.com/GersonRS/data-engineering-for-machine-learning.git"
-      path            = "helm-charts/keycloak"
+      path            = "charts/keycloak"
       target_revision = var.target_revision
       helm {
         values = data.utils_deep_merge_yaml.values.output
@@ -128,7 +118,7 @@ resource "argocd_application" "this" {
     }
 
     destination {
-      name      = var.destination_cluster
+      name      = "in-cluster"
       namespace = var.namespace
     }
 
@@ -166,7 +156,7 @@ resource "null_resource" "wait_for_keycloak" {
   provisioner "local-exec" {
     command = <<EOT
     while [ $(curl -k https://keycloak.apps.${var.cluster_name}.${var.base_domain} -I -s | head -n 1 | cut -d' ' -f2) != '200' ]; do
-      sleep 5
+      sleep 5 
     done
     EOT
   }
@@ -189,17 +179,5 @@ data "kubernetes_secret" "admin_credentials" {
 resource "null_resource" "this" {
   depends_on = [
     resource.null_resource.wait_for_keycloak,
-  ]
-}
-
-data "kubernetes_service" "keycloak" {
-  metadata {
-    name      = local.helm_values[0].keycloak.name
-    namespace = var.namespace
-  }
-
-  depends_on = [
-    null_resource.this,
-    resource.argocd_application.this,
   ]
 }

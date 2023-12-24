@@ -3,7 +3,7 @@ resource "null_resource" "dependencies" {
 }
 
 resource "argocd_project" "this" {
-  depends_on = [ null_resource.dependencies ]
+  depends_on = [null_resource.dependencies]
   metadata {
     name      = "trino"
     namespace = var.argocd_namespace
@@ -54,7 +54,7 @@ resource "argocd_application" "this" {
 
     source {
       repo_url        = "https://github.com/GersonRS/data-engineering-for-machine-learning.git"
-      path            = "helm-charts/trino"
+      path            = "charts/trino"
       target_revision = var.target_revision
       helm {
         values = data.utils_deep_merge_yaml.values.output

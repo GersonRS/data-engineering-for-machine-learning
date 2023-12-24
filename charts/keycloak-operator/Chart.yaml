@@ -1,0 +1,10 @@
+---
+apiVersion: "v2"
+name: "keycloak-operator"
+version: "0"
+description: |
+  This chart installs the CRDs needed for Keycloak as well as the Keycloak operator.
+  We created this chart ever since the Keycloak developer team stopped publishing their chart.
+  This chart is not templatized at all and does not need a values.yaml. It simply groups together the resource 
+  definitions for the Keycloak Operator, available in the following repository:
+  https://github.com/keycloak/keycloak-k8s-resources/

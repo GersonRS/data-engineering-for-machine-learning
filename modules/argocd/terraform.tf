@@ -1,8 +1,8 @@
 terraform {
   required_providers {
-    helm = {
-      source  = "hashicorp/helm"
-      version = ">= 2"
+    argocd = {
+      source  = "oboukili/argocd"
+      version = ">= 5"
     }
     utils = {
       source  = "cloudposse/utils"
@@ -16,17 +16,17 @@ terraform {
       source  = "camptocamp/jwt"
       version = ">= 1.1"
     }
-    random = {
-      source  = "hashicorp/random"
-      version = ">= 3"
-    }
     time = {
       source  = "hashicorp/time"
       version = ">= 0.9"
     }
-    argocd = {
-      source  = "oboukili/argocd"
-      version = ">= 6"
+    random = {
+      source  = "hashicorp/random"
+      version = ">= 3"
+    }
+    null = {
+      source  = "hashicorp/null"
+      version = ">= 3"
     }
   }
   required_version = ">= 1.2"

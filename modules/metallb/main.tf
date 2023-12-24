@@ -3,7 +3,7 @@
 # TODO find a better way to manage this.
 resource "helm_release" "metallb_crds" {
   name             = "metallb-crds"
-  chart            = "${path.root}/helm-charts/metallb/charts/metallb/charts/crds"
+  chart            = "${path.root}/charts/metallb/charts/metallb/charts/crds"
   namespace        = var.namespace
   create_namespace = true
   timeout          = 900
@@ -11,7 +11,7 @@ resource "helm_release" "metallb_crds" {
 
 resource "helm_release" "metallb" {
   name              = "metallb"
-  chart             = "${path.root}/helm-charts/metallb/"
+  chart             = "${path.root}/charts/metallb/"
   namespace         = var.namespace
   dependency_update = true
   create_namespace  = true

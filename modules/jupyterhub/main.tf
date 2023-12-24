@@ -54,7 +54,7 @@ resource "argocd_application" "this" {
 
     source {
       repo_url        = "https://github.com/GersonRS/data-engineering-for-machine-learning.git"
-      path            = "helm-charts/jupyterhub"
+      path            = "charts/jupyterhub"
       target_revision = var.target_revision
       helm {
         values = data.utils_deep_merge_yaml.values.output

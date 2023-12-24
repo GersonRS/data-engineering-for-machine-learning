@@ -1,59 +1,39 @@
-resource "random_password" "argocd_server_secretkey" {
-  length  = 32
-  special = false
+resource "null_resource" "dependencies" {
+  triggers = var.dependency_ids
 }
 
-# jwt token for `pipeline` account
-resource "jwt_hashed_token" "argocd" {
+resource "jwt_hashed_token" "tokens" {
+  for_each = toset(var.extra_accounts)
+
   algorithm   = "HS256"
-  secret      = random_password.argocd_server_secretkey.result
-  claims_json = jsonencode(local.jwt_token_payload)
+  secret      = var.server_secretkey
+  claims_json = jsonencode(local.jwt_tokens[each.value])
 }
 
-resource "time_static" "iat" {}
-
-resource "random_uuid" "jti" {}
-
-resource "helm_release" "argocd" {
-  name       = "argocd"
-  repository = local.argocd_chart.repository
-  chart      = local.argocd_chart.name
-  version    = local.argocd_chart.version
-
-  namespace         = var.namespace
-  dependency_update = true
-  create_namespace  = true
-  timeout           = 10800
-  values            = [data.utils_deep_merge_yaml.values.output]
-
-  lifecycle {
-    ignore_changes = all
-  }
+resource "time_static" "iat" {
+  for_each = toset(var.extra_accounts)
 }
 
-# TODO Consider chosing better names than control_plane and workers
-resource "argocd_project" "devops_stack_applications" {
-  for_each = var.argocd_projects
+resource "random_uuid" "jti" {
+  for_each = toset(var.extra_accounts)
+}
 
+resource "argocd_project" "this" {
   metadata {
-    name      = each.key
-    namespace = var.namespace
+    name      = "argocd"
+    namespace = var.argocd_namespace
     annotations = {
-      "devops-stack.io/argocd_namespace" = var.namespace
+      "devops-stack.io/argocd_namespace" = var.argocd_namespace
     }
   }
 
   spec {
-    description  = "DevOps Stack applications in cluster ${each.value.destination_cluster}"
-    source_repos = each.value.allowed_source_repos
+    description  = "Argo CD application project"
+    source_repos = ["https://github.com/GersonRS/data-engineering-for-machine-learning.git"]
 
-    dynamic "destination" {
-      for_each = each.value.allowed_namespaces
-
-      content {
-        name      = each.value.destination_cluster
-        namespace = destination.value
-      }
+    destination {
+      name      = "in-cluster"
+      namespace = var.namespace
     }
 
     orphaned_resources {
@@ -68,14 +48,69 @@ resource "argocd_project" "devops_stack_applications" {
 }
 
 data "utils_deep_merge_yaml" "values" {
-  input       = [for i in concat([local.helm_values.0.argo-cd], [var.helm_values.0.argo-cd]) : yamlencode(i)]
+  input       = [for i in concat(local.helm_values, var.helm_values) : yamlencode(i)]
   append_list = true
+}
+
+resource "argocd_application" "this" {
+  metadata {
+    name      = "argocd"
+    namespace = var.argocd_namespace
+  }
+
+  wait    = var.app_autosync == { "allow_empty" = tobool(null), "prune" = tobool(null), "self_heal" = tobool(null) } ? false : true
+  cascade = false
+
+  spec {
+    project = argocd_project.this.metadata.0.name
+
+    source {
+      path            = "charts/argocd"
+      repo_url        = "https://github.com/GersonRS/data-engineering-for-machine-learning.git"
+      target_revision = var.target_revision
+      helm {
+        values = data.utils_deep_merge_yaml.values.output
+      }
+    }
+
+    destination {
+      name      = "in-cluster"
+      namespace = var.namespace
+    }
+
+    sync_policy {
+      dynamic "automated" {
+        for_each = toset(var.app_autosync == { "allow_empty" = tobool(null), "prune" = tobool(null), "self_heal" = tobool(null) } ? [] : [var.app_autosync])
+        content {
+          prune       = automated.value.prune
+          self_heal   = automated.value.self_heal
+          allow_empty = automated.value.allow_empty
+        }
+      }
+
+      retry {
+        backoff {
+          duration     = "20s"
+          max_duration = "2m"
+          factor       = "2"
+        }
+        limit = "5"
+      }
+
+      sync_options = [
+        "CreateNamespace=true"
+      ]
+    }
+  }
+
+  depends_on = [
+    resource.null_resource.dependencies,
+  ]
 }
 
 resource "null_resource" "this" {
   depends_on = [
-    resource.helm_release.argocd,
-    resource.random_password.argocd_server_secretkey,
-    resource.argocd_project.devops_stack_applications,
+    resource.argocd_application.this,
   ]
 }
+

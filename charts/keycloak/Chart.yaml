@@ -1,0 +1,9 @@
+---
+apiVersion: "v2"
+name: "keycloak"
+version: "0"
+description: |
+  This chart installs Keycloak for the identity and access management. It needs to be deployed after the chart that
+  deploys the Keycloak Operator.
+  It is mainly used for the deployment of OIDC in test Kubernetes clusters that do not provide OIDC out-of-the-box, 
+  such as KinD and K3s.
