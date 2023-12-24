@@ -14,18 +14,18 @@ module "argocd" {
   depends_on = [module.kind]
 }
 
-module "traefik" {
-  source                 = "./modules/traefik"
-  cluster_name           = local.cluster_name
-  base_domain            = "172-18-0-100.nip.io"
-  argocd_namespace       = module.argocd.argocd_namespace
-  enable_service_monitor = local.enable_service_monitor
-  app_autosync           = local.app_autosync
-  target_revision        = local.target_revision
-  dependency_ids = {
-    argocd = module.argocd.id
-  }
-}
+# module "traefik" {
+#   source                 = "./modules/traefik"
+#   cluster_name           = local.cluster_name
+#   base_domain            = "172-18-0-100.nip.io"
+#   argocd_namespace       = module.argocd.argocd_namespace
+#   enable_service_monitor = local.enable_service_monitor
+#   app_autosync           = local.app_autosync
+#   target_revision        = local.target_revision
+#   dependency_ids = {
+#     argocd = module.argocd.id
+#   }
+# }
 
 module "cert-manager" {
   source                 = "./modules/cert-manager"
