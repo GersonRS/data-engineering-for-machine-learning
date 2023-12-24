@@ -24,6 +24,10 @@ terraform {
       source  = "hashicorp/time"
       version = ">= 0.9"
     }
+    argocd = {
+      source  = "oboukili/argocd"
+      version = ">= 6"
+    }
   }
   required_version = ">= 1.2"
 }

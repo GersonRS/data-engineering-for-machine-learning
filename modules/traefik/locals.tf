@@ -28,6 +28,13 @@ locals {
           minVersion = "VersionTLS12"
         }
       }
+      ports = var.enable_https_redirection ? {
+        web = {
+          redirectTo = {
+            port = "websecure"
+          }
+        }
+      } : null
       ressources = {
         limits = {
           cpu    = "250m"

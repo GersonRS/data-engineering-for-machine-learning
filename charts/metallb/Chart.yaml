@@ -2,7 +2,7 @@ apiVersion: v2
 dependencies:
 - name: metallb
   repository: https://metallb.github.io/metallb
-  version: 0.13.11
+  version: 0.13.12
 description: |
   This chart installs and configures metallb.
   For more information check the following link:

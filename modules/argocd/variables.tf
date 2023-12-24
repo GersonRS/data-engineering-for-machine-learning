@@ -18,16 +18,28 @@ variable "argocd_namespace" {
   default     = "argocd"
 }
 
+variable "argocd_project" {
+  description = "Name of the Argo CD AppProject where the Application should be created. If not set, the Application will be created in a new AppProject only for this Application."
+  type        = string
+  default     = null
+}
+
+variable "argocd_labels" {
+  description = "Labels to attach to the Argo CD Application resource."
+  type        = map(string)
+  default     = {}
+}
+
 variable "target_revision" {
   description = "Override of target revision of the application chart."
   type        = string
-  default     = "v3.4.0" # x-release-please-version
+  default     = "develop" # x-release-please-version
 }
 
 variable "cluster_issuer" {
-  description = "SSL certificate issuer to use. Usually you would configure this value as `letsencrypt-staging` or `letsencrypt-prod` on your root `*.tf` files."
+  description = "SSL certificate issuer to use. Usually you would configure this value as `letsencrypt-staging` or `letsencrypt-prod` on your root `*.tf` files. You can use `ca-issuer` when using the self-signed variant of cert-manager."
   type        = string
-  default     = "ca-issuer"
+  default     = "selfsigned-issuer"
 }
 
 variable "namespace" {
@@ -65,10 +77,144 @@ variable "dependency_ids" {
 ## Module variables
 #######################
 
+variable "resources" {
+  description = <<-EOT
+    Resource limits and requests for the Argo CD components. Follow the style on https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/[official documentation] to understand the format of the values.
+
+    NOTE: The `repo_server` requests and limits will be applied to all the extra containers that are deployed with the `argocd-repo-server` component (each container has the same requests and limits as the main container, **so it is cumulative**).
+
+    NOTE: If you enable the HA mode using the `high_availability` variable, the values for Redis will be applied to the Redis HA chart instead of the default one.
+  EOT
+  type = object({
+
+    application_set = optional(object({
+      requests = optional(object({
+        cpu    = optional(string, "100m")
+        memory = optional(string, "128Mi")
+      }), {})
+      limits = optional(object({
+        cpu    = optional(string, "100m")
+        memory = optional(string, "128Mi")
+      }), {})
+    }), {})
+
+    controller = optional(object({
+      requests = optional(object({
+        cpu    = optional(string, "500m")
+        memory = optional(string, "512Mi")
+      }), {})
+      limits = optional(object({
+        cpu    = optional(string, "1")
+        memory = optional(string, "2Gi")
+      }), {})
+    }), {})
+
+    notifications = optional(object({
+      requests = optional(object({
+        cpu    = optional(string, "100m")
+        memory = optional(string, "128Mi")
+      }), {})
+      limits = optional(object({
+        cpu    = optional(string, "200m")
+        memory = optional(string, "256Mi")
+      }), {})
+    }), {})
+
+    repo_server = optional(object({
+      requests = optional(object({
+        cpu    = optional(string, "200m")
+        memory = optional(string, "128Mi")
+      }), {})
+      limits = optional(object({
+        cpu    = optional(string, "400m")
+        memory = optional(string, "256Mi")
+      }), {})
+    }), {})
+
+    server = optional(object({
+      requests = optional(object({
+        cpu    = optional(string, "50m")
+        memory = optional(string, "128Mi")
+      }), {})
+      limits = optional(object({
+        cpu    = optional(string, "100m")
+        memory = optional(string, "256Mi")
+      }), {})
+    }), {})
+
+    redis = optional(object({
+      requests = optional(object({
+        cpu    = optional(string, "200m")
+        memory = optional(string, "64Mi")
+      }), {})
+      limits = optional(object({
+        cpu    = optional(string, "300m")
+        memory = optional(string, "128Mi")
+      }), {})
+    }), {})
+
+  })
+  default = {}
+}
+
+variable "high_availability" {
+  description = <<-EOT
+    Argo CD High Availability settings. By default, the HA is disabled.
+
+    To enable HA using the default replicas, simply set the value `high_availability.enabled` to `true`. **This will deploy Argo CD in HA without autoscaling.**
+
+    You can enable autoscaling of the `argocd-server` and `argocd-repo-server` components by setting the `high_availability.server.autoscaling.enabled` and `high_availability.repo_server.autoscaling.enabled` values to `true`. You can also configure the minimum and maximum replicas desired or leave the default values.
+
+    IMPORTANT: Activating the HA mode automatically enables the Redis HA chart which requires at least 3 worker nodes, as this chart enforces Pods to run on separate nodes.
+
+    NOTE: Since this variable uses the `optional` argument to forcing the user to define all the values, there is a side effect you can pass any other bogus value and Terraform will accept it, **but they won't be used in the chart behind the module**.
+  EOT
+
+  type = object({
+    enabled = bool
+
+    controller = optional(object({
+      replicas = optional(number, 1)
+    }), {})
+
+    application_set = optional(object({
+      replicas = optional(number, 2)
+    }), {})
+
+    server = optional(object({
+      replicas = optional(number, 2)
+      autoscaling = optional(object({
+        enabled      = bool
+        min_replicas = optional(number, 2)
+        max_replicas = optional(number, 5)
+        }), {
+        enabled = false
+      })
+    }), {})
+
+    repo_server = optional(object({
+      replicas = optional(number, 2)
+      autoscaling = optional(object({
+        enabled      = bool
+        min_replicas = optional(number, 2)
+        max_replicas = optional(number, 5)
+        }), {
+        enabled = false
+      })
+    }), {})
+
+  })
+
+  default = {
+    enabled = false
+  }
+}
+
 variable "oidc" {
   description = "OIDC settings for the log in to the Argo CD web interface."
   type        = any
   default     = null
+  # TODO Add proper OIDC variable here!
 }
 
 variable "rbac" {
@@ -93,7 +239,13 @@ variable "repositories" {
 }
 
 variable "ssh_known_hosts" {
-  description = "List of SSH known hosts to add to Argo CD. Check the official `values.yaml` to get the format to pass this value. **If you set this variable, the default known hosts will be overridden by this value, so you might want to consider adding the ones you need here.**"
+  description = <<-EOT
+    List of SSH known hosts to add to Argo CD.
+    
+    Check the official `values.yaml` to get the format to pass this value. 
+    
+    IMPORTANT: If you set this variable, the default known hosts will be overridden by this value, so you might want to consider adding the ones you need here."
+  EOT
   type        = string
   default     = null
 }
@@ -153,7 +305,7 @@ variable "helmfile_cmp_version" {
 }
 
 variable "helmfile_cmp_env_variables" {
-  description = "List of environment variables to attach to the helmfile-cmp plugin, usually used to pass authentication credentials. Use a an https://kubernetes.io/docs/tasks/inject-data-application/define-environment-variable-container/[explicit format] or take the values from a https://kubernetes.io/docs/tasks/inject-data-application/distribute-credentials-secure/#define-container-environment-variables-using-secret-data[Kubernetes secret]."
+  description = "List of environment variables to attach to the helmfile-cmp plugin, usually used to pass authentication credentials. Use an https://kubernetes.io/docs/tasks/inject-data-application/define-environment-variable-container/[explicit format] or take the values from a https://kubernetes.io/docs/tasks/inject-data-application/distribute-credentials-secure/#define-container-environment-variables-using-secret-data[Kubernetes secret]."
   type = list(object({
     name  = optional(string)
     value = optional(string)

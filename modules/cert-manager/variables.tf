@@ -8,10 +8,28 @@ variable "argocd_namespace" {
   default     = "argocd"
 }
 
+variable "argocd_project" {
+  description = "Name of the Argo CD AppProject where the Application should be created. If not set, the Application will be created in a new AppProject only for this Application."
+  type        = string
+  default     = null
+}
+
+variable "argocd_labels" {
+  description = "Labels to attach to the Argo CD Application resource."
+  type        = map(string)
+  default     = {}
+}
+
+variable "destination_cluster" {
+  description = "Destination cluster where the application should be deployed."
+  type        = string
+  default     = "in-cluster"
+}
+
 variable "target_revision" {
   description = "Override of target revision of the application chart."
   type        = string
-  default     = "v5.2.1" # x-release-please-version
+  default     = "v7.0.1" # x-release-please-version
 }
 
 variable "namespace" {
@@ -61,6 +79,12 @@ variable "dependency_ids" {
 #######################
 ## Module variables
 #######################
+
+variable "letsencrypt_issuer_email_main" {
+  description = "E-mail address used to register with Let's Encrypt."
+  type        = string
+  default     = null # This value needs to be null and it is the variants job to make the outside variable required.
+}
 
 variable "use_default_dns01_solver" {
   description = "Whether to use the default dns01 solver configuration."
