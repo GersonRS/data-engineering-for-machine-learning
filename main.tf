@@ -193,7 +193,7 @@ module "minio" {
 
 module "loki-stack" {
   source           = "./modules/loki-stack"
-  argocd_namespace = module.argocd_bootstrap.argocd_namespace
+  argocd_namespace = module.argocd.argocd_namespace
   app_autosync     = local.app_autosync
   target_revision  = local.target_revision
   logs_storage = {

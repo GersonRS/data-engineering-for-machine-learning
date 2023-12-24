@@ -21,8 +21,9 @@ locals {
   }
 
   helm_values = [{
+    installCRDs  = true
+    replicaCount = 1
     cert-manager = {
-      installCRDs = true
       securityContext = {
         fsGroup = 999
       }
