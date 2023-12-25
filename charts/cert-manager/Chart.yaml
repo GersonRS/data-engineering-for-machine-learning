@@ -2,7 +2,7 @@ apiVersion: v2
 dependencies:
 - name: cert-manager
   repository: https://charts.jetstack.io
-  version: v1.12.4
+  version: v1.13.2
 description: |
   This chart installs and configures cert-manager.
   cert-manager enables:

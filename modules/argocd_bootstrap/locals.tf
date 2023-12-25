@@ -1,4 +1,9 @@
 locals {
+  argocd_chart = {
+    name       = "argo-cd"
+    repository = "https://argoproj.github.io/argo-helm"
+    version    = "5.45.3"
+  }
   argocd_version = "v2.8.3"
 
   jwt_token_payload = {

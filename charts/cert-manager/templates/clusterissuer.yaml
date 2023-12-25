@@ -2,7 +2,7 @@
 apiVersion: cert-manager.io/v1
 kind: ClusterIssuer
 metadata:
-  name: selfsigned-issuer
+  name: {{ $.Values.issuers.default.name | quote }}
   annotations:
     argocd.argoproj.io/sync-wave: "5"
 spec:
@@ -13,7 +13,7 @@ spec:
 apiVersion: cert-manager.io/v1
 kind: ClusterIssuer
 metadata:
-  name: ca-issuer
+  name: {{ $.Values.issuers.ca.name | quote }}
   annotations:
     argocd.argoproj.io/sync-wave: "5"
 spec:
@@ -23,7 +23,7 @@ spec:
 {{- if index $.Values "cert-manager" "clusterIssuers" }}
 {{- if index $.Values "cert-manager" "clusterIssuers" "letsencrypt" }}
 {{- if index $.Values "cert-manager" "clusterIssuers" "letsencrypt" "enabled" }}
-{{- range $name, $issuer := index $.Values "letsencrypt" "issuers" }}
+{{- range $name, $issuer := index $.Values "issuers" "letsencrypt" }}
 ---
 apiVersion: cert-manager.io/v1
 kind: ClusterIssuer
