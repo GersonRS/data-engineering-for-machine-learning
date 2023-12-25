@@ -14,7 +14,7 @@ resource "argocd_project" "this" {
     name      = var.destination_cluster != "in-cluster" ? "minio-${var.destination_cluster}" : "minio"
     namespace = var.argocd_namespace
     annotations = {
-      "devops-stack.io/argocd_namespace" = var.argocd_namespace
+      "modern-devops-stack.io/argocd_namespace" = var.argocd_namespace
     }
   }
 

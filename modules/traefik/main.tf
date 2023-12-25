@@ -9,7 +9,7 @@ resource "argocd_project" "this" {
     name      = var.destination_cluster != "in-cluster" ? "traefik-${var.destination_cluster}" : "traefik"
     namespace = var.argocd_namespace
     annotations = {
-      "devops-stack.io/argocd_namespace" = var.argocd_namespace
+      "modern-devops-stack.io/argocd_namespace" = var.argocd_namespace
     }
   }
 

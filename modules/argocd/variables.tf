@@ -225,7 +225,7 @@ variable "rbac" {
     policy_csv = optional(string, <<-EOT
                                     g, pipeline, role:admin
                                     g, argocd-admin, role:admin
-                                    g, devops-stack-admins, role:admin
+                                    g, modern-devops-stack-admins, role:admin
                                   EOT
     )
   })

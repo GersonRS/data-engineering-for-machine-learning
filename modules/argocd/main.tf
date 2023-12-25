@@ -25,7 +25,7 @@ resource "argocd_project" "this" {
     name      = "argocd"
     namespace = var.argocd_namespace
     annotations = {
-      "devops-stack.io/argocd_namespace" = var.argocd_namespace
+      "modern-devops-stack.io/argocd_namespace" = var.argocd_namespace
     }
   }
 

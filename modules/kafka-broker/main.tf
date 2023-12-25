@@ -9,7 +9,7 @@ resource "argocd_project" "this" {
     name      = var.destination_cluster != "in-cluster" ? "kafka-${var.destination_cluster}" : "kafka"
     namespace = var.argocd_namespace
     annotations = {
-      "devops-stack.io/argocd_namespace" = var.argocd_namespace
+      "modern-devops-stack.io/argocd_namespace" = var.argocd_namespace
     }
   }
 

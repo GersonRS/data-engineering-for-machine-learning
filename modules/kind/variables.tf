@@ -15,13 +15,13 @@ variable "nodes" {
   type        = list(map(string))
   default = [
     {
-      "platform" = "devops-stack"
+      "platform" = "modern-devops-stack"
     },
     {
-      "platform" = "devops-stack"
+      "platform" = "modern-devops-stack"
     },
     {
-      "platform" = "devops-stack"
+      "platform" = "modern-devops-stack"
     },
   ]
 
