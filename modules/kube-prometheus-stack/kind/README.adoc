@@ -1,0 +1,425 @@
+// BEGIN_TF_DOCS
+=== Requirements
+
+The following requirements are needed by this module:
+
+- [[requirement_argocd]] <<requirement_argocd,argocd>> (>= 5)
+
+- [[requirement_kubernetes]] <<requirement_kubernetes,kubernetes>> (>= 2)
+
+- [[requirement_null]] <<requirement_null,null>> (>= 3)
+
+- [[requirement_random]] <<requirement_random,random>> (>= 3)
+
+- [[requirement_utils]] <<requirement_utils,utils>> (>= 1)
+
+=== Modules
+
+The following Modules are called:
+
+==== [[module_kube-prometheus-stack]] <<module_kube-prometheus-stack,kube-prometheus-stack>>
+
+Source: ../
+
+Version:
+
+=== Required Inputs
+
+The following input variables are required:
+
+==== [[input_cluster_name]] <<input_cluster_name,cluster_name>>
+
+Description: Name given to the cluster. Value used for naming some the resources created by the module.
+
+Type: `string`
+
+==== [[input_base_domain]] <<input_base_domain,base_domain>>
+
+Description: Base domain of the cluster. Value used for the ingress' URL of the application.
+
+Type: `string`
+
+=== Optional Inputs
+
+The following input variables are optional (have default values):
+
+==== [[input_metrics_storage]] <<input_metrics_storage,metrics_storage>>
+
+Description: MinIO S3 bucket configuration values for the bucket where the archived metrics will be stored.
+
+Type:
+[source,hcl]
+----
+object({
+    bucket_name = string
+    endpoint    = string
+    access_key  = string
+    secret_key  = string
+    insecure    = optional(bool, true)
+  })
+----
+
+Default: `null`
+
+==== [[input_argocd_namespace]] <<input_argocd_namespace,argocd_namespace>>
+
+Description: Namespace used by Argo CD where the Application and AppProject resources should be created.
+
+Type: `string`
+
+Default: `"argocd"`
+
+==== [[input_argocd_project]] <<input_argocd_project,argocd_project>>
+
+Description: Name of the Argo CD AppProject where the Application should be created. If not set, the Application will be created in a new AppProject only for this Application.
+
+Type: `string`
+
+Default: `null`
+
+==== [[input_argocd_labels]] <<input_argocd_labels,argocd_labels>>
+
+Description: Labels to attach to the Argo CD Application resource.
+
+Type: `map(string)`
+
+Default: `{}`
+
+==== [[input_destination_cluster]] <<input_destination_cluster,destination_cluster>>
+
+Description: Destination cluster where the application should be deployed.
+
+Type: `string`
+
+Default: `"in-cluster"`
+
+==== [[input_target_revision]] <<input_target_revision,target_revision>>
+
+Description: Override of target revision of the application chart.
+
+Type: `string`
+
+Default: `"v8.1.0"`
+
+==== [[input_cluster_issuer]] <<input_cluster_issuer,cluster_issuer>>
+
+Description: SSL certificate issuer to use. Usually you would configure this value as `letsencrypt-staging` or `letsencrypt-prod` on your root `*.tf` files.
+
+Type: `string`
+
+Default: `"ca-issuer"`
+
+==== [[input_namespace]] <<input_namespace,namespace>>
+
+Description: Namespace where the applications's Kubernetes resources should be created. Namespace will be created in case it doesn't exist.
+
+Type: `string`
+
+Default: `"kube-prometheus-stack"`
+
+==== [[input_helm_values]] <<input_helm_values,helm_values>>
+
+Description: Helm chart value overrides. They should be passed as a list of HCL structures.
+
+Type: `any`
+
+Default: `[]`
+
+==== [[input_deep_merge_append_list]] <<input_deep_merge_append_list,deep_merge_append_list>>
+
+Description: A boolean flag to enable/disable appending lists instead of overwriting them.
+
+Type: `bool`
+
+Default: `false`
+
+==== [[input_app_autosync]] <<input_app_autosync,app_autosync>>
+
+Description: Automated sync options for the Argo CD Application resource.
+
+Type:
+[source,hcl]
+----
+object({
+    allow_empty = optional(bool)
+    prune       = optional(bool)
+    self_heal   = optional(bool)
+  })
+----
+
+Default:
+[source,json]
+----
+{
+  "allow_empty": false,
+  "prune": true,
+  "self_heal": true
+}
+----
+
+==== [[input_dependency_ids]] <<input_dependency_ids,dependency_ids>>
+
+Description: n/a
+
+Type: `map(string)`
+
+Default: `{}`
+
+==== [[input_grafana]] <<input_grafana,grafana>>
+
+Description: Grafana settings
+
+Type: `any`
+
+Default: `{}`
+
+==== [[input_prometheus]] <<input_prometheus,prometheus>>
+
+Description: Prometheus settings
+
+Type: `any`
+
+Default: `{}`
+
+==== [[input_alertmanager]] <<input_alertmanager,alertmanager>>
+
+Description: Object containing Alertmanager settings. The following attributes are supported:
+
+* `enabled`: whether Alertmanager is deployed or not (default: `true`).
+* `domain`: domain name configured in the Ingress (default: `prometheus.apps.${var.cluster_name}.${var.base_domain}`).
+* `oidc`: OIDC configuration to be used by OAuth2 Proxy in front of Alertmanager (**required**).
+* `deadmanssnitch_url`: url of a Dead Man's Snitch service Alertmanager should report to (by default this reporing is disabled).
+* `slack_routes`: list of objects configuring routing of alerts to Slack channels, with the following attributes:
+  * `name`: name of the configured route.
+  * `channel`: channel where the alerts will be sent (with '#').
+  * `api_url`: slack URL you received when configuring a webhook integration.
+  * `matchers`: list of strings for filtering which alerts will be sent.
+  * `continue`: whether an alert should continue matching subsequent sibling nodes.
+
+Type: `any`
+
+Default: `{}`
+
+==== [[input_metrics_storage_main]] <<input_metrics_storage_main,metrics_storage_main>>
+
+Description: Storage settings for the Thanos sidecar. Needs to be of type `any` because the structure is different depending on the provider used.
+
+Type: `any`
+
+Default: `{}`
+
+==== [[input_dataproxy_timeout]] <<input_dataproxy_timeout,dataproxy_timeout>>
+
+Description: Variable to set the time when a query times out. This applies to all the Grafana's data sources and can be manually configured per data source if desired.
+
+Type: `number`
+
+Default: `30`
+
+=== Outputs
+
+The following outputs are exported:
+
+==== [[output_id]] <<output_id,id>>
+
+Description: ID to pass other modules in order to refer to this module as a dependency.
+
+==== [[output_grafana_admin_password]] <<output_grafana_admin_password,grafana_admin_password>>
+
+Description: The admin password for Grafana.
+// END_TF_DOCS
+// BEGIN_TF_TABLES
+= Requirements
+
+[cols="a,a",options="header,autowidth"]
+|===
+|Name |Version
+|[[requirement_argocd]] <<requirement_argocd,argocd>> |>= 5
+|[[requirement_kubernetes]] <<requirement_kubernetes,kubernetes>> |>= 2
+|[[requirement_null]] <<requirement_null,null>> |>= 3
+|[[requirement_random]] <<requirement_random,random>> |>= 3
+|[[requirement_utils]] <<requirement_utils,utils>> |>= 1
+|===
+
+= Modules
+
+[cols="a,a,a",options="header,autowidth"]
+|===
+|Name |Source |Version
+|[[module_kube-prometheus-stack]] <<module_kube-prometheus-stack,kube-prometheus-stack>> |../ |
+|===
+
+= Inputs
+
+[cols="a,a,a,a,a",options="header,autowidth"]
+|===
+|Name |Description |Type |Default |Required
+|[[input_metrics_storage]] <<input_metrics_storage,metrics_storage>>
+|MinIO S3 bucket configuration values for the bucket where the archived metrics will be stored.
+|
+
+[source]
+----
+object({
+    bucket_name = string
+    endpoint    = string
+    access_key  = string
+    secret_key  = string
+    insecure    = optional(bool, true)
+  })
+----
+
+|`null`
+|no
+
+|[[input_cluster_name]] <<input_cluster_name,cluster_name>>
+|Name given to the cluster. Value used for naming some the resources created by the module.
+|`string`
+|n/a
+|yes
+
+|[[input_base_domain]] <<input_base_domain,base_domain>>
+|Base domain of the cluster. Value used for the ingress' URL of the application.
+|`string`
+|n/a
+|yes
+
+|[[input_argocd_namespace]] <<input_argocd_namespace,argocd_namespace>>
+|Namespace used by Argo CD where the Application and AppProject resources should be created.
+|`string`
+|`"argocd"`
+|no
+
+|[[input_argocd_project]] <<input_argocd_project,argocd_project>>
+|Name of the Argo CD AppProject where the Application should be created. If not set, the Application will be created in a new AppProject only for this Application.
+|`string`
+|`null`
+|no
+
+|[[input_argocd_labels]] <<input_argocd_labels,argocd_labels>>
+|Labels to attach to the Argo CD Application resource.
+|`map(string)`
+|`{}`
+|no
+
+|[[input_destination_cluster]] <<input_destination_cluster,destination_cluster>>
+|Destination cluster where the application should be deployed.
+|`string`
+|`"in-cluster"`
+|no
+
+|[[input_target_revision]] <<input_target_revision,target_revision>>
+|Override of target revision of the application chart.
+|`string`
+|`"v8.1.0"`
+|no
+
+|[[input_cluster_issuer]] <<input_cluster_issuer,cluster_issuer>>
+|SSL certificate issuer to use. Usually you would configure this value as `letsencrypt-staging` or `letsencrypt-prod` on your root `*.tf` files.
+|`string`
+|`"ca-issuer"`
+|no
+
+|[[input_namespace]] <<input_namespace,namespace>>
+|Namespace where the applications's Kubernetes resources should be created. Namespace will be created in case it doesn't exist.
+|`string`
+|`"kube-prometheus-stack"`
+|no
+
+|[[input_helm_values]] <<input_helm_values,helm_values>>
+|Helm chart value overrides. They should be passed as a list of HCL structures.
+|`any`
+|`[]`
+|no
+
+|[[input_deep_merge_append_list]] <<input_deep_merge_append_list,deep_merge_append_list>>
+|A boolean flag to enable/disable appending lists instead of overwriting them.
+|`bool`
+|`false`
+|no
+
+|[[input_app_autosync]] <<input_app_autosync,app_autosync>>
+|Automated sync options for the Argo CD Application resource.
+|
+
+[source]
+----
+object({
+    allow_empty = optional(bool)
+    prune       = optional(bool)
+    self_heal   = optional(bool)
+  })
+----
+
+|
+
+[source]
+----
+{
+  "allow_empty": false,
+  "prune": true,
+  "self_heal": true
+}
+----
+
+|no
+
+|[[input_dependency_ids]] <<input_dependency_ids,dependency_ids>>
+|n/a
+|`map(string)`
+|`{}`
+|no
+
+|[[input_grafana]] <<input_grafana,grafana>>
+|Grafana settings
+|`any`
+|`{}`
+|no
+
+|[[input_prometheus]] <<input_prometheus,prometheus>>
+|Prometheus settings
+|`any`
+|`{}`
+|no
+
+|[[input_alertmanager]] <<input_alertmanager,alertmanager>>
+|Object containing Alertmanager settings. The following attributes are supported:
+
+* `enabled`: whether Alertmanager is deployed or not (default: `true`).
+* `domain`: domain name configured in the Ingress (default: `prometheus.apps.${var.cluster_name}.${var.base_domain}`).
+* `oidc`: OIDC configuration to be used by OAuth2 Proxy in front of Alertmanager (**required**).
+* `deadmanssnitch_url`: url of a Dead Man's Snitch service Alertmanager should report to (by default this reporing is disabled).
+* `slack_routes`: list of objects configuring routing of alerts to Slack channels, with the following attributes:
+  * `name`: name of the configured route.
+  * `channel`: channel where the alerts will be sent (with '#').
+  * `api_url`: slack URL you received when configuring a webhook integration.
+  * `matchers`: list of strings for filtering which alerts will be sent.
+  * `continue`: whether an alert should continue matching subsequent sibling nodes.
+
+|`any`
+|`{}`
+|no
+
+|[[input_metrics_storage_main]] <<input_metrics_storage_main,metrics_storage_main>>
+|Storage settings for the Thanos sidecar. Needs to be of type `any` because the structure is different depending on the provider used.
+|`any`
+|`{}`
+|no
+
+|[[input_dataproxy_timeout]] <<input_dataproxy_timeout,dataproxy_timeout>>
+|Variable to set the time when a query times out. This applies to all the Grafana's data sources and can be manually configured per data source if desired.
+|`number`
+|`30`
+|no
+
+|===
+
+= Outputs
+
+[cols="a,a",options="header,autowidth"]
+|===
+|Name |Description
+|[[output_id]] <<output_id,id>> |ID to pass other modules in order to refer to this module as a dependency.
+|[[output_grafana_admin_password]] <<output_grafana_admin_password,grafana_admin_password>> |The admin password for Grafana.
+|===
+// END_TF_TABLES
