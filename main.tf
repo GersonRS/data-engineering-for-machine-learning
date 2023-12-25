@@ -19,7 +19,6 @@ module "traefik" {
   cluster_name           = local.cluster_name
   base_domain            = "172-18-0-100.nip.io"
   argocd_namespace       = module.argocd_bootstrap.argocd_namespace
-  app_autosync           = local.app_autosync
   enable_service_monitor = local.enable_service_monitor
   target_revision        = local.target_revision
   dependency_ids = {
@@ -30,7 +29,6 @@ module "traefik" {
 module "cert-manager" {
   source                 = "./modules/cert-manager/self-signed"
   argocd_namespace       = module.argocd_bootstrap.argocd_namespace
-  app_autosync           = local.app_autosync
   enable_service_monitor = local.enable_service_monitor
   target_revision        = local.target_revision
   dependency_ids = {
@@ -44,7 +42,6 @@ module "keycloak" {
   base_domain      = local.base_domain
   cluster_issuer   = local.cluster_issuer
   argocd_namespace = module.argocd_bootstrap.argocd_namespace
-  app_autosync     = local.app_autosync
   target_revision  = local.target_revision
   dependency_ids = {
     traefik      = module.traefik.id
@@ -68,7 +65,6 @@ module "minio" {
   base_domain            = local.base_domain
   cluster_issuer         = local.cluster_issuer
   argocd_namespace       = module.argocd_bootstrap.argocd_namespace
-  app_autosync           = local.app_autosync
   enable_service_monitor = local.enable_service_monitor
   oidc                   = module.oidc.oidc
   target_revision        = local.target_revision
@@ -82,7 +78,6 @@ module "minio" {
 module "loki-stack" {
   source           = "./modules/loki-stack/kind"
   argocd_namespace = module.argocd_bootstrap.argocd_namespace
-  app_autosync     = local.app_autosync
   logs_storage = {
     bucket_name = "loki-bucket"
     endpoint    = module.minio.cluster_dns
@@ -101,7 +96,6 @@ module "thanos" {
   base_domain      = local.base_domain
   cluster_issuer   = local.cluster_issuer
   argocd_namespace = module.argocd_bootstrap.argocd_namespace
-  app_autosync     = local.app_autosync
   metrics_storage = {
     bucket_name = "thanos-bucket"
     endpoint    = module.minio.cluster_dns
@@ -128,7 +122,6 @@ module "kube-prometheus-stack" {
   base_domain      = local.base_domain
   cluster_issuer   = local.cluster_issuer
   argocd_namespace = module.argocd_bootstrap.argocd_namespace
-  app_autosync     = local.app_autosync
   metrics_storage = {
     bucket_name = "thanos-bucket"
     endpoint    = module.minio.cluster_dns
@@ -160,7 +153,6 @@ module "argocd" {
   cluster_issuer           = local.cluster_issuer
   server_secretkey         = module.argocd_bootstrap.argocd_server_secretkey
   accounts_pipeline_tokens = module.argocd_bootstrap.argocd_accounts_pipeline_tokens
-  app_autosync             = local.app_autosync
   admin_enabled            = false
   exec_enabled             = true
   oidc = {
@@ -195,7 +187,6 @@ module "reflector" {
   base_domain            = local.base_domain
   cluster_issuer         = local.cluster_issuer
   argocd_namespace       = module.argocd_bootstrap.argocd_namespace
-  app_autosync           = local.app_autosync
   enable_service_monitor = local.enable_service_monitor
   target_revision        = local.target_revision
   dependency_ids = {
@@ -247,8 +238,7 @@ module "reflector" {
 #   cluster_name           = local.cluster_name
 #   base_domain            = local.base_domain
 #   cluster_issuer         = local.cluster_issuer
-#   argocd_namespace       = module.argocd_bootstrap.argocd_namespace
-#   app_autosync           = local.app_autosync
+#   argocd_namespace       = module.argocd_bootstrap.argocd_namespac
 #   enable_service_monitor = local.enable_service_monitor
 #   target_revision        = local.target_revision
 #   dependency_ids = {
