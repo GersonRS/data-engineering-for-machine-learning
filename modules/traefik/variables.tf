@@ -44,7 +44,7 @@ variable "target_revision" {
 variable "namespace" {
   description = "Namespace where the applications's Kubernetes resources should be created. Namespace will be created in case it doesn't exist."
   type        = string
-  default     = "traefik"
+  default     = "management"
 }
 
 variable "replicas" {

@@ -65,14 +65,10 @@ locals {
     # }
     proxy = {
       https = {
-        enabled = true
+        enabled = false
       }
     }
     hub = {
-      image = {
-        name = "gersonrs/k8s-hub"
-        tag  = "latest"
-      }
       config = {
         GenericOAuthenticator = {
           client_id          = "${var.oidc.client_id}"
@@ -80,7 +76,7 @@ locals {
           oauth_callback_url = "https://jupyterhub.apps.${var.cluster_name}.${var.base_domain}/hub/oauth_callback"
           authorize_url      = "${var.oidc.oauth_url}"
           token_url          = "${var.oidc.token_url}"
-          userdata_method    = "POST"
+          userdata_method    = "GET"
           userdata_url       = "${var.oidc.api_url}"
           login_service      = "keycloak"
           username_claim     = "email"
@@ -118,7 +114,7 @@ locals {
       ingressClassName = "traefik"
       hosts            = ["jupyterhub.apps.${var.base_domain}", "jupyterhub.apps.${var.cluster_name}.${var.base_domain}"]
       tls = [{
-        hosts      = ["jupyterhub.apps.${var.cluster_name}.${var.base_domain}"]
+        hosts      = ["jupyterhub.apps.${var.base_domain}", "jupyterhub.apps.${var.cluster_name}.${var.base_domain}"]
         secretName = "jupyterhub-ingres-tls"
       }]
     }

@@ -190,7 +190,7 @@ module "reflector" {
   enable_service_monitor = local.enable_service_monitor
   target_revision        = local.target_revision
   dependency_ids = {
-    argocd = module.argocd.id
+    argocd = module.argocd_bootstrap.id
   }
 }
 
@@ -203,35 +203,36 @@ module "postgresql" {
   enable_service_monitor = local.enable_service_monitor
   target_revision        = local.target_revision
   dependency_ids = {
-    argocd = module.argocd.id
+    traefik = module.traefik.id
+    argocd  = module.argocd_bootstrap.id
   }
 }
 
-# module "spark" {
-#   source           = "./modules/spark"
-#   cluster_name     = local.cluster_name
-#   base_domain      = local.base_domain
-#   cluster_issuer   = local.cluster_issuer
-#   argocd_namespace = module.argocd_bootstrap.argocd_namespace
-#   target_revision  = local.target_revision
-#   dependency_ids = {
-#     traefik      = module.traefik.id
-#     cert-manager = module.cert-manager.id
-#   }
-# }
+module "spark" {
+  source           = "./modules/spark"
+  cluster_name     = local.cluster_name
+  base_domain      = local.base_domain
+  cluster_issuer   = local.cluster_issuer
+  argocd_namespace = module.argocd_bootstrap.argocd_namespace
+  target_revision  = local.target_revision
+  dependency_ids = {
+    traefik      = module.traefik.id
+    cert-manager = module.cert-manager.id
+  }
+}
 
-# module "strimzi" {
-#   source           = "./modules/strimzi"
-#   cluster_name     = local.cluster_name
-#   base_domain      = local.base_domain
-#   cluster_issuer   = local.cluster_issuer
-#   argocd_namespace = module.argocd_bootstrap.argocd_namespace
-#   target_revision  = local.target_revision
-#   dependency_ids = {
-#     traefik      = module.traefik.id
-#     cert-manager = module.cert-manager.id
-#   }
-# }
+module "strimzi" {
+  source           = "./modules/strimzi"
+  cluster_name     = local.cluster_name
+  base_domain      = local.base_domain
+  cluster_issuer   = local.cluster_issuer
+  argocd_namespace = module.argocd_bootstrap.argocd_namespace
+  target_revision  = local.target_revision
+  dependency_ids = {
+    traefik      = module.traefik.id
+    cert-manager = module.cert-manager.id
+  }
+}
 # module "kafka-broker" {
 #   source                 = "./modules/kafka-broker"
 #   cluster_name           = local.cluster_name
@@ -241,6 +242,7 @@ module "postgresql" {
 #   enable_service_monitor = local.enable_service_monitor
 #   target_revision        = local.target_revision
 #   dependency_ids = {
+#     traefik = module.traefik.id
 #     strimzi = module.strimzi.id
 #   }
 # }

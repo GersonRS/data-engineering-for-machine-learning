@@ -39,7 +39,7 @@ variable "destination_cluster" {
 variable "target_revision" {
   description = "Override of target revision of the application chart."
   type        = string
-  default     = "v8.2.0" # x-release-please-version
+  default     = "develop" # x-release-please-version
 }
 
 variable "cluster_issuer" {
@@ -51,7 +51,7 @@ variable "cluster_issuer" {
 variable "namespace" {
   description = "Namespace where the applications's Kubernetes resources should be created. Namespace will be created in case it doesn't exist."
   type        = string
-  default     = "kube-prometheus-stack"
+  default     = "monitoring"
 }
 
 variable "helm_values" {
