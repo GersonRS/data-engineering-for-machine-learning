@@ -216,8 +216,7 @@ module "spark" {
   argocd_namespace = module.argocd_bootstrap.argocd_namespace
   target_revision  = local.target_revision
   dependency_ids = {
-    traefik      = module.traefik.id
-    cert-manager = module.cert-manager.id
+    argocd = module.argocd_bootstrap.id
   }
 }
 
@@ -229,8 +228,7 @@ module "strimzi" {
   argocd_namespace = module.argocd_bootstrap.argocd_namespace
   target_revision  = local.target_revision
   dependency_ids = {
-    traefik      = module.traefik.id
-    cert-manager = module.cert-manager.id
+    argocd = module.argocd_bootstrap.id
   }
 }
 # module "kafka-broker" {
@@ -239,9 +237,11 @@ module "strimzi" {
 #   base_domain            = local.base_domain
 #   cluster_issuer         = local.cluster_issuer
 #   argocd_namespace       = module.argocd_bootstrap.argocd_namespac
+#   argocd_project         = module.strimzi.argocd_project_name
 #   enable_service_monitor = local.enable_service_monitor
 #   target_revision        = local.target_revision
 #   dependency_ids = {
+#     argocd  = module.argocd_bootstrap.id
 #     traefik = module.traefik.id
 #     strimzi = module.strimzi.id
 #   }
