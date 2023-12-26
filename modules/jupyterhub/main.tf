@@ -59,7 +59,7 @@ resource "argocd_application" "this" {
 
     source {
       repo_url        = "https://github.com/GersonRS/data-engineering-for-machine-learning.git"
-      path            = "charts/jupyterhub"
+      path            = "charts/jupyterhub-old"
       target_revision = var.target_revision
       helm {
         values = data.utils_deep_merge_yaml.values.output
@@ -109,7 +109,7 @@ resource "null_resource" "this" {
 
 data "kubernetes_service" "jupyterhub" {
   metadata {
-    name      = "proxy-public"
+    name      = "jupyterhub-proxy-public"
     namespace = var.namespace
   }
   depends_on = [

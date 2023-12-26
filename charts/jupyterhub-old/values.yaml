@@ -126,7 +126,7 @@ hub:
           token_url: {{ .Values.token_url }}
           userdata_url: {{ .Values.userdata_url }}
           login_service: keycloak
-          username_claim: preferred_username
+          username_key: preferred_username
           tls_verify: false
           userdata_params:
             state: state
