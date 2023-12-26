@@ -17,3 +17,8 @@ variable "database" {
     service  = string
   })
 }
+
+variable "pinot_dns" {
+  description = "pinot dns"
+  type        = string
+}

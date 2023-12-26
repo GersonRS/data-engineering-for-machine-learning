@@ -10,8 +10,8 @@ locals {
       # - name: EXAMPLE_ENV
       #   value: "1"
       # envFrom = []
-        # - secretRef:
-        #     name: my-env-secret
+      # - secretRef:
+      #     name: my-env-secret
       resources = {
         limits = {
           cpu    = 2

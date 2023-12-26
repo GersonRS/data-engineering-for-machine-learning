@@ -7,8 +7,8 @@ resource "tls_self_signed_cert" "root" {
   private_key_pem = tls_private_key.root.private_key_pem
 
   subject {
-    common_name  = "DevOps Stack"
-    organization = "Camptocamp"
+    common_name  = "modern-devops-stack.gersonrs.com"
+    organization = "GersonRS, SA"
   }
 
   validity_period_hours = 8760
@@ -35,7 +35,7 @@ module "cert-manager" {
 
   helm_values = concat(local.helm_values, var.helm_values)
 
-  letsencrypt_issuer_email_main = null
+  letsencrypt_issuer_email_main = "gersonrodriguessantos8@gmail.com"
 
   dependency_ids = var.dependency_ids
 }

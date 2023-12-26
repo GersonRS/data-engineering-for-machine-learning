@@ -10,9 +10,10 @@ variable "oidc" {
     oauth_url               = optional(string, "")
     token_url               = optional(string, "")
     api_url                 = optional(string, "")
-    client_id               = optional(string, "")
+    client_id_saml          = optional(string, "")
     client_secret           = optional(string, "")
     oauth2_proxy_extra_args = optional(list(string), [])
+    fingerprint             = optional(string, "")
   })
 
   default = {}
@@ -39,7 +40,7 @@ variable "database" {
     user     = string
     password = string
     database = string
-    service  = string
+    endpoint = string
   })
 }
 

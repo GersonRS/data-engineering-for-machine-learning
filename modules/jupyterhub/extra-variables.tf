@@ -14,20 +14,20 @@ variable "database" {
     user     = string
     password = string
     database = string
-    service  = string
+    endpoint = string
   })
 }
 
 variable "mlflow" {
   description = "mlflow configuration"
   type = object({
-    cluster_ip = string
+    endpoint = string
   })
   default = null
 }
 
 variable "ray" {
-  description = "mlflow configuration"
+  description = "kuberay configuration"
   type = object({
     endpoint = string
   })

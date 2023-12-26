@@ -3,7 +3,7 @@
 #######################
 
 variable "cluster_name" {
-  description = "Name given to the cluster. Value used for the ingress' URL of the application."
+  description = "Name given to the cluster. Value used for naming some the resources created by the module."
   type        = string
 }
 
@@ -18,10 +18,28 @@ variable "argocd_namespace" {
   default     = "argocd"
 }
 
+variable "argocd_project" {
+  description = "Name of the Argo CD AppProject where the Application should be created. If not set, the Application will be created in a new AppProject only for this Application."
+  type        = string
+  default     = null
+}
+
+variable "argocd_labels" {
+  description = "Labels to attach to the Argo CD Application resource."
+  type        = map(string)
+  default     = {}
+}
+
+variable "destination_cluster" {
+  description = "Destination cluster where the application should be deployed."
+  type        = string
+  default     = "in-cluster"
+}
+
 variable "target_revision" {
   description = "Override of target revision of the application chart."
   type        = string
-  default     = "main" # x-release-please-version
+  default     = "develop" # x-release-please-version
 }
 
 variable "cluster_issuer" {
@@ -34,6 +52,12 @@ variable "namespace" {
   description = "Namespace where the applications's Kubernetes resources should be created. Namespace will be created in case it doesn't exist."
   type        = string
   default     = "mlops"
+}
+
+variable "enable_service_monitor" {
+  description = "Enable Prometheus ServiceMonitor in the Helm chart."
+  type        = bool
+  default     = true
 }
 
 variable "helm_values" {
@@ -60,30 +84,4 @@ variable "dependency_ids" {
   description = "IDs of the other modules on which this module depends on."
   type        = map(string)
   default     = {}
-}
-
-#######################
-## Module variables
-#######################
-
-variable "database" {
-  description = "ray external database server configuration."
-  type = object({
-    database = string
-    host     = string
-    username = string
-    password = string
-  })
-  default = null
-}
-
-variable "storage" {
-  description = "MinIO S3 bucket configuration values for the bucket where the archived metrics will be stored."
-  type = object({
-    bucket_name       = string
-    endpoint          = string
-    access_key        = string
-    secret_access_key = string
-  })
-  default = null
 }

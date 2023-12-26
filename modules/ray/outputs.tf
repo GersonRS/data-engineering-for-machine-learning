@@ -9,10 +9,10 @@ output "cluster_dns" {
 }
 output "cluster_ip" {
   description = "Ray cluster ip internal"
-  value = data.kubernetes_service.ray.spec[0].cluster_ip
+  value       = data.kubernetes_service.ray.spec[0].cluster_ip
 }
 
 output "endpoint" {
   description = "Ray endpoint external"
-  value = "https://ray.apps.${var.cluster_name}.${var.base_domain}"
+  value       = "https://ray.apps.${var.cluster_name}.${var.base_domain}"
 }

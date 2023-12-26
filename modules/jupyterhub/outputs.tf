@@ -5,7 +5,7 @@ output "id" {
 
 output "cluster_dns" {
   description = "Jupyterhub cluster dns"
-  value       = "jupyterhub.${var.namespace}.svc.cluster.local:9000"
+  value       = "jupyterhub.${var.namespace}.svc.cluster.local"
 }
 output "cluster_ip" {
   description = "Jupyterhub cluster ip internal"

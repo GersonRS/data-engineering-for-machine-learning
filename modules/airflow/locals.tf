@@ -42,14 +42,14 @@ locals {
     executor                     = "KubernetesExecutor"
     webserverSecretKeySecretName = "my-webserver-secret"
     createUserJob = {
-      useHelmHooks = false
+      useHelmHooks   = false
       applyCustomEnv = false
     }
     migrateDatabaseJob = {
-      useHelmHooks = false
+      useHelmHooks   = false
       applyCustomEnv = false
       jobAnnotations = {
-        "argocd.argoproj.io/hook": "Sync"
+        "argocd.argoproj.io/hook" : "Sync"
       }
     }
 
@@ -189,7 +189,7 @@ locals {
 
     extraSecrets = {
       airflow-metadata-secret = {
-        data = "connection: ${base64encode("postgresql://${var.database.user}:${var.database.password}@${var.database.service}:5432/${var.database.database}")}"
+        data = "connection: ${base64encode("postgresql://${var.database.user}:${var.database.password}@${var.database.endpoint}:5432/${var.database.database}")}"
       }
       my-webserver-secret = {
         data = "webserver-secret-key: ${base64encode(resource.random_password.airflow_webserver_secret_key.result)}"
@@ -198,9 +198,9 @@ locals {
         data = <<-EOT
           AIRFLOW_CONN_KUBERNETES: ${base64encode("kubernetes:///?__extra__=%7B%22in_cluster%22%3A+true%2C+%22disable_verify_ssl%22%3A+false%2C+%22disable_tcp_keepalive%22%3A+false%7D")}
           AIRFLOW_CONN_MINIO_S3: ${base64encode("aws:///?region_name=eu-west-1&aws_access_key_id=${var.storage.access_key}&aws_secret_access_key=${var.storage.secret_access_key}&endpoint_url=http://${var.storage.endpoint}:9000")}
-          AIRFLOW_CONN_POSTEGRES_CURATED: ${base64encode("postgresql://${var.database.user}:${var.database.password}@${var.database.service}:5432/curated")}
-          AIRFLOW_CONN_POSTEGRES_DATA: ${base64encode("postgresql://${var.database.user}:${var.database.password}@${var.database.service}:5432/data")}
-          AIRFLOW_CONN_POSTEGRES_FEATURE_STORE: ${base64encode("postgresql://${var.database.user}:${var.database.password}@${var.database.service}:5432/feature_store")}
+          AIRFLOW_CONN_POSTEGRES_CURATED: ${base64encode("postgresql://${var.database.user}:${var.database.password}@${var.database.endpoint}:5432/curated")}
+          AIRFLOW_CONN_POSTEGRES_DATA: ${base64encode("postgresql://${var.database.user}:${var.database.password}@${var.database.endpoint}:5432/data")}
+          AIRFLOW_CONN_POSTEGRES_FEATURE_STORE: ${base64encode("postgresql://${var.database.user}:${var.database.password}@${var.database.endpoint}:5432/feature_store")}
           AIRFLOW_CONN_MLFLOW: ${base64encode("http://${var.mlflow.endpoint}:5000/?__extra__=%7B%7D")}
         EOT
       }

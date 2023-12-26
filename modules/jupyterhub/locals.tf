@@ -76,7 +76,6 @@ locals {
           oauth_callback_url = "https://jupyterhub.apps.${var.cluster_name}.${var.base_domain}/hub/oauth_callback"
           authorize_url      = "${var.oidc.oauth_url}"
           token_url          = "${var.oidc.token_url}"
-          userdata_method    = "GET"
           userdata_url       = "${var.oidc.api_url}"
           login_service      = "keycloak"
           username_claim     = "email"
