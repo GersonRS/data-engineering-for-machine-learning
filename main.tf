@@ -231,87 +231,86 @@ module "strimzi" {
     argocd = module.argocd_bootstrap.id
   }
 }
-# module "kafka-broker" {
-#   source                 = "./modules/kafka-broker"
-#   cluster_name           = local.cluster_name
-#   base_domain            = local.base_domain
-#   cluster_issuer         = local.cluster_issuer
-#   argocd_namespace       = module.argocd_bootstrap.argocd_namespac
-#   argocd_project         = module.strimzi.argocd_project_name
-#   enable_service_monitor = local.enable_service_monitor
-#   target_revision        = local.target_revision
-#   dependency_ids = {
-#     argocd  = module.argocd_bootstrap.id
-#     traefik = module.traefik.id
-#     strimzi = module.strimzi.id
-#   }
-# }
-# module "cp-schema-registry" {
-#   source           = "./modules/cp-schema-registry"
-#   cluster_name     = local.cluster_name
-#   base_domain      = local.base_domain
-#   cluster_issuer   = local.cluster_issuer
-#   argocd_namespace = module.argocd_bootstrap.argocd_namespace
-#   target_revision  = local.target_revision
-#   dependency_ids = {
-#     traefik      = module.traefik.id
-#     cert-manager = module.cert-manager.id
-#     kafka-broker = module.kafka-broker.id
-#   }
-# }
+module "kafka-broker" {
+  source                 = "./modules/kafka-broker"
+  cluster_name           = local.cluster_name
+  base_domain            = local.base_domain
+  cluster_issuer         = local.cluster_issuer
+  argocd_namespace       = module.argocd_bootstrap.argocd_namespace
+  argocd_project         = module.strimzi.argocd_project_name
+  enable_service_monitor = local.enable_service_monitor
+  target_revision        = local.target_revision
+  dependency_ids = {
+    argocd  = module.argocd_bootstrap.id
+    traefik = module.traefik.id
+    strimzi = module.strimzi.id
+  }
+}
+module "cp-schema-registry" {
+  source           = "./modules/cp-schema-registry"
+  cluster_name     = local.cluster_name
+  base_domain      = local.base_domain
+  cluster_issuer   = local.cluster_issuer
+  argocd_namespace = module.argocd_bootstrap.argocd_namespace
+  argocd_project   = module.strimzi.argocd_project_name
+  target_revision  = local.target_revision
+  dependency_ids = {
+    traefik      = module.traefik.id
+    cert-manager = module.cert-manager.id
+    kafka-broker = module.kafka-broker.id
+  }
+}
 
-# module "kafka-ui" {
-#   source           = "./modules/kafka-ui"
-#   cluster_name     = local.cluster_name
-#   base_domain      = local.base_domain
-#   cluster_issuer   = local.cluster_issuer
-#   argocd_namespace = module.argocd_bootstrap.argocd_namespace
-#   target_revision  = local.target_revision
-#   dependency_ids = {
-#     traefik            = module.traefik.id
-#     cert-manager       = module.cert-manager.id
-#     kafka-broker       = module.kafka-broker.id
-#     cp-schema-registry = module.cp-schema-registry.id
-#   }
-# }
+module "kafka-ui" {
+  source           = "./modules/kafka-ui"
+  cluster_name     = local.cluster_name
+  base_domain      = local.base_domain
+  cluster_issuer   = local.cluster_issuer
+  argocd_namespace = module.argocd_bootstrap.argocd_namespace
+  target_revision  = local.target_revision
+  dependency_ids = {
+    traefik            = module.traefik.id
+    cert-manager       = module.cert-manager.id
+    kafka-broker       = module.kafka-broker.id
+    cp-schema-registry = module.cp-schema-registry.id
+  }
+}
 
-# module "mysql" {
-#   source                 = "./modules/mysql"
-#   cluster_name           = local.cluster_name
-#   base_domain            = local.base_domain
-#   cluster_issuer         = local.cluster_issuer
-#   argocd_namespace       = module.argocd_bootstrap.argocd_namespace
-#   enable_service_monitor = local.enable_service_monitor
-#   target_revision        = local.target_revision
-#   dependency_ids = {
-#     traefik      = module.traefik.id
-#     cert-manager = module.cert-manager.id
-#     oidc         = module.oidc.id
-#   }
-# }
+module "mysql" {
+  source                 = "./modules/mysql"
+  cluster_name           = local.cluster_name
+  base_domain            = local.base_domain
+  cluster_issuer         = local.cluster_issuer
+  argocd_namespace       = module.argocd_bootstrap.argocd_namespace
+  enable_service_monitor = local.enable_service_monitor
+  target_revision        = local.target_revision
+  dependency_ids = {
+    traefik = module.traefik.id
+    argocd  = module.argocd_bootstrap.id
+  }
+}
 
-# module "pinot" {
-#   source                 = "./modules/pinot"
-#   cluster_name           = local.cluster_name
-#   base_domain            = local.base_domain
-#   cluster_issuer         = local.cluster_issuer
-#   argocd_namespace       = module.argocd_bootstrap.argocd_namespace
-#   enable_service_monitor = local.enable_service_monitor
-#   target_revision        = local.target_revision
-
-#   storage = {
-#     bucket_name       = "pinot"
-#     endpoint          = module.minio.cluster_dns
-#     access_key        = module.minio.minio_root_user_credentials.username
-#     secret_access_key = module.minio.minio_root_user_credentials.password
-#   }
-#   dependency_ids = {
-#     traefik      = module.traefik.id
-#     cert-manager = module.cert-manager.id
-#     oidc         = module.oidc.id
-#     minio        = module.minio.id
-#   }
-# }
+module "pinot" {
+  source                 = "./modules/pinot"
+  cluster_name           = local.cluster_name
+  base_domain            = local.base_domain
+  cluster_issuer         = local.cluster_issuer
+  argocd_namespace       = module.argocd_bootstrap.argocd_namespace
+  enable_service_monitor = local.enable_service_monitor
+  target_revision        = local.target_revision
+  storage = {
+    bucket_name       = "pinot"
+    endpoint          = module.minio.cluster_dns
+    access_key        = module.minio.minio_root_user_credentials.username
+    secret_access_key = module.minio.minio_root_user_credentials.password
+  }
+  dependency_ids = {
+    traefik      = module.traefik.id
+    cert-manager = module.cert-manager.id
+    oidc         = module.oidc.id
+    minio        = module.minio.id
+  }
+}
 
 # module "trino" {
 #   source                 = "./modules/trino"

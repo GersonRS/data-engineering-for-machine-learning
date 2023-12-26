@@ -13,10 +13,10 @@ output "cluster_dns" {
 }
 output "cluster_ip" {
   description = "Postgres Cluster IPs"
-  value = data.kubernetes_service.postgresql.spec[0].cluster_ip
+  value       = data.kubernetes_service.postgresql.spec[0].cluster_ip
 }
 
 output "external_ip" {
   description = "Postgres External IPs"
-  value = data.kubernetes_service.postgresql.status[0].load_balancer[0].ingress[0].ip
+  value       = data.kubernetes_service.postgresql.status[0].load_balancer[0].ingress[0].ip
 }

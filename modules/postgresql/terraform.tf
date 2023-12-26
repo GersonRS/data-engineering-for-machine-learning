@@ -1,13 +1,12 @@
 terraform {
   required_providers {
-
     helm = {
       source  = "hashicorp/helm"
       version = ">= 2"
     }
     argocd = {
       source  = "oboukili/argocd"
-      version = ">= 4"
+      version = ">= 5"
     }
     utils = {
       source  = "cloudposse/utils"

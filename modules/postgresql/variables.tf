@@ -18,10 +18,28 @@ variable "argocd_namespace" {
   default     = "argocd"
 }
 
+variable "argocd_project" {
+  description = "Name of the Argo CD AppProject where the Application should be created. If not set, the Application will be created in a new AppProject only for this Application."
+  type        = string
+  default     = null
+}
+
+variable "argocd_labels" {
+  description = "Labels to attach to the Argo CD Application resource."
+  type        = map(string)
+  default     = {}
+}
+
+variable "destination_cluster" {
+  description = "Destination cluster where the application should be deployed."
+  type        = string
+  default     = "in-cluster"
+}
+
 variable "target_revision" {
   description = "Override of target revision of the application chart."
   type        = string
-  default     = "main" # x-release-please-version
+  default     = "develop" # x-release-please-version
 }
 
 variable "cluster_issuer" {
@@ -66,24 +84,4 @@ variable "dependency_ids" {
   description = "IDs of the other modules on which this module depends on."
   type        = map(string)
   default     = {}
-}
-
-#######################
-## Module variables
-#######################
-
-variable "oidc" {
-  description = "OIDC configuration to access the MinIO web interface."
-
-  type = object({
-    issuer_url              = optional(string, "")
-    oauth_url               = optional(string, "")
-    token_url               = optional(string, "")
-    api_url                 = optional(string, "")
-    client_id               = optional(string, "")
-    client_secret           = optional(string, "")
-    oauth2_proxy_extra_args = optional(list(string), [])
-  })
-
-  default = {}
 }

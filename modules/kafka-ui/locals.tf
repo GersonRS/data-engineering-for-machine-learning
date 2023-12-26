@@ -3,9 +3,9 @@ locals {
     yamlApplicationConfig = {
       kafka = {
         clusters = [{
-          name = "local"
-          bootstrapServers = "edh-ephemeral-kafka-bootstrap:9092"
-          schemaRegistry = "http://cp-schema-registry:8081"
+          name             = "local"
+          bootstrapServers = "edh-ephemeral-kafka-bootstrap.ingestion.svc.cluster.local:9092"
+          # schemaRegistry   = "http://cp-schema-registry:8081"
           # schemaRegistryAuth = {
           #   username = "username"
           #   password = "password"
@@ -14,7 +14,7 @@ locals {
           #   port = "9997"
           #   type = "JMX"
           # }
-    #     schemaNameTemplate: "%s-value"
+          #     schemaNameTemplate: "%s-value"
         }]
       }
       # spring = {
@@ -51,7 +51,7 @@ locals {
       host = "kafka-ui.apps.${var.cluster_name}.${var.base_domain}"
       # -- Ingress tls configuration for https access
       tls = {
-        enabled = true
+        enabled    = true
         secretName = "kafka-ui-ingres-tls"
       }
     }

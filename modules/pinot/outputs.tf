@@ -5,14 +5,14 @@ output "id" {
 
 output "cluster_dns" {
   description = "pinot cluster dns"
-  value       = "pinot.${var.namespace}.svc.cluster.local:9000"
+  value       = "pinot.${var.namespace}.svc.cluster.local"
 }
 output "cluster_ip" {
   description = "pinot cluster ip internal"
-  value = data.kubernetes_service.pinot.spec[0].cluster_ip
+  value       = data.kubernetes_service.pinot.spec[0].cluster_ip
 }
 
 output "endpoint" {
   description = "pinot endpoint external"
-  value = "https://pinot.apps.${var.cluster_name}.${var.base_domain}"
+  value       = "https://pinot.apps.${var.cluster_name}.${var.base_domain}"
 }

@@ -17,9 +17,9 @@ resource "kubernetes_secret" "postgresql_secret" {
     name      = "postgres-secrets"
     namespace = var.namespace
     annotations = {
-      "reflector.v1.k8s.emberstack.com/reflection-auto-enabled" : "true"
-      "reflector.v1.k8s.emberstack.com/reflection-allowed" : "true"
-      "reflector.v1.k8s.emberstack.com/reflection-allowed-namespaces" : "${var.namespace},processing"
+      "postgresql.v1.k8s.emberstack.com/reflection-auto-enabled" : "true"
+      "postgresql.v1.k8s.emberstack.com/reflection-allowed" : "true"
+      "postgresql.v1.k8s.emberstack.com/reflection-allowed-namespaces" : "${var.namespace},processing"
     }
   }
 
@@ -37,9 +37,10 @@ resource "null_resource" "dependencies" {
 }
 
 resource "argocd_project" "this" {
-  depends_on = [kubernetes_secret.postgresql_secret]
+  count = var.argocd_project == null ? 1 : 0
+
   metadata {
-    name      = "postgresql"
+    name      = var.destination_cluster != "in-cluster" ? "postgresql-${var.destination_cluster}" : "postgresql"
     namespace = var.argocd_namespace
     annotations = {
       "modern-devops-stack.io/argocd_namespace" = var.argocd_namespace
@@ -47,11 +48,11 @@ resource "argocd_project" "this" {
   }
 
   spec {
-    description  = "postgresql application project"
+    description  = "Postgres application project for cluster ${var.destination_cluster}"
     source_repos = ["https://github.com/GersonRS/data-engineering-for-machine-learning.git"]
 
     destination {
-      name      = "in-cluster"
+      name      = var.destination_cluster
       namespace = var.namespace
     }
 
@@ -72,8 +73,12 @@ data "utils_deep_merge_yaml" "values" {
 
 resource "argocd_application" "this" {
   metadata {
-    name      = "postgresql"
+    name      = var.destination_cluster != "in-cluster" ? "postgresql-${var.destination_cluster}" : "postgresql"
     namespace = var.argocd_namespace
+    labels = merge({
+      "application" = "postgresql"
+      "cluster"     = var.destination_cluster
+    }, var.argocd_labels)
   }
 
   timeouts {
@@ -84,7 +89,7 @@ resource "argocd_application" "this" {
   wait = var.app_autosync == { "allow_empty" = tobool(null), "prune" = tobool(null), "self_heal" = tobool(null) } ? false : true
 
   spec {
-    project = argocd_project.this.metadata.0.name
+    project = var.argocd_project == null ? argocd_project.this[0].metadata.0.name : var.argocd_project
 
     source {
       repo_url        = "https://github.com/GersonRS/data-engineering-for-machine-learning.git"
@@ -96,24 +101,27 @@ resource "argocd_application" "this" {
     }
 
     destination {
-      name      = "in-cluster"
+      name      = var.destination_cluster
       namespace = var.namespace
     }
 
     sync_policy {
-      automated {
-        allow_empty = var.app_autosync.allow_empty
-        prune       = var.app_autosync.prune
-        self_heal   = var.app_autosync.self_heal
+      dynamic "automated" {
+        for_each = toset(var.app_autosync == { "allow_empty" = tobool(null), "prune" = tobool(null), "self_heal" = tobool(null) } ? [] : [var.app_autosync])
+        content {
+          prune       = automated.value.prune
+          self_heal   = automated.value.self_heal
+          allow_empty = automated.value.allow_empty
+        }
       }
 
       retry {
         backoff {
-          duration     = ""
-          max_duration = ""
+          duration     = "20s"
+          max_duration = "2m"
           factor       = "2"
         }
-        limit = "0"
+        limit = "5"
       }
 
       sync_options = [
@@ -123,8 +131,6 @@ resource "argocd_application" "this" {
   }
 
   depends_on = [
-    kubernetes_secret.postgresql_secret,
-    argocd_project.this,
     resource.null_resource.dependencies,
   ]
 }
