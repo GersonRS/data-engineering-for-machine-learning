@@ -3,4 +3,6 @@ FROM $BASE_IMAGE
 
 USER root
 
-RUN chmod -R 777 /home
+RUN chmod -R 777 /home /usr /opt
+
+USER jovyan

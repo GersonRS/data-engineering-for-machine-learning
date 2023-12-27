@@ -1,31 +1,51 @@
 locals {
   helm_values = [{
-
-    client_id          = "${var.oidc.client_id}"
-    client_secret      = "${var.oidc.client_secret}"
-    oauth_callback_url = "https://jupyterhub.apps.${var.cluster_name}.${var.base_domain}/hub/oauth_callback"
-    authorize_url      = "${var.oidc.oauth_url}"
-    token_url          = "${var.oidc.token_url}"
-    userdata_url       = "${var.oidc.api_url}"
-
-    externalDatabase = {
-      host     = "${var.database.endpoint}"
-      port     = 5432
-      user     = "${var.database.user}"
-      database = "${var.database.database}"
-      password = "${var.database.password}"
+    proxy = {
+      https = {
+        enabled = true
+      }
     }
-    postgresql = {
-      enabled = false
+    hub = {
+      extraEnv = {
+        OAUTH_TLS_VERIFY = "0"
+      }
+      config = {
+        GenericOAuthenticator = {
+          login_service      = "keycloak"
+          client_id          = "${var.oidc.client_id}"
+          client_secret      = "${var.oidc.client_secret}"
+          oauth_callback_url = "https://jupyterhub.apps.${var.cluster_name}.${var.base_domain}/hub/oauth_callback"
+          authorize_url      = "${var.oidc.oauth_url}"
+          token_url          = "${var.oidc.token_url}"
+          userdata_url       = "${var.oidc.api_url}"
+          username_key       = "preferred_username"
+          scope              = ["openid", "email", "groups"]
+          userdata_params    = { state = "state" }
+          claim_groups_key   = "groups"
+          allowed_groups     = ["user", "modern-devops-stack-admins"]
+          admin_groups       = ["modern-devops-stack-admins"]
+        }
+        JupyterHub = {
+          admin_access        = true
+          authenticator_class = "generic-oauth"
+        }
+      }
+    }
+    debug = {
+      enabled = true
     }
     singleuser = {
       image = {
-        repository = "gersonrs/singleuser"
-        tag : "v2"
+        name = "quay.io/jupyter/all-spark-notebook"
+        tag  = "latest"
       }
-      command = ["jupyterhub-singleuser"]
-      extraEnvVars = {
-        # MLFLOW_TRACKING_URI = "postgresql+psycopg2://${var.database.user}:${var.database.password}@${var.database.service}:5432/mlflow"
+      storage = {
+        homeMountPath = "/home/jovyan/work"
+      }
+      extraEnv = {
+        DB_ENDPOINT                = "${var.database.endpoint}"
+        DB_USER                    = "${var.database.user}"
+        DB_PASSWORD                = "${var.database.password}"
         MLFLOW_TRACKING_URI        = var.mlflow != null ? "http://${var.mlflow.endpoint}:5000" : null
         MLFLOW_S3_ENDPOINT_URL     = "http://${var.storage.endpoint}"
         AWS_ENDPOINT               = "http://${var.storage.endpoint}"
@@ -36,23 +56,23 @@ locals {
         AWS_S3_ALLOW_UNSAFE_RENAME = "true",
         RAY_ADDRESS                = var.ray != null ? "ray://${var.ray.endpoint}:10001" : null
       }
-      # notebookDir : "/home/jovyan"
     }
-    proxy = {
-      ingress = {
-        enabled = true
-        ingressClassName : "traefik"
-        hostname = "jupyterhub.apps.${var.cluster_name}.${var.base_domain}"
-        annotations = {
-          "cert-manager.io/cluster-issuer"                   = "${var.cluster_issuer}"
-          "traefik.ingress.kubernetes.io/router.entrypoints" = "websecure"
-          "traefik.ingress.kubernetes.io/router.middlewares" = "traefik-withclustername@kubernetescrd"
-          "traefik.ingress.kubernetes.io/router.tls"         = "true"
-          "ingress.kubernetes.io/ssl-redirect"               = "true"
-          "kubernetes.io/ingress.allow-http"                 = "false"
-        }
-        tls = true
+    ingress = {
+      enabled = true
+      annotations = {
+        "cert-manager.io/cluster-issuer"                   = "${var.cluster_issuer}"
+        "traefik.ingress.kubernetes.io/router.entrypoints" = "websecure"
+        "traefik.ingress.kubernetes.io/router.middlewares" = "traefik-withclustername@kubernetescrd"
+        "traefik.ingress.kubernetes.io/router.tls"         = "true"
+        "ingress.kubernetes.io/ssl-redirect"               = "true"
+        "kubernetes.io/ingress.allow-http"                 = "false"
       }
+      ingressClassName = "traefik"
+      hosts            = ["jupyterhub.apps.${var.base_domain}", "jupyterhub.apps.${var.cluster_name}.${var.base_domain}"]
+      tls = [{
+        hosts      = ["jupyterhub.apps.${var.base_domain}", "jupyterhub.apps.${var.cluster_name}.${var.base_domain}"]
+        secretName = "jupyterhub-ingres-tls"
+      }]
     }
   }]
 }
