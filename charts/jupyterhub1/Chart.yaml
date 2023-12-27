@@ -1,9 +1,0 @@
-apiVersion: v2
-dependencies:
-- name: jupyterhub
-  repository: https://hub.jupyter.org/helm-chart/
-  version: 3.2.1
-description: |
-  This chart installs jupyterhub.
-name: jupyterhub
-version: "0"
