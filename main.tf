@@ -449,20 +449,20 @@ module "airflow" {
     database = "airflow"
     endpoint = module.postgresql.cluster_dns
   }
-  mlflow = {
-    endpoint = module.mlflow.cluster_dns
-  }
-  ray = {
-    endpoint = module.ray.cluster_dns
-  }
+  # mlflow = {
+  #   endpoint = module.mlflow.cluster_dns
+  # }
+  # ray = {
+  #   endpoint = module.ray.cluster_dns
+  # }
   dependency_ids = {
     argocd     = module.argocd_bootstrap.id
     traefik    = module.traefik.id
     oidc       = module.oidc.id
     minio      = module.minio.id
     postgresql = module.postgresql.id
-    mlflow     = module.mlflow.id
-    ray        = module.ray.id
+    # mlflow     = module.mlflow.id
+    # ray        = module.ray.id
   }
 }
 
