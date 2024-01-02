@@ -146,41 +146,6 @@ module "kube-prometheus-stack" {
   }
 }
 
-module "argocd" {
-  source                   = "./modules/argocd"
-  base_domain              = local.base_domain
-  cluster_name             = local.cluster_name
-  cluster_issuer           = local.cluster_issuer
-  server_secretkey         = module.argocd_bootstrap.argocd_server_secretkey
-  accounts_pipeline_tokens = module.argocd_bootstrap.argocd_accounts_pipeline_tokens
-  admin_enabled            = false
-  exec_enabled             = true
-  oidc = {
-    name         = "OIDC"
-    issuer       = module.oidc.oidc.issuer_url
-    clientID     = module.oidc.oidc.client_id
-    clientSecret = module.oidc.oidc.client_secret
-    requestedIDTokenClaims = {
-      groups = {
-        essential = true
-      }
-    }
-  }
-  rbac = {
-    policy_csv = <<-EOT
-      g, pipeline, role:admin
-      g, modern-devops-stack-admins, role:admin
-    EOT
-  }
-  target_revision = local.target_revision
-  dependency_ids = {
-    traefik               = module.traefik.id
-    cert-manager          = module.cert-manager.id
-    oidc                  = module.oidc.id
-    kube-prometheus-stack = module.kube-prometheus-stack.id
-  }
-}
-
 module "reflector" {
   source                 = "./modules/reflector"
   cluster_name           = local.cluster_name
@@ -489,3 +454,40 @@ module "airflow" {
 #     postgresql = module.postgresql.id
 #   }
 # }
+
+module "argocd" {
+  source                   = "./modules/argocd"
+  base_domain              = local.base_domain
+  cluster_name             = local.cluster_name
+  cluster_issuer           = local.cluster_issuer
+  server_secretkey         = module.argocd_bootstrap.argocd_server_secretkey
+  accounts_pipeline_tokens = module.argocd_bootstrap.argocd_accounts_pipeline_tokens
+  admin_enabled            = false
+  exec_enabled             = true
+  oidc = {
+    name         = "OIDC"
+    issuer       = module.oidc.oidc.issuer_url
+    clientID     = module.oidc.oidc.client_id
+    clientSecret = module.oidc.oidc.client_secret
+    requestedIDTokenClaims = {
+      groups = {
+        essential = true
+      }
+    }
+  }
+  rbac = {
+    policy_csv = <<-EOT
+      g, pipeline, role:admin
+      g, modern-devops-stack-admins, role:admin
+    EOT
+  }
+  target_revision = local.target_revision
+  dependency_ids = {
+    traefik               = module.traefik.id
+    cert-manager          = module.cert-manager.id
+    oidc                  = module.oidc.id
+    kube-prometheus-stack = module.kube-prometheus-stack.id
+    jupyterhub            = module.jupyterhub.id
+    airflow               = module.airflow.id
+  }
+}

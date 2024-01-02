@@ -210,13 +210,120 @@ locals {
         }
       }
       webserver = {
-        # webserverConfig = <<-EOT
-        #     from airflow import configuration as conf
-        #     # The SQLAlchemy connection string.
-        #     SQLALCHEMY_DATABASE_URI = conf.get('database', 'SQL_ALCHEMY_CONN')
-        #     # Flask-WTF flag for CSRF
-        #     CSRF_ENABLED = True
-        # EOT
+        webserverConfig = <<-EOT
+            import os
+            import logging
+            import jwt
+            import requests
+
+            from base64 import b64decode
+            from cryptography.hazmat.primitives import serialization
+            from tokenize import Exponent
+
+            from airflow import configuration as conf
+            from flask_appbuilder.security.manager import AUTH_OAUTH
+            from airflow.www.security import AirflowSecurityManager
+
+            from flask_appbuilder import expose
+            from flask_appbuilder.security.views import AuthOAuthView
+
+            basedir = os.path.abspath(os.path.dirname(__file__))
+            log = logging.getLogger(__name__)
+
+            SQLALCHEMY_CONN = os.environ['AIRFLOW__CORE__SQL_ALCHEMY_CONN']
+            SQLALCHEMY_DATABASE_URI = os.environ['AIRFLOW__DATABASE__SQL_ALCHEMY_CONN']
+
+            CSRF_ENABLED = True
+            AUTH_TYPE = AUTH_OAUTH
+
+
+            # registration configs
+            # AUTH_USER_REGISTRATION = True  # allow users who are not already in the FAB DB
+            # AUTH_USER_REGISTRATION_ROLE = "Public"  # this role will be given in addition to any AUTH_ROLES_MAPPING
+
+            # the list of providers which the user can choose from
+            OAUTH_PROVIDERS = [
+                {
+                    "name": "keycloak",
+                    "icon": "fa-key",
+                    "token_key": "access_token",
+                    "remote_app": {
+                        "client_id": "${var.oidc.client_id}",
+                        "client_secret": "${var.oidc.client_secret}",
+                        "api_base_url": "${var.oidc.issuer_url}",
+                        "userinfo_url": "${var.oidc.api_url}",
+                        "client_kwargs": {
+                            "scope": "email profile",
+                            "verify": False,
+                            "verify_signature": False
+                        },
+                        "access_token_url": "${var.oidc.token_url}",
+                        "authorize_url": "${var.oidc.oauth_url}",
+                        "request_token_url": None,
+                    },
+                },
+            ]
+
+            # note, this is only natively supported in `azure` and `okta` currently,
+            # however, if you customize userinfo retrieval to include 'role_keys', this will work for other providers
+
+            # a mapping from the values of `userinfo["role_keys"]` to a list of FAB roles
+            AUTH_ROLES_MAPPING = {
+                "USERS": ["user"],
+                "ADMINS": ["admin", "Admin","modern-devops-stack-admins"],
+            }
+
+            AUTH_ROLES_SYNC_AT_LOGIN = True
+            # force users to re-auth after 30min of inactivity (to keep roles in sync)
+            PERMANENT_SESSION_LIFETIME = 1800
+
+            req = requests.get(os.environ['${var.oidc.issuer_url}'])
+            key_der_base64 = req.json()["public_key"]
+            key_der = b64decode(key_der_base64.encode())
+            public_key = serialization.load_der_public_key(key_der)
+
+            class CustomAuthRemoteUserView(AuthOAuthView):
+                @expose("/logout/")
+                def logout(self):
+                    """Delete access token before logging out."""
+                    return super().logout()
+
+            class CustomSecurityManager(AirflowSecurityManager):
+                authoauthview = CustomAuthRemoteUserView
+
+                def oauth_user_info(self, provider, response):
+                    if provider == PROVIDER_NAME:
+                        log.info("response: {}".format(response))
+                        token = response["access_token"]
+                        log.info("token: {}".format(token))
+                        me = jwt.decode(token, public_key, algorithms=['HS256', 'RS256'], audience=CLIENT_ID)
+                        log.info("me: {}".format(me))
+                        # sample of resource_access
+                        # {
+                        #   "resource_access": { "airflow": { "roles": ["airflow_admin"] }}
+                        # }
+                        groups = me.get("resource_access", {}).get("airflow", {}).get("roles")
+                        if groups is None or len(groups) < 1:
+                            groups = ["airflow_public"]
+                        else:
+                            groups = [str for str in groups if "airflow" in str]
+
+                        log.info("making userinfo")
+                        userinfo = {
+                            "username": me.get("preferred_username"),
+                            "email": me.get("email"),
+                            "first_name": me.get("given_name"),
+                            "last_name": me.get("family_name"),
+                            "role_keys": groups,
+                        }
+
+                        log.info("user info: {0}".format(userinfo))
+                        return userinfo
+                    else:
+                        return {}
+
+            SECURITY_MANAGER_CLASS = CustomSecurityManager
+        EOT
         extraInitContainers = [
           {
             image           = "apache/airflow:2.7.3"
