@@ -210,6 +210,16 @@ locals {
         }
       }
       webserver = {
+        env = [
+          {
+            name  = "OAUTH2_METADATA_URL"
+            value = "${var.oidc.issuer_url}/.well-known/openid-configuration"
+          },
+          {
+            name  = "OAUTH2_SERVER_METADATA_URL"
+            value = "${var.oidc.issuer_url}/.well-known/openid-configuration"
+          }
+        ]
         webserverConfig = <<-EOT
             import os
             import logging
@@ -234,95 +244,90 @@ locals {
             SQLALCHEMY_DATABASE_URI = os.environ['AIRFLOW__DATABASE__SQL_ALCHEMY_CONN']
 
             CSRF_ENABLED = True
+            WTF_CSRF_ENABLED = True
             AUTH_TYPE = AUTH_OAUTH
 
-
-            # registration configs
-            # AUTH_USER_REGISTRATION = True  # allow users who are not already in the FAB DB
-            # AUTH_USER_REGISTRATION_ROLE = "Public"  # this role will be given in addition to any AUTH_ROLES_MAPPING
-
-            # the list of providers which the user can choose from
-            OAUTH_PROVIDERS = [
-                {
-                    "name": "keycloak",
-                    "icon": "fa-key",
-                    "token_key": "access_token",
-                    "remote_app": {
-                        "client_id": "${var.oidc.client_id}",
-                        "client_secret": "${var.oidc.client_secret}",
-                        "api_base_url": "${var.oidc.issuer_url}",
-                        "userinfo_url": "${var.oidc.api_url}",
-                        "client_kwargs": {
-                            "scope": "email profile",
-                            "verify": False,
-                            "verify_signature": False
-                        },
-                        "access_token_url": "${var.oidc.token_url}",
-                        "authorize_url": "${var.oidc.oauth_url}",
-                        "request_token_url": None,
-                    },
-                },
-            ]
-
-            # note, this is only natively supported in `azure` and `okta` currently,
-            # however, if you customize userinfo retrieval to include 'role_keys', this will work for other providers
-
-            # a mapping from the values of `userinfo["role_keys"]` to a list of FAB roles
+            AUTH_ROLE_ADMIN = 'Admin'
+            AUTH_ROLE_PUBLIC = 'Public'
+            AUTH_USER_REGISTRATION = True
+            #Do not disable this in production
+            OIDC_COOKIE_SECURE = False
+            AUTH_ROLES_SYNC_AT_LOGIN = True
+            AUTH_USER_REGISTRATION_ROLE = 'User'
             AUTH_ROLES_MAPPING = {
-                "USERS": ["user"],
-                "ADMINS": ["admin", "Admin","modern-devops-stack-admins"],
+              "airflow_admin": ["Admin"],
+              "modern-devops-stack-admins": ["Admin"],
+              "airflow_op": ["Op"],
+              "airflow_user": ["User"],
+              "airflow_viewer": ["Viewer"],
+              "airflow_public": ["Public"],
             }
 
-            AUTH_ROLES_SYNC_AT_LOGIN = True
-            # force users to re-auth after 30min of inactivity (to keep roles in sync)
-            PERMANENT_SESSION_LIFETIME = 1800
+            PROVIDER_NAME = 'keycloak'
+            CLIENT_ID = "${var.oidc.client_id}"
 
-            req = requests.get(os.environ['${var.oidc.issuer_url}'])
-            key_der_base64 = req.json()["public_key"]
-            key_der = b64decode(key_der_base64.encode())
-            public_key = serialization.load_der_public_key(key_der)
+            OAUTH_PROVIDERS = [{
+                'name': PROVIDER_NAME,
+                'token_key':'access_token',
+                'icon':'fa-address-card',
+                'remote_app': {
+                    'api_base_url': '${var.oidc.issuer_url}',
+                    'access_token_url': '${var.oidc.token_url}',
+                    'authorize_url': '${var.oidc.oauth_url}',
+                    'userinfo_url': '${var.oidc.api_url}',
+                    'server_metadata_url': '${var.oidc.issuer_url}/.well-known/openid-configuration',
+                    'request_token_url': None,
+                    'client_id': CLIENT_ID,
+                    'client_secret': '${var.oidc.client_secret}',
+                    'client_kwargs':{
+                        'scope': 'email profile openid',
+                        "verify": False
+                    },
+                }
+            }]
 
-            class CustomAuthRemoteUserView(AuthOAuthView):
-                @expose("/logout/")
-                def logout(self):
-                    """Delete access token before logging out."""
-                    return super().logout()
+            # req = requests.get('${var.oidc.issuer_url}', verify=False)
+            # key_der_base64 = req.json()["public_key"]
+            # key_der = b64decode(key_der_base64.encode())
+            # public_key = serialization.load_der_public_key(key_der)
 
-            class CustomSecurityManager(AirflowSecurityManager):
-                authoauthview = CustomAuthRemoteUserView
+            # class CustomAuthRemoteUserView(AuthOAuthView):
+            #     @expose("/logout/")
+            #     def logout(self):
+            #         """Delete access token before logging out."""
+            #         return super().logout()
 
-                def oauth_user_info(self, provider, response):
-                    if provider == PROVIDER_NAME:
-                        log.info("response: {}".format(response))
-                        token = response["access_token"]
-                        log.info("token: {}".format(token))
-                        me = jwt.decode(token, public_key, algorithms=['HS256', 'RS256'], audience=CLIENT_ID)
-                        log.info("me: {}".format(me))
-                        # sample of resource_access
-                        # {
-                        #   "resource_access": { "airflow": { "roles": ["airflow_admin"] }}
-                        # }
-                        groups = me.get("resource_access", {}).get("airflow", {}).get("roles")
-                        if groups is None or len(groups) < 1:
-                            groups = ["airflow_public"]
-                        else:
-                            groups = [str for str in groups if "airflow" in str]
+            # class CustomSecurityManager(AirflowSecurityManager):
+            #     authoauthview = CustomAuthRemoteUserView
 
-                        log.info("making userinfo")
-                        userinfo = {
-                            "username": me.get("preferred_username"),
-                            "email": me.get("email"),
-                            "first_name": me.get("given_name"),
-                            "last_name": me.get("family_name"),
-                            "role_keys": groups,
-                        }
+            #     def oauth_user_info(self, provider, response):
+            #         if provider == PROVIDER_NAME:
+            #             log.info("response: {}".format(response))
+            #             token = response["access_token"]
+            #             log.info("token: {}".format(token))
+            #             me = jwt.decode(token, public_key, algorithms=['HS256', 'RS256'], audience=CLIENT_ID)
+            #             log.info("me: {}".format(me))
+            #             groups = me.get("realm_access", {}).get("roles")
+            #             if groups is None or len(groups) < 1:
+            #                 groups = ["airflow_public"]
+            #             else:
+            #                 groups = [str for str in groups if "airflow" in str]
 
-                        log.info("user info: {0}".format(userinfo))
-                        return userinfo
-                    else:
-                        return {}
+            #             log.info("making userinfo")
+            #             userinfo = {
+            #                 "username": me.get("preferred_username"),
+            #                 "email": me.get("email"),
+            #                 "first_name": me.get("given_name"),
+            #                 "last_name": me.get("family_name"),
+            #                 "role_keys": groups,
+            #             }
 
-            SECURITY_MANAGER_CLASS = CustomSecurityManager
+            #             log.info("user info: {0}".format(userinfo))
+            #             return userinfo
+            #         else:
+            #             return {}
+
+            # SECURITY_MANAGER_CLASS = CustomSecurityManager
         EOT
         extraInitContainers = [
           {

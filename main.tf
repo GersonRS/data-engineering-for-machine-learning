@@ -488,6 +488,5 @@ module "argocd" {
     oidc                  = module.oidc.id
     kube-prometheus-stack = module.kube-prometheus-stack.id
     jupyterhub            = module.jupyterhub.id
-    airflow               = module.airflow.id
   }
 }
