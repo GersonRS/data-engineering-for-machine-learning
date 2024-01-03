@@ -32,8 +32,8 @@ locals {
       fernetKey = "${var.fernetKey}"
       images = {
         airflow = {
-          repository = "gersonrs/airflow"
-          tag        = "latest"
+          repository = "apache/airflow"
+          tag        = "2.8.0"
         }
       }
       volumes = [
@@ -202,7 +202,7 @@ locals {
               #!/usr/bin/env bash
               conn=$(airflow connections list)
               if [ "$conn" = "No data found" ]; then
-                connections=$(env | grep '^conn_' | sort)
+                connections=$(env | grep "^conn_" | sort)
                 echo $connections | tr " " "\n" > .env
                 airflow connections import .env
               fi
@@ -221,72 +221,62 @@ locals {
           }
         ]
         webserverConfig = <<-EOT
-            import os
             import logging
-            import jwt
+            import os
             import requests
-
             from base64 import b64decode
             from cryptography.hazmat.primitives import serialization
-            from tokenize import Exponent
-
-            from airflow import configuration as conf
-            from flask_appbuilder.security.manager import AUTH_OAUTH
+            import jwt
             from airflow.www.security import AirflowSecurityManager
-
             from flask_appbuilder import expose
+            from flask_appbuilder.security.manager import AUTH_OAUTH
             from flask_appbuilder.security.views import AuthOAuthView
 
-            basedir = os.path.abspath(os.path.dirname(__file__))
             log = logging.getLogger(__name__)
+            log.setLevel(os.getenv("AIRFLOW__LOGGING__FAB_LOGGING_LEVEL", "INFO"))
 
-            SQLALCHEMY_CONN = os.environ['AIRFLOW__CORE__SQL_ALCHEMY_CONN']
-            SQLALCHEMY_DATABASE_URI = os.environ['AIRFLOW__DATABASE__SQL_ALCHEMY_CONN']
-
-            CSRF_ENABLED = True
-            WTF_CSRF_ENABLED = True
-            AUTH_TYPE = AUTH_OAUTH
-
-            AUTH_ROLE_ADMIN = 'Admin'
-            AUTH_ROLE_PUBLIC = 'Public'
-            AUTH_USER_REGISTRATION = True
-            #Do not disable this in production
-            OIDC_COOKIE_SECURE = False
-            AUTH_ROLES_SYNC_AT_LOGIN = True
-            AUTH_USER_REGISTRATION_ROLE = 'User'
-            AUTH_ROLES_MAPPING = {
-              "airflow_admin": ["Admin"],
-              "modern-devops-stack-admins": ["Admin"],
-              "airflow_op": ["Op"],
-              "airflow_user": ["User"],
-              "airflow_viewer": ["Viewer"],
-              "airflow_public": ["Public"],
-            }
-
-            PROVIDER_NAME = 'keycloak'
             CLIENT_ID = "${var.oidc.client_id}"
 
+            # Flask-WTF flag for CSRF
+            WTF_CSRF_ENABLED = True
+            WTF_CSRF_TIME_LIMIT = None
+
+            PERMANENT_SESSION_LIFETIME = 1800
+
+            AUTH_TYPE = AUTH_OAUTH
+
+            AUTH_ROLES_MAPPING = {
+                "Viewer": ["Viewer"],
+                "Admin": ["Admin"],
+                "Public": ["Public"],
+                "airflow_admin": ["Admin"],
+                "modern-devops-stack-admins": ["Admin"],
+                "airflow_op": ["Op"],
+                "airflow_user": ["User"],
+                "airflow_viewer": ["Viewer"],
+                "airflow_public": ["Public"],
+            }
             OAUTH_PROVIDERS = [{
-                'name': PROVIDER_NAME,
-                'token_key':'access_token',
-                'icon':'fa-address-card',
-                'remote_app': {
-                    'api_base_url': '${var.oidc.issuer_url}',
-                    'access_token_url': '${var.oidc.token_url}',
-                    'authorize_url': '${var.oidc.oauth_url}',
-                    'userinfo_url': '${var.oidc.api_url}',
-                    'server_metadata_url': '${var.oidc.issuer_url}/.well-known/openid-configuration',
-                    'request_token_url': None,
-                    'client_id': CLIENT_ID,
-                    'client_secret': '${var.oidc.client_secret}',
-                    'client_kwargs':{
-                        'scope': 'email profile openid',
+                "name": "keycloak",
+                "token_key":"access_token",
+                "icon":"fa-address-card",
+                "remote_app": {
+                    "api_base_url": "${var.oidc.issuer_url}/protocol/",
+                    "access_token_url": "${var.oidc.token_url}",
+                    "authorize_url": "${var.oidc.oauth_url}",
+                    "userinfo_url": "${var.oidc.api_url}",
+                    "server_metadata_url": "${var.oidc.issuer_url}/.well-known/openid-configuration",
+                    "request_token_url": None,
+                    "client_id": "${var.oidc.client_id}",
+                    "client_secret": "${var.oidc.client_secret}",
+                    "client_kwargs":{
+                        "scope": "email profile openid",
                         "verify": False
                     },
                 }
             }]
 
-            # req = requests.get('${var.oidc.issuer_url}', verify=False)
+            # req = requests.get("${var.oidc.issuer_url}", verify=False)
             # key_der_base64 = req.json()["public_key"]
             # key_der = b64decode(key_der_base64.encode())
             # public_key = serialization.load_der_public_key(key_der)
@@ -301,11 +291,12 @@ locals {
             #     authoauthview = CustomAuthRemoteUserView
 
             #     def oauth_user_info(self, provider, response):
-            #         if provider == PROVIDER_NAME:
+            #         if provider == "keycloak":
             #             log.info("response: {}".format(response))
             #             token = response["access_token"]
             #             log.info("token: {}".format(token))
-            #             me = jwt.decode(token, public_key, algorithms=['HS256', 'RS256'], audience=CLIENT_ID)
+            #             me = jwt.decode(token, algorithms=['HS256', 'RS256'], verify=False)
+            #             # me = jwt.decode(token, public_key, algorithms=['HS256', 'RS256'], audience=CLIENT_ID)
             #             log.info("me: {}".format(me))
             #             groups = me.get("realm_access", {}).get("roles")
             #             if groups is None or len(groups) < 1:
@@ -409,9 +400,9 @@ locals {
       }
       # extraEnvFrom = <<-EOT
       #   - configMapRef:
-      #       name: 'airflow-airflow-variables'
+      #       name: "airflow-airflow-variables"
       #   - secretRef:
-      #       name: 'airflow-airflow-connections'
+      #       name: "airflow-airflow-connections"
       # EOT
     }
   }]
