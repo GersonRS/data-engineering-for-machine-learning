@@ -1,8 +1,8 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: crb-spark-operator-airflow-orchestrator
-  namespace: orchestrator
+  name: crb-spark-operator-airflow-{{ .Release.Namespace }}
+  namespace: {{ .Release.Namespace | quote }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
@@ -10,7 +10,7 @@ roleRef:
 subjects:
   - kind: ServiceAccount
     name: airflow-worker
-    namespace: orchestrator
+    namespace: {{ .Release.Namespace | quote }}
   - kind: ServiceAccount
     name: default
-    namespace: orchestrator
+    namespace: {{ .Release.Namespace | quote }}
