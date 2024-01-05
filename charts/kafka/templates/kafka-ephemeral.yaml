@@ -2,7 +2,7 @@
 apiVersion: kafka.strimzi.io/v1beta2
 kind: Kafka
 metadata:
-  name: {{ .Values.kafka.name }}-kafka-ephemeral
+  name: {{ .Values.kafka.name }}
   labels:
     {{- include "modern-devops-stack-module-kafka.labels" $ | indent 4 }}
 spec:
@@ -31,16 +31,16 @@ spec:
     config:
     # Report and UI for Cruise Control
       metric.reporters: "com.linkedin.kafka.cruisecontrol.metricsreporter.CruiseControlMetricsReporter"
+      auto.create.topics.enable: "false"
       offsets.topic.replication.factor: {{ .Values.kafka.replicas }}
       transaction.state.log.replication.factor: {{ .Values.kafka.replicas }}
       transaction.state.log.min.isr: 1
       default.replication.factor: {{ .Values.kafka.replicas }}
       min.insync.replicas: 1
+      log.message.format.version: {{ .Values.kafka.versionProtocol }}
       inter.broker.protocol.version: {{ .Values.kafka.versionProtocol }}
     storage:
       type: ephemeral
-    # resource limitation
-    # -xms -xmx set as same as resources [limit]
     resources:
       requests:
         memory: 256Mi
@@ -65,7 +65,6 @@ spec:
       initialDelaySeconds: 60
       timeoutSeconds: 5
     resources:
-      # requests and limits
       requests:
         memory: 256Mi
         cpu: "250m"
