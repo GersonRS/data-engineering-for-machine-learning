@@ -224,11 +224,12 @@ module "kafka" {
 #   enable_service_monitor = local.enable_service_monitor
 #   target_revision        = local.target_revision
 #   argocd_project         = module.strimzi.argocd_project_name
+#   kafka_broker_name      = module.kafka.broker_name
 #   dependency_ids = {
 #     traefik      = module.traefik.id
 #     cert-manager = module.cert-manager.id
 #     strimzi      = module.strimzi.id
-#     kafka-broker = module.kafka-broker.id
+#     kafka        = module.kafka.id
 #   }
 # }
 
