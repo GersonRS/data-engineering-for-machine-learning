@@ -4,8 +4,8 @@ locals {
       kafka = {
         clusters = [{
           name             = "local"
-          bootstrapServers = "edh-ephemeral-kafka-bootstrap.ingestion.svc.cluster.local:9092"
-          # schemaRegistry   = "http://cp-schema-registry:8081"
+          bootstrapServers = "${var.kafka_broker_name}-kafka-bootstrap.ingestion.svc.cluster.local:9092"
+          schemaRegistry   = "http://schema-registry-cp-schema-registry.ingestion.svc.cluster.local:8081"
           # schemaRegistryAuth = {
           #   username = "username"
           #   password = "password"

@@ -215,39 +215,37 @@ module "kafka" {
   }
 }
 
-# module "cp-schema-registry" {
-#   source                 = "./modules/cp-schema-registry"
-#   cluster_name           = local.cluster_name
-#   base_domain            = local.base_domain
-#   cluster_issuer         = local.cluster_issuer
-#   argocd_namespace       = module.argocd_bootstrap.argocd_namespace
-#   enable_service_monitor = local.enable_service_monitor
-#   target_revision        = local.target_revision
-#   argocd_project         = module.strimzi.argocd_project_name
-#   kafka_broker_name      = module.kafka.broker_name
-#   dependency_ids = {
-#     traefik      = module.traefik.id
-#     cert-manager = module.cert-manager.id
-#     strimzi      = module.strimzi.id
-#     kafka        = module.kafka.id
-#   }
-# }
+module "cp-schema-registry" {
+  source                 = "./modules/cp-schema-registry"
+  cluster_name           = local.cluster_name
+  base_domain            = local.base_domain
+  cluster_issuer         = local.cluster_issuer
+  argocd_namespace       = module.argocd_bootstrap.argocd_namespace
+  enable_service_monitor = local.enable_service_monitor
+  target_revision        = local.target_revision
+  argocd_project         = module.strimzi.argocd_project_name
+  kafka_broker_name      = module.kafka.broker_name
+  dependency_ids = {
+    argocd = module.argocd_bootstrap.id
+    kafka  = module.kafka.id
+  }
+}
 
-# module "kafka-ui" {
-#   source                 = "./modules/kafka-ui"
-#   cluster_name           = local.cluster_name
-#   base_domain            = local.base_domain
-#   cluster_issuer         = local.cluster_issuer
-#   argocd_namespace       = module.argocd_bootstrap.argocd_namespace
-#   enable_service_monitor = local.enable_service_monitor
-#   target_revision        = local.target_revision
-#   dependency_ids = {
-#     traefik            = module.traefik.id
-#     cert-manager       = module.cert-manager.id
-#     kafka-broker       = module.kafka-broker.id
-#     cp-schema-registry = module.cp-schema-registry.id
-#   }
-# }
+module "kafka-ui" {
+  source                 = "./modules/kafka-ui"
+  cluster_name           = local.cluster_name
+  base_domain            = local.base_domain
+  cluster_issuer         = local.cluster_issuer
+  argocd_namespace       = module.argocd_bootstrap.argocd_namespace
+  enable_service_monitor = local.enable_service_monitor
+  target_revision        = local.target_revision
+  kafka_broker_name      = module.kafka.broker_name
+  dependency_ids = {
+    argocd             = module.argocd_bootstrap.id
+    kafka              = module.kafka.id
+    cp-schema-registry = module.cp-schema-registry.id
+  }
+}
 
 # module "mysql" {
 #   source                 = "./modules/mysql"

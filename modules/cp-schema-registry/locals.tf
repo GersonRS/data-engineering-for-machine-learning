@@ -1,7 +1,7 @@
 locals {
   helm_values = [{
     kafka = {
-      bootstrapServers = "PLAINTEXT://edh-ephemeral-kafka-bootstrap:9092"
+      bootstrapServers = "PLAINTEXT://${var.kafka_broker_name}-kafka-bootstrap:9092"
     }
   }]
 }
