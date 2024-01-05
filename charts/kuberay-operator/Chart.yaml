@@ -1,6 +1,9 @@
 apiVersion: v2
-description: A Helm chart for Kubernetes
+description: A Helm chart for kuberay-operator
 name: kuberay-operator
-version: 0.6.1
-icon: https://github.com/ray-project/ray/raw/master/doc/source/images/ray_header_logo.png
-type: application
+version: "0"
+dependencies:
+- name: kuberay-operator
+  repository: https://ray-project.github.io/kuberay-helm/
+  version: 1.0.0
+  skipCRDs: true

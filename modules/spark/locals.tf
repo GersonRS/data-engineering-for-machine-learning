@@ -1,3 +1,5 @@
 locals {
-  helm_values = [{}]
+  helm_values = [{
+    spark-operator = {}
+  }]
 }

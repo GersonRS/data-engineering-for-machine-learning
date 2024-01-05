@@ -1,0 +1,6 @@
+dependencies:
+- name: kuberay-apiserver
+  repository: https://ray-project.github.io/kuberay-helm/
+  version: 1.0.0
+digest: sha256:7bd7bf353e87424fd56c46160e59f4a3b9db4905adb5e81c80e58aedfa945bca
+generated: "2024-01-05T11:41:46.683708604-03:00"
