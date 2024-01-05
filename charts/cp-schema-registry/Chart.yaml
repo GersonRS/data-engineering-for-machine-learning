@@ -1,0 +1,9 @@
+apiVersion: v2
+dependencies:
+- name: cp-helm-charts
+  repository: https://confluentinc.github.io/cp-helm-charts/
+  version: "*.*.*"
+description: |
+  This chart installs Schema Registry
+name: cp-schema-registry
+version: "0"
