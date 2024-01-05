@@ -33,6 +33,10 @@ resource "argocd_project" "this" {
   }
 }
 
+data "utils_deep_merge_yaml" "values" {
+  input = [for i in concat(local.helm_values, var.helm_values) : yamlencode(i)]
+}
+
 resource "argocd_application" "this" {
   metadata {
     name      = var.destination_cluster != "in-cluster" ? "kafka-${var.destination_cluster}" : "kafka"
@@ -55,10 +59,10 @@ resource "argocd_application" "this" {
 
     source {
       repo_url        = "https://github.com/GersonRS/data-engineering-for-machine-learning.git"
-      path            = "yamls/ingestion/broker-ephemeral"
+      path            = "charts/kafka"
       target_revision = var.target_revision
-      directory {
-        recurse = true
+      helm {
+        values = data.utils_deep_merge_yaml.values.output
       }
     }
 

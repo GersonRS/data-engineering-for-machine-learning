@@ -1,9 +1,11 @@
+---
 apiVersion: kafka.strimzi.io/v1beta2
 kind: KafkaRebalance
 metadata:
-  name: edh-kafka-rebalance
+  name: {{ .Values.kafka.name }}-kafka-rebalance
   labels:
-    strimzi.io/cluster: edh
+    {{- include "modern-devops-stack-module-kafka.labels" $ | indent 4 }}
+    strimzi.io/cluster: {{ .Values.kafka.name }}-kafka-ephemeral
 spec:
   goals:
     - NetworkInboundCapacityGoal

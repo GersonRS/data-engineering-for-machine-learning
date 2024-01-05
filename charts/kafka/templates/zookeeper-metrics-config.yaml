@@ -1,8 +1,10 @@
+---
 kind: ConfigMap
 apiVersion: v1
 metadata:
   name: zookeeper-metrics
   labels:
+    {{- include "modern-devops-stack-module-kafka.labels" $ | indent 4 }}
     app: strimzi
 data:
   zookeeper-metrics-config.yml: |
