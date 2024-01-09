@@ -247,19 +247,19 @@ module "kafka-ui" {
   }
 }
 
-# module "mysql" {
-#   source                 = "./modules/mysql"
-#   cluster_name           = local.cluster_name
-#   base_domain            = local.base_domain
-#   cluster_issuer         = local.cluster_issuer
-#   argocd_namespace       = module.argocd_bootstrap.argocd_namespace
-#   enable_service_monitor = local.enable_service_monitor
-#   target_revision        = local.target_revision
-#   dependency_ids = {
-#     traefik = module.traefik.id
-#     argocd  = module.argocd_bootstrap.id
-#   }
-# }
+module "mysql" {
+  source                 = "./modules/mysql"
+  cluster_name           = local.cluster_name
+  base_domain            = local.base_domain
+  cluster_issuer         = local.cluster_issuer
+  argocd_namespace       = module.argocd_bootstrap.argocd_namespace
+  enable_service_monitor = local.enable_service_monitor
+  target_revision        = local.target_revision
+  dependency_ids = {
+    argocd  = module.argocd_bootstrap.id
+    traefik = module.traefik.id
+  }
+}
 
 # module "pinot" {
 #   source                 = "./modules/pinot"
