@@ -1,8 +1,8 @@
 <!--
-*** Obrigado por estar vendo o nosso README. Se você tiver alguma sugestão
-*** que possa melhorá-lo ainda mais dê um fork no repositório e crie uma Pull
-*** Request ou abra uma Issue com a tag "sugestão".
-*** Obrigado novamente! Agora vamos rodar esse projeto incrível :D
+*** Thank you for viewing our README. if you have any suggestion
+*** that can improve it even more fork the repository and create a Pull
+*** Request or open an Issue with the tag "suggestion".
+*** Thank you again! Now let's run this amazing project : D
 -->
 
 # Machine Learning Model Orchestration
@@ -25,38 +25,41 @@
 
 <!-- PROJECT LOGO -->
 
-
-
 ## Overview
+
 For some time now, I've been exploring ways to modernize my machine learning journey, starting from my [master's dissertation](https://www.sciencedirect.com/science/article/abs/pii/S0957417422011721#!) on gravitational wave detection using neural networks. One of my primary objectives was to create and orchestrate machine learning models and algorithms efficiently.
 
 In the context of this project, think of a machine learning algorithm as an application that takes some data as input, learns from that data during training, and can then make predictions when new data is fed into it. The machine learning model represents the output of this entire process.
 
 ## Table of Contents
 
-- [Objective](#objective)
-- [Versioning Flow](#versioning-flow)
-- [Tools](#tools)
-- [Getting Started](#getting-started)
-- [Requirements](#requirements)
-- [Usage](#usage)
-- [Project Structure](#project-structure)
-- [Troubleshooting](#troubleshooting)
-  - [Jupyterhub Login](#jupyterhub-login)
-  - [Install libs Python](#install-libs-python)
-- [Contributions](#contributions)
-- [License](#license)
-- [Contact](#contact)
-- [Acknowledgments](#acknowledgments)
+* [Objective](#objective)
+* [Versioning Flow](#versioning-flow)
+* [Tools](#tools)
+* [Getting Started](#getting-started)
+* [Requirements](#requirements)
+* [Usage](#usage)
+* [Project Structure](#project-structure)
+* [Troubleshooting](#troubleshooting)
+  + [connection_error during the first deployment](#connection_error-during-the-first-deployment)
+  + [loki stack promtail pods stuck with status CrashLoopBackOff](#loki-stack-promtail-pods-stuck-with-status-crashloopbackoff)
+  + [Jupyterhub Login](#jupyterhub-login)
+  + [Install libs Python](#install-libs-python)
+* [Contributions](#contributions)
+* [License](#license)
+* [Contact](#contact)
+* [Acknowledgments](#acknowledgments)
 
 ## Objective
+
 In the realm of machine learning, orchestrating the training and deployment of models can be a complex task. This project aims to streamline and automate the end-to-end machine learning process, encompassing data ingestion, data processing, model training with hyperparameter optimization, experiment tracking, model evaluation, and model deployment in the context of gravitational wave detection using neural networks.
 
-
 ## Versioning Flow
+
 We follow the [Semantic Versioning](https://semver.org/) and [gitflow](https://www.atlassian.com/br/git/tutorials/comparing-workflows/gitflow-workflow) for versioning this project. For the versions available, see the tags on this repository.
 
 ## Tools
+
 The following tools are used in this project:
 
 * **Terraform:** Infrastructure-as-Code tool used to automate the setup of the Kubernetes cluster and related resources.
@@ -90,43 +93,57 @@ The following tools are used in this project:
 These tools together enable the creation of a complete infrastructure for the development and management of Machine Learning applications in the Kubernetes environment.
 
 ## Requirements
+
 To use ML Model Orchestration, you need to have the following prerequisites installed and configured:
 
 1. Terraform:
-    * Installation: Visit the [Terraform website](https://www.terraform.io/downloads.html) and follow the instructions for your operating system.
+    - Installation: Visit the [Terraform website](https://www.terraform.io/downloads.html) and follow the instructions for your operating system.
 2. Docker:
-    * Installation: Install Docker by following the instructions for your operating system from the [Docker website](https://docs.docker.com/get-docker/).
+    - Installation: Install Docker by following the instructions for your operating system from the [Docker website](https://docs.docker.com/get-docker/).
 3. Kubernetes CLI (kubectl):
-    * Installation: Install `kubectl` by following the instructions for your operating system from the [Kubernetes website](https://kubernetes.io/docs/tasks/tools/install-kubectl/).
+    - Installation: Install `kubectl` by following the instructions for your operating system from the [Kubernetes website](https://kubernetes.io/docs/tasks/tools/install-kubectl/).
 4. Helm:
-    * Installation: Install Helm by following the instructions for your operating system from the [Helm website](https://helm.sh/docs/intro/install/).
+    - Installation: Install Helm by following the instructions for your operating system from the [Helm website](https://helm.sh/docs/intro/install/).
 
 ## Getting Started
+
 To get started with the MLflow POC, follow these steps:
 
 1. Clone this repository to your local computer.
     - `git clone https://github.com/GersonRS/data-engineering-for-machine-learning`
 2. Change directory to the repository:
     - `cd data-engineering-for-machine-learning`
->Make sure you have Terraform installed on your system, along with other necessary dependencies.
+
+> Make sure you have Terraform installed on your system, along with other necessary dependencies.
+
 3. Run `terraform init` to initialize Terraform configurations.
-* ```sh
+*
+
+```sh
   terraform init
   ```
->`This command will download the necessary Terraform plugins and modules.`
+
+> `This command will download the necessary Terraform plugins and modules.`
+
 4. Run `terraform apply` to start the provisioning process. Wait until the infrastructure is ready for use.
-* ```
+*
+
+```
   terraform apply
   ```
->`Review the changes to be applied and confirm with yes when prompted. Terraform will now set up the Kubernetes cluster and deploy the required resources.`
+
+> `Review the changes to be applied and confirm with yes when prompted. Terraform will now set up the Kubernetes cluster and deploy the required resources.`
+
 5. After the Terraform apply is complete, the output will display URLs for accessing the applications. Use the provided URLs to interact with the applications.
 6. The Terraform output will also provide the credentials necessary for accessing and managing the applications. Run `terraform output` to get the credentials.
-* ```
+*
+
+```
   terraform output -json
   ```
 
-
 ## Usage
+
 Once the infrastructure is successfully provisioned, you can utilize the installed applications, including MLflow, to track and manage your Machine Learning experiments. Access the applications through the provided URLs and log in using the credentials generated during setup. Follow these steps to utilize the Proof of Concept (PoC):
 
 1. Access the JupyterHub URL: After the infrastructure is provisioned using Terraform, you will receive the JupyterHub URL as an output. Open a web browser and navigate to this URL.
@@ -145,9 +162,33 @@ Please note that these steps provide a high-level overview of the usage process.
 
 If you encounter any problems, refer to the [Troubleshooting](#troubleshooting) section for potential solutions to common issues that may arise during the setup and usage of the PoC.
 
+### Stop the cluster
+
+To definitively stop the cluster on a single command (that is the reason we delete some resources from the state file), you can use the following command:
+
+```sh
+terraform state rm $(terraform state list | grep "argocd_application\|argocd_project\|kubernetes_\|helm_\|keycloak_") && terraform destroy
+```
+
+A dirtier alternative is to directly destroy the Docker containers and volumes (replace kind-cluster by the cluster name you defined in locals.tf):
+
+```sh
+# Stop and remove Docker containers
+docker container stop kind-cluster-control-plane kind-cluster-worker{,2,3} && docker container rm -v kind-cluster-control-plane kind-cluster-worker{,2,3}
+# Remove the Terraform state file
+rm terraform.state
+```
+
+Or delete the cluster directly by kind
+
+```sh
+kind delete cluster
+```
 
 ## Project Structure
+
 This project follows a structured directory layout to organize its resources effectively:
+
 ```sh
     .
     ├── LICENSE
@@ -168,35 +209,74 @@ This project follows a structured directory layout to organize its resources eff
     │   └── traefik
     ├── outputs.tf
     ├── README.md
-    ├── s3_buckets.tf
     ├── terraform.tf
     └── variables.tf
 
     15 directories, 83 files
 ```
 
+* [**charts**](charts/) - Directory containing all the helm charts used in the project.
 * [**LICENSE**](LICENSE) - License file of the project.
 * [**locals.tf**](locals.tf) - Terraform locals file.
 * [**main.tf**](main.tf) - Main Terraform configuration file.
 * [**modules**](modules/) - Directory containing all the Terraform modules used in the project.
-  * [**argocd**](modules/argocd/) - Directory for configuring ArgoCD application.
-  * [**cert-manager**](modules/cert-manager/) - Directory for managing certificates using Cert Manager.
-  * [**jupyterhub**](modules/jupyterhub/) - Directory for setting up JupyterHub application.
-  * [**keycloak**](modules/keycloak/) - Directory for installing and configuring Keycloak.
-  * [**kind**](modules/kind/) - Directory for creating a Kubernetes cluster using Kind.
-  * [**metallb**](modules/metallb/) - Directory for setting up MetalLB, a load balancer for Kubernetes.
-  * [**minio**](modules/minio/) - Directory for deploying and configuring Minio for object storage.
-  * [**mlflow**](modules/mlflow/) - Directory for setting up MLflow, a machine learning lifecycle management platform.
-  * [**oidc**](modules/oidc/) - Directory for OpenID Connect (OIDC) configuration.
-  * [**postgresql**](modules/postgresql/) - Directory for deploying and configuring PostgreSQL database.
-  * [**traefik**](modules/traefik/) - Directory for setting up Traefik, an ingress controller for Kubernetes.
+  + [**argocd**](modules/argocd/) - Directory for configuring ArgoCD application.
+  + [**cert-manager**](modules/cert-manager/) - Directory for managing certificates using Cert Manager.
+  + [**jupyterhub**](modules/jupyterhub/) - Directory for setting up JupyterHub application.
+  + [**keycloak**](modules/keycloak/) - Directory for installing and configuring Keycloak.
+  + [**kind**](modules/kind/) - Directory for creating a Kubernetes cluster using Kind.
+  + [**metallb**](modules/metallb/) - Directory for setting up MetalLB, a load balancer for Kubernetes.
+  + [**minio**](modules/minio/) - Directory for deploying and configuring Minio for object storage.
+  + [**mlflow**](modules/mlflow/) - Directory for setting up MLflow, a machine learning lifecycle management platform.
+  + [**oidc**](modules/oidc/) - Directory for OpenID Connect (OIDC) configuration.
+  + [**postgresql**](modules/postgresql/) - Directory for deploying and configuring PostgreSQL database.
+  + [**traefik**](modules/traefik/) - Directory for setting up Traefik, an ingress controller for Kubernetes.
 * [**outputs.tf**](outputs.tf) - Terraform outputs file.
+* [**pyproject.toml**](pyproject.toml) - Poetry config.
 * [**README.md**](README.md) - Project's README file, containing important information and guidelines.
-* [**s3_buckets.tf**](s3_buckets.tf) - Terraform configuration for creating S3 buckets.
 * [**terraform.tf**](terraform.tf) - Terraform configuration file for initializing the project.
 * [**variables.tf**](variables.tf) - Terraform variables file, containing input variables for the project.
 
 ## Troubleshooting
+
+### connection_error during the first deployment
+
+In some cases, you could encounter an error like this the first deployment:
+
+```
+╷
+│ Error: Error while waiting for application argocd to be created
+│
+│   with module.argocd.argocd_application.this,
+│   on .terraform/modules/argocd/main.tf line 55, in resource "argocd_application" "this":
+│   55: resource "argocd_application" "this" {
+│
+│ error while waiting for application argocd to be synced and healthy: rpc error: code = Unavailable desc = connection error: desc = "transport: error while dialing: dial tcp 127.0.0.1:45729: connect: connection refused"
+╵
+```
+
+This error is due to the way we provision Argo CD on the final steps of the deployment. We use the bootstrap Argo CD to deploy the final Argo CD module, which causes a redeployment of Argo CD and consequently a momentary loss of connection between the Argo CD Terraform provider and the Argo CD server.
+
+**`You can simply re-run the command terraform apply to finalize the bootstrap of the cluster.`**
+
+### loki stack promtail pods stuck with status CrashLoopBackOff
+
+You could stumble upon loki-stack-promtail stuck in a creation loop with the following logs:
+
+```shell
+level=error ts=2023-05-09T06:32:38.495673778Z caller=main.go:117 msg="error creating promtail" error="failed to make file target manager: too many open files"
+Stream closed EOF for loki-stack/loki-stack-promtail-bxcmw (promtail)
+```
+
+If that’s the case, you will have to increase the upper limit on the number of INotify instances that can be created per real user ID:
+
+```bash
+# Increase the limit until next reboot
+sudo sysctl fs.inotify.max_user_instances=512
+# Increase the limit permanently (run this command as root)
+echo 'fs.inotify.max_user_instances=512' >> /etc/sysctl.conf
+```
+
 ### Jupyterhub Login:
 
 If you encounter a login error, specifically an error 500, while attempting to access JupyterHub, follow these steps to resolve the issue:
@@ -221,21 +301,20 @@ Sometimes, during the installation of Python libraries in Jupyter Notebook, you 
 
 When working with Jupyter Notebook, ensure that you are using the correct kernel corresponding to the specific Python environment you intend to use. To do this, follow these steps:
 
-  * a. Click on the "Kernel" option in the Jupyter Notebook toolbar.
+  + a. Click on the "Kernel" option in the Jupyter Notebook toolbar.
 
-  * b. Choose the "Change Kernel" option.
+  + b. Choose the "Change Kernel" option.
 
-  * c. A dropdown menu will appear showing available kernels. Click on the option that corresponds to the name of the notebook you are working on, such as "main.ipynb" for the "main.ipynb" notebook.
+  + c. A dropdown menu will appear showing available kernels. Click on the option that corresponds to the name of the notebook you are working on, such as "main.ipynb" for the "main.ipynb" notebook.
 
-  * d. The notebook will now use the selected kernel, ensuring that the required Python libraries are properly recognized and utilized.
+  + d. The notebook will now use the selected kernel, ensuring that the required Python libraries are properly recognized and utilized.
 
 By selecting the appropriate kernel, you can ensure that the Python libraries required for your specific notebook are correctly installed and utilized, mitigating any potential issues related to library compatibility or recognition.
 
 If you encounter any other issues or difficulties while using the Proof of Concept, refer to this "Troubleshooting" section for solutions to common problems. If the problem persists or if you experience unique challenges, consider consulting the provided documentation or seeking assistance from the community.
 
-
-
 ## Contributions
+
 Contributions are welcome! Feel free to create a pull request with improvements, bug fixes, or new features. Contributions are what make the open source community an amazing place to learn, inspire, and create. Any contribution you make will be greatly appreciated.
 
 To contribute to the project, follow the steps below:
@@ -250,30 +329,19 @@ To contribute to the project, follow the steps below:
 We truly value your interest in contributing to the MLflow-Kube project. Together, we can make it even better!
 
 ## License
+
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## Contact
+
 For any inquiries or questions, please contact:
 
-<p align="center">
-
- <a href="https://twitter.com/gersonrs3" target="_blank" >
-     <img alt="Twitter" src="https://img.shields.io/badge/-Twitter-9cf?logo=Twitter&logoColor=white"></a>
-
-  <a href="https://instagram.com/gersonrsantos" target="_blank" >
-    <img alt="Instagram" src="https://img.shields.io/badge/-Instagram-ff2b8e?logo=Instagram&logoColor=white"></a>
-
-  <a href="https://www.linkedin.com/in/gersonrsantos/" target="_blank" >
-    <img alt="Linkedin" src="https://img.shields.io/badge/-Linkedin-blue?logo=Linkedin&logoColor=white"></a>
-
-  <a href="https://t.me/gersonrsantos" target="_blank" >
-    <img alt="Telegram" src="https://img.shields.io/badge/-Telegram-blue?logo=Telegram&logoColor=white"></a>
-
-  <a href="mailto:gersonrodriguessantos8@gmail.com" target="_blank" >
-    <img alt="Email" src="https://img.shields.io/badge/-Email-c14438?logo=Gmail&logoColor=white"></a>
-
-</p>
-
+[![twitter](https://img.shields.io/badge/-Twitter-9cf?logo=Twitter&logoColor=white)](https://twitter.com/gersonrs3)
+[![instagram](https://img.shields.io/badge/-Instagram-ff2b8e?logo=Instagram&logoColor=white)](https://instagram.com/gersonrsantos)
+[![linkedin](https://img.shields.io/badge/-Linkedin-blue?logo=Linkedin&logoColor=white)](https://www.linkedin.com/in/gersonrsantos/)
+[![Telegram](https://img.shields.io/badge/-Telegram-blue?logo=Telegram&logoColor=white)](https://t.me/gersonrsantos)
+[![Email](https://img.shields.io/badge/-Email-c14438?logo=Gmail&logoColor=white)](mailto:gersonrodriguessantos8@gmail.com)
 
 ## Acknowledgments
+
 We appreciate your interest in using ML Model Orchestration on Kubernetes. We hope this configuration simplifies the management of your Machine Learning experiments on Kubernetes! 🚀📊

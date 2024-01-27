@@ -1,8 +1,3 @@
-resource "random_password" "password_secret" {
-  length  = 32
-  special = false
-}
-
 resource "null_resource" "dependencies" {
   triggers = var.dependency_ids
 }
@@ -57,7 +52,7 @@ resource "argocd_application" "this" {
     delete = "15m"
   }
 
-  wait = var.app_autosync == { "allow_empty" = tobool(null), "prune" = tobool(null), "self_heal" = tobool(null) } ? false : true
+  # wait = var.app_autosync == { "allow_empty" = tobool(null), "prune" = tobool(null), "self_heal" = tobool(null) } ? false : true
 
   spec {
     project = var.argocd_project == null ? argocd_project.this[0].metadata.0.name : var.argocd_project

@@ -1,5 +1,9 @@
 locals {
   helm_values = [{
-    spark-operator = {}
+    spark-operator = {
+      webhook = {
+        enable = true
+      }
+    }
   }]
 }
