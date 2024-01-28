@@ -126,7 +126,7 @@ locals {
           "policy.csv"     = <<-EOT
                               g, pipeline, role:admin
                               g, argocd-admin, role:admin
-                              g, modern-devops-stack-admins, role:admin
+                              g, modern-gitops-stack-admins, role:admin
                               EOT
         }
         secret = {

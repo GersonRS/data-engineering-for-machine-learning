@@ -494,7 +494,7 @@ module "argocd" {
   rbac = {
     policy_csv = <<-EOT
       g, pipeline, role:admin
-      g, modern-devops-stack-admins, role:admin
+      g, modern-gitops-stack-admins, role:admin
     EOT
   }
   target_revision = local.target_revision

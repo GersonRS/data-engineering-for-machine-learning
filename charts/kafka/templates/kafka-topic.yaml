@@ -5,7 +5,7 @@ kind: KafkaTopic
 metadata:
   name: {{ .Values.kafka.topic.name }}
   labels:
-    {{- include "modern-devops-stack-module-kafka.labels" $ | indent 4 }}
+    {{- include "modern-gitops-stack-module-kafka.labels" $ | indent 4 }}
     strimzi.io/cluster: {{ .Values.kafka.name }}
 spec:
   topicName: {{ .Values.kafka.topic.name }}

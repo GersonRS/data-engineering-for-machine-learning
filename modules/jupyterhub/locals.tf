@@ -23,8 +23,8 @@ locals {
             scope              = ["openid", "email", "groups"]
             userdata_params    = { state = "state" }
             claim_groups_key   = "groups"
-            allowed_groups     = ["user", "modern-devops-stack-admins"]
-            admin_groups       = ["modern-devops-stack-admins"]
+            allowed_groups     = ["user", "modern-gitops-stack-admins"]
+            admin_groups       = ["modern-gitops-stack-admins"]
           }
           JupyterHub = {
             admin_access        = true

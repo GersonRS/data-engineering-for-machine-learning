@@ -9,10 +9,10 @@ output "oidc" {
   sensitive   = true
 }
 
-output "modern_devops_stack_users_passwords" {
+output "modern_gitops_stack_users_passwords" {
   description = "Map containing the credentials of each created user."
   value = {
-    for key, value in var.user_map : value.username => resource.random_password.modern_devops_stack_users[key].result
+    for key, value in var.user_map : value.username => resource.random_password.modern_gitops_stack_users[key].result
   }
   sensitive = true
 }

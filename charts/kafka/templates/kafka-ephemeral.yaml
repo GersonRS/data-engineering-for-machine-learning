@@ -4,7 +4,7 @@ kind: Kafka
 metadata:
   name: {{ .Values.kafka.name }}
   labels:
-    {{- include "modern-devops-stack-module-kafka.labels" $ | indent 4 }}
+    {{- include "modern-gitops-stack-module-kafka.labels" $ | indent 4 }}
 spec:
   kafka:
     version: {{ .Values.kafka.version }}

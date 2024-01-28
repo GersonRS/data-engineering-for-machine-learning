@@ -4,7 +4,7 @@ apiVersion: v1
 metadata:
   name: kafka-metrics
   labels:
-    {{- include "modern-devops-stack-module-kafka.labels" $ | indent 4 }}
+    {{- include "modern-gitops-stack-module-kafka.labels" $ | indent 4 }}
     app: strimzi
 data:
   kafka-metrics-config.yml: |

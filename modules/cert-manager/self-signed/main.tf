@@ -7,7 +7,7 @@ resource "tls_self_signed_cert" "root" {
   private_key_pem = tls_private_key.root.private_key_pem
 
   subject {
-    common_name  = "modern-devops-stack.gersonrs.com"
+    common_name  = "modern-gitops-stack.gersonrs.com"
     organization = "GersonRS, SA"
   }
 

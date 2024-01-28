@@ -26,7 +26,7 @@ locals {
     args = {
       assertion_consumer_service_url = "https://gitlab.apps.${var.cluster_name}.${var.base_domain}/users/auth/saml/callback"
       idp_cert_fingerprint           = var.oidc.fingerprint
-      idp_sso_target_url             = "https://keycloak.apps.${var.cluster_name}.${var.base_domain}/realms/modern-devops-stack/protocol/saml/clients/gitlab"
+      idp_sso_target_url             = "https://keycloak.apps.${var.cluster_name}.${var.base_domain}/realms/modern-gitops-stack/protocol/saml/clients/gitlab"
       issuer                         = "gitlab"
       name_identifier_format         = "urn:oasis:names:tc:SAML:2.0:nameid-format:persistent"
       attribute_statements : { username : ["username"] }

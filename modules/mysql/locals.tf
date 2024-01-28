@@ -1,6 +1,6 @@
 locals {
   credentials = {
-    user     = "moderndevopsadmin"
+    user     = "moderngitopsadmin"
     password = resource.random_password.password_secret.result
   }
   helm_values = [{

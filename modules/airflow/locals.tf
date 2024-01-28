@@ -266,9 +266,9 @@ locals {
             }]
             def map_roles(team_list):
                 team_role_map = {
-                    "modern-devops-stack-admins": AUTH_ROLE_ADMIN,
-                    "modern-devops-stack-public": AUTH_ROLE_PUBLIC,
-                    "modern-devops-stack-user": AUTH_ROLE_USER,
+                    "modern-gitops-stack-admins": AUTH_ROLE_ADMIN,
+                    "modern-gitops-stack-public": AUTH_ROLE_PUBLIC,
+                    "modern-gitops-stack-user": AUTH_ROLE_USER,
                 }
                 return list(set(team_role_map.get(team, AUTH_ROLE_PUBLIC) for team in team_list))
             class CustomSecurityManager(AirflowSecurityManager):

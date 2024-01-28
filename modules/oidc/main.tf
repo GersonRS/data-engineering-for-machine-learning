@@ -2,10 +2,10 @@ resource "null_resource" "dependencies" {
   triggers = var.dependency_ids
 }
 
-resource "keycloak_realm" "modern_devops_stack" {
-  realm                       = "modern-devops-stack"
-  display_name                = "Modern DevOps Stack"
-  display_name_html           = "<img width='200px' src='https://raw.githubusercontent.com/GersonRS/modern-devops-stack/main/.github/assets/images/logo.png' alt='Modern DevOps Stack Logo'/>"
+resource "keycloak_realm" "modern_gitops_stack" {
+  realm                       = "modern-gitops-stack"
+  display_name                = "Modern GitOps Stack"
+  display_name_html           = "<img width='200px' src='https://raw.githubusercontent.com/GersonRS/modern-gitops-stack/main/.github/assets/images/logo.png' alt='Modern GitOps Stack Logo'/>"
   login_with_email_allowed    = true
   default_signature_algorithm = "RS256"
   access_code_lifespan        = "1h"
@@ -25,20 +25,20 @@ resource "random_password" "client_secret" {
   special = false
 }
 
-resource "keycloak_openid_client" "modern_devops_stack" {
-  realm_id                     = resource.keycloak_realm.modern_devops_stack.id
-  name                         = "Modern DevOps Stack Applications"
+resource "keycloak_openid_client" "modern_gitops_stack" {
+  realm_id                     = resource.keycloak_realm.modern_gitops_stack.id
+  name                         = "Modern GitOps Stack Applications"
   client_id                    = local.oidc.client_id
   client_secret                = resource.random_password.client_secret.result
   access_type                  = "CONFIDENTIAL"
   standard_flow_enabled        = true
   direct_access_grants_enabled = true
   valid_redirect_uris          = var.oidc_redirect_uris
-  depends_on                   = [keycloak_realm.modern_devops_stack]
+  depends_on                   = [keycloak_realm.modern_gitops_stack]
 }
 
 resource "keycloak_saml_client" "gitlab" {
-  realm_id                      = resource.keycloak_realm.modern_devops_stack.id
+  realm_id                      = resource.keycloak_realm.modern_gitops_stack.id
   name                          = "Gitlab"
   client_id                     = "gitlab"
   description                   = "Gitlab integration with keycloak"
@@ -65,136 +65,136 @@ resource "keycloak_saml_client" "gitlab" {
     "https://gitlab.apps.${var.cluster_name}.${var.base_domain}/*",
     "https://gitlab.apps.${var.cluster_name}.${var.base_domain}/users/auth/saml/callback",
   ]
-  depends_on = [keycloak_realm.modern_devops_stack]
+  depends_on = [keycloak_realm.modern_gitops_stack]
 }
 
 resource "keycloak_role" "gitlab_role_external" {
   client_id   = resource.keycloak_saml_client.gitlab.id
-  realm_id    = resource.keycloak_realm.modern_devops_stack.id
+  realm_id    = resource.keycloak_realm.modern_gitops_stack.id
   name        = "gitlab:external"
   description = "gitlab:external"
   depends_on  = [keycloak_saml_client.gitlab]
 }
 resource "keycloak_role" "gitlab_role_access" {
   client_id   = resource.keycloak_saml_client.gitlab.id
-  realm_id    = resource.keycloak_realm.modern_devops_stack.id
+  realm_id    = resource.keycloak_realm.modern_gitops_stack.id
   name        = "gitlab:access"
   description = "gitlab:access"
   depends_on  = [keycloak_saml_client.gitlab]
 }
 
-resource "keycloak_openid_client_scope" "modern_devops_stack_groups" {
-  realm_id               = resource.keycloak_realm.modern_devops_stack.id
+resource "keycloak_openid_client_scope" "modern_gitops_stack_groups" {
+  realm_id               = resource.keycloak_realm.modern_gitops_stack.id
   name                   = "groups"
   description            = "OpenID Connect scope to map a user's group memberships to a claim"
   include_in_token_scope = true
-  depends_on             = [keycloak_openid_client.modern_devops_stack, keycloak_realm.modern_devops_stack]
+  depends_on             = [keycloak_openid_client.modern_gitops_stack, keycloak_realm.modern_gitops_stack]
 }
 
-resource "keycloak_openid_client_scope" "modern_devops_stack_minio_policy" {
-  realm_id               = resource.keycloak_realm.modern_devops_stack.id
+resource "keycloak_openid_client_scope" "modern_gitops_stack_minio_policy" {
+  realm_id               = resource.keycloak_realm.modern_gitops_stack.id
   name                   = "minio-policy"
   description            = "OpenID Connect scope to map MinIO access policy to a claim"
   include_in_token_scope = true
-  depends_on             = [keycloak_openid_client.modern_devops_stack, keycloak_realm.modern_devops_stack]
+  depends_on             = [keycloak_openid_client.modern_gitops_stack, keycloak_realm.modern_gitops_stack]
 }
 
-resource "keycloak_openid_client_scope" "modern_devops_stack_username" {
-  realm_id               = resource.keycloak_realm.modern_devops_stack.id
+resource "keycloak_openid_client_scope" "modern_gitops_stack_username" {
+  realm_id               = resource.keycloak_realm.modern_gitops_stack.id
   name                   = "username"
   description            = "OpenID Connect built-in scope: username"
   include_in_token_scope = true
-  depends_on             = [keycloak_openid_client.modern_devops_stack, keycloak_realm.modern_devops_stack]
+  depends_on             = [keycloak_openid_client.modern_gitops_stack, keycloak_realm.modern_gitops_stack]
 }
 
-resource "keycloak_saml_client_scope" "modern_devops_stack_name" {
-  realm_id    = resource.keycloak_realm.modern_devops_stack.id
+resource "keycloak_saml_client_scope" "modern_gitops_stack_name" {
+  realm_id    = resource.keycloak_realm.modern_gitops_stack.id
   name        = "gitlab_name"
   description = "SAML name"
-  depends_on  = [keycloak_saml_client.gitlab, keycloak_realm.modern_devops_stack]
+  depends_on  = [keycloak_saml_client.gitlab, keycloak_realm.modern_gitops_stack]
 }
 
 resource "keycloak_saml_user_property_protocol_mapper" "gitlab_name_property" {
-  realm_id                   = resource.keycloak_realm.modern_devops_stack.id
-  client_scope_id            = resource.keycloak_saml_client_scope.modern_devops_stack_name.id
+  realm_id                   = resource.keycloak_realm.modern_gitops_stack.id
+  client_scope_id            = resource.keycloak_saml_client_scope.modern_gitops_stack_name.id
   name                       = "name"
   user_property              = "Username"
   friendly_name              = "Username"
   saml_attribute_name        = "name"
   saml_attribute_name_format = "Basic"
-  depends_on                 = [keycloak_saml_client_scope.modern_devops_stack_name, keycloak_saml_client.gitlab, keycloak_realm.modern_devops_stack]
+  depends_on                 = [keycloak_saml_client_scope.modern_gitops_stack_name, keycloak_saml_client.gitlab, keycloak_realm.modern_gitops_stack]
 }
-resource "keycloak_saml_client_scope" "modern_devops_stack_first_name" {
-  realm_id    = resource.keycloak_realm.modern_devops_stack.id
+resource "keycloak_saml_client_scope" "modern_gitops_stack_first_name" {
+  realm_id    = resource.keycloak_realm.modern_gitops_stack.id
   name        = "gitlab_first_name"
   description = "SAML first_name"
-  depends_on  = [keycloak_saml_client.gitlab, keycloak_realm.modern_devops_stack]
+  depends_on  = [keycloak_saml_client.gitlab, keycloak_realm.modern_gitops_stack]
 }
 
 resource "keycloak_saml_user_property_protocol_mapper" "gitlab_first_name_property" {
-  realm_id                   = resource.keycloak_realm.modern_devops_stack.id
-  client_scope_id            = resource.keycloak_saml_client_scope.modern_devops_stack_first_name.id
+  realm_id                   = resource.keycloak_realm.modern_gitops_stack.id
+  client_scope_id            = resource.keycloak_saml_client_scope.modern_gitops_stack_first_name.id
   name                       = "first_name"
   user_property              = "FirstName"
   friendly_name              = "First Name"
   saml_attribute_name        = "first_name"
   saml_attribute_name_format = "Basic"
-  depends_on                 = [keycloak_saml_client_scope.modern_devops_stack_first_name, keycloak_saml_client.gitlab, keycloak_realm.modern_devops_stack]
+  depends_on                 = [keycloak_saml_client_scope.modern_gitops_stack_first_name, keycloak_saml_client.gitlab, keycloak_realm.modern_gitops_stack]
 }
-resource "keycloak_saml_client_scope" "modern_devops_stack_last_name" {
-  realm_id    = resource.keycloak_realm.modern_devops_stack.id
+resource "keycloak_saml_client_scope" "modern_gitops_stack_last_name" {
+  realm_id    = resource.keycloak_realm.modern_gitops_stack.id
   name        = "gitlab_last_name"
   description = "SAML last_name"
-  depends_on  = [keycloak_saml_client.gitlab, keycloak_realm.modern_devops_stack]
+  depends_on  = [keycloak_saml_client.gitlab, keycloak_realm.modern_gitops_stack]
 }
 
 resource "keycloak_saml_user_property_protocol_mapper" "gitlab_last_name_property" {
-  realm_id                   = resource.keycloak_realm.modern_devops_stack.id
-  client_scope_id            = resource.keycloak_saml_client_scope.modern_devops_stack_last_name.id
+  realm_id                   = resource.keycloak_realm.modern_gitops_stack.id
+  client_scope_id            = resource.keycloak_saml_client_scope.modern_gitops_stack_last_name.id
   name                       = "last_name"
   user_property              = "LastName"
   friendly_name              = "Last Name"
   saml_attribute_name        = "last_name"
   saml_attribute_name_format = "Basic"
-  depends_on                 = [keycloak_saml_client_scope.modern_devops_stack_last_name, keycloak_saml_client.gitlab, keycloak_realm.modern_devops_stack]
+  depends_on                 = [keycloak_saml_client_scope.modern_gitops_stack_last_name, keycloak_saml_client.gitlab, keycloak_realm.modern_gitops_stack]
 }
-resource "keycloak_saml_client_scope" "modern_devops_stack_email" {
-  realm_id    = resource.keycloak_realm.modern_devops_stack.id
+resource "keycloak_saml_client_scope" "modern_gitops_stack_email" {
+  realm_id    = resource.keycloak_realm.modern_gitops_stack.id
   name        = "gitlab_email"
   description = "SAML email"
-  depends_on  = [keycloak_saml_client.gitlab, keycloak_realm.modern_devops_stack]
+  depends_on  = [keycloak_saml_client.gitlab, keycloak_realm.modern_gitops_stack]
 }
 
 resource "keycloak_saml_user_property_protocol_mapper" "gitlab_email_property" {
-  realm_id                   = resource.keycloak_realm.modern_devops_stack.id
-  client_scope_id            = resource.keycloak_saml_client_scope.modern_devops_stack_email.id
+  realm_id                   = resource.keycloak_realm.modern_gitops_stack.id
+  client_scope_id            = resource.keycloak_saml_client_scope.modern_gitops_stack_email.id
   name                       = "email"
   user_property              = "Email"
   friendly_name              = "Email"
   saml_attribute_name        = "email"
   saml_attribute_name_format = "Basic"
-  depends_on                 = [keycloak_saml_client_scope.modern_devops_stack_email, keycloak_saml_client.gitlab, keycloak_realm.modern_devops_stack]
+  depends_on                 = [keycloak_saml_client_scope.modern_gitops_stack_email, keycloak_saml_client.gitlab, keycloak_realm.modern_gitops_stack]
 }
-resource "keycloak_saml_client_scope" "modern_devops_stack_roles" {
-  realm_id    = resource.keycloak_realm.modern_devops_stack.id
+resource "keycloak_saml_client_scope" "modern_gitops_stack_roles" {
+  realm_id    = resource.keycloak_realm.modern_gitops_stack.id
   name        = "gitlab_roles"
   description = "SAML roles"
-  depends_on  = [keycloak_saml_client.gitlab, keycloak_realm.modern_devops_stack]
+  depends_on  = [keycloak_saml_client.gitlab, keycloak_realm.modern_gitops_stack]
 }
 
 
-resource "keycloak_openid_group_membership_protocol_mapper" "modern_devops_stack_groups" {
-  realm_id        = resource.keycloak_realm.modern_devops_stack.id
-  client_scope_id = resource.keycloak_openid_client_scope.modern_devops_stack_groups.id
+resource "keycloak_openid_group_membership_protocol_mapper" "modern_gitops_stack_groups" {
+  realm_id        = resource.keycloak_realm.modern_gitops_stack.id
+  client_scope_id = resource.keycloak_openid_client_scope.modern_gitops_stack_groups.id
   name            = "groups"
   claim_name      = "groups"
   full_path       = false
-  depends_on      = [keycloak_openid_client_scope.modern_devops_stack_groups]
+  depends_on      = [keycloak_openid_client_scope.modern_gitops_stack_groups]
 }
 
-resource "keycloak_openid_user_attribute_protocol_mapper" "modern_devops_stack_minio_policy" {
-  realm_id             = resource.keycloak_realm.modern_devops_stack.id
-  client_scope_id      = resource.keycloak_openid_client_scope.modern_devops_stack_minio_policy.id
+resource "keycloak_openid_user_attribute_protocol_mapper" "modern_gitops_stack_minio_policy" {
+  realm_id             = resource.keycloak_realm.modern_gitops_stack.id
+  client_scope_id      = resource.keycloak_openid_client_scope.modern_gitops_stack_minio_policy.id
   name                 = "minio-policy"
   user_attribute       = "policy"
   claim_name           = "policy"
@@ -202,11 +202,11 @@ resource "keycloak_openid_user_attribute_protocol_mapper" "modern_devops_stack_m
   aggregate_attributes = true
   add_to_id_token      = true
   claim_value_type     = "String"
-  depends_on           = [keycloak_openid_client_scope.modern_devops_stack_minio_policy]
+  depends_on           = [keycloak_openid_client_scope.modern_gitops_stack_minio_policy]
 }
-resource "keycloak_openid_user_attribute_protocol_mapper" "modern_devops_stack_username" {
-  realm_id             = resource.keycloak_realm.modern_devops_stack.id
-  client_scope_id      = resource.keycloak_openid_client_scope.modern_devops_stack_username.id
+resource "keycloak_openid_user_attribute_protocol_mapper" "modern_gitops_stack_username" {
+  realm_id             = resource.keycloak_realm.modern_gitops_stack.id
+  client_scope_id      = resource.keycloak_openid_client_scope.modern_gitops_stack_username.id
   name                 = "username"
   user_attribute       = "username"
   claim_name           = "username"
@@ -214,34 +214,34 @@ resource "keycloak_openid_user_attribute_protocol_mapper" "modern_devops_stack_u
   aggregate_attributes = false
   add_to_id_token      = true
   claim_value_type     = "String"
-  depends_on           = [keycloak_openid_client_scope.modern_devops_stack_username]
+  depends_on           = [keycloak_openid_client_scope.modern_gitops_stack_username]
 }
 
 resource "keycloak_openid_client_default_scopes" "client_default_scopes" {
-  realm_id  = resource.keycloak_realm.modern_devops_stack.id
-  client_id = resource.keycloak_openid_client.modern_devops_stack.id
+  realm_id  = resource.keycloak_realm.modern_gitops_stack.id
+  client_id = resource.keycloak_openid_client.modern_gitops_stack.id
   default_scopes = [
     "profile",
     "email",
     "roles",
     "username",
-    resource.keycloak_openid_client_scope.modern_devops_stack_groups.name,
-    resource.keycloak_openid_client_scope.modern_devops_stack_minio_policy.name,
+    resource.keycloak_openid_client_scope.modern_gitops_stack_groups.name,
+    resource.keycloak_openid_client_scope.modern_gitops_stack_minio_policy.name,
   ]
   depends_on = [
-    keycloak_realm.modern_devops_stack,
-    keycloak_openid_client.modern_devops_stack,
-    keycloak_openid_user_attribute_protocol_mapper.modern_devops_stack_minio_policy,
-    keycloak_openid_user_attribute_protocol_mapper.modern_devops_stack_username,
-    keycloak_openid_group_membership_protocol_mapper.modern_devops_stack_groups,
-    keycloak_openid_client_scope.modern_devops_stack_groups,
-    keycloak_openid_client_scope.modern_devops_stack_minio_policy,
-    keycloak_openid_client_scope.modern_devops_stack_username
+    keycloak_realm.modern_gitops_stack,
+    keycloak_openid_client.modern_gitops_stack,
+    keycloak_openid_user_attribute_protocol_mapper.modern_gitops_stack_minio_policy,
+    keycloak_openid_user_attribute_protocol_mapper.modern_gitops_stack_username,
+    keycloak_openid_group_membership_protocol_mapper.modern_gitops_stack_groups,
+    keycloak_openid_client_scope.modern_gitops_stack_groups,
+    keycloak_openid_client_scope.modern_gitops_stack_minio_policy,
+    keycloak_openid_client_scope.modern_gitops_stack_username
   ]
 }
 
 resource "keycloak_saml_client_default_scopes" "client_default_scopes" {
-  realm_id  = resource.keycloak_realm.modern_devops_stack.id
+  realm_id  = resource.keycloak_realm.modern_gitops_stack.id
   client_id = resource.keycloak_saml_client.gitlab.id
   default_scopes = [
     "role_list",
@@ -253,8 +253,8 @@ resource "keycloak_saml_client_default_scopes" "client_default_scopes" {
   ]
   depends_on = [
     keycloak_saml_client.gitlab,
-    keycloak_realm.modern_devops_stack,
-    keycloak_saml_client_scope.modern_devops_stack_roles,
+    keycloak_realm.modern_gitops_stack,
+    keycloak_saml_client_scope.modern_gitops_stack_roles,
     keycloak_saml_user_property_protocol_mapper.gitlab_email_property,
     keycloak_saml_user_property_protocol_mapper.gitlab_first_name_property,
     keycloak_saml_user_property_protocol_mapper.gitlab_last_name_property,
@@ -262,40 +262,40 @@ resource "keycloak_saml_client_default_scopes" "client_default_scopes" {
   ]
 }
 
-resource "keycloak_group" "modern_devops_stack_admins" {
-  realm_id = resource.keycloak_realm.modern_devops_stack.id
-  name     = "modern-devops-stack-admins"
+resource "keycloak_group" "modern_gitops_stack_admins" {
+  realm_id = resource.keycloak_realm.modern_gitops_stack.id
+  name     = "modern-gitops-stack-admins"
   attributes = {
     "terraform" = "true"
     "policy"    = "consoleAdmin##readwrite##diagnostics"
   }
-  depends_on = [keycloak_realm.modern_devops_stack]
+  depends_on = [keycloak_realm.modern_gitops_stack]
 }
 
-resource "random_password" "modern_devops_stack_users" {
+resource "random_password" "modern_gitops_stack_users" {
   for_each = var.user_map
 
   length  = 32
   special = false
   depends_on = [
-    keycloak_realm.modern_devops_stack,
-    keycloak_openid_client.modern_devops_stack,
-    keycloak_openid_user_attribute_protocol_mapper.modern_devops_stack_minio_policy,
-    keycloak_openid_user_attribute_protocol_mapper.modern_devops_stack_username,
-    keycloak_openid_group_membership_protocol_mapper.modern_devops_stack_groups,
-    keycloak_openid_client_scope.modern_devops_stack_groups,
-    keycloak_openid_client_scope.modern_devops_stack_minio_policy,
-    keycloak_openid_client_scope.modern_devops_stack_username
+    keycloak_realm.modern_gitops_stack,
+    keycloak_openid_client.modern_gitops_stack,
+    keycloak_openid_user_attribute_protocol_mapper.modern_gitops_stack_minio_policy,
+    keycloak_openid_user_attribute_protocol_mapper.modern_gitops_stack_username,
+    keycloak_openid_group_membership_protocol_mapper.modern_gitops_stack_groups,
+    keycloak_openid_client_scope.modern_gitops_stack_groups,
+    keycloak_openid_client_scope.modern_gitops_stack_minio_policy,
+    keycloak_openid_client_scope.modern_gitops_stack_username
   ]
 }
 
-resource "keycloak_user" "modern_devops_stack_users" {
+resource "keycloak_user" "modern_gitops_stack_users" {
   for_each = var.user_map
 
-  realm_id = resource.keycloak_realm.modern_devops_stack.id
+  realm_id = resource.keycloak_realm.modern_gitops_stack.id
   username = each.value.username
   initial_password {
-    value = resource.random_password.modern_devops_stack_users[each.key].result
+    value = resource.random_password.modern_gitops_stack_users[each.key].result
   }
   first_name     = each.value.first_name
   last_name      = each.value.last_name
@@ -304,28 +304,28 @@ resource "keycloak_user" "modern_devops_stack_users" {
   attributes = {
     "terraform" = "true"
   }
-  depends_on = [keycloak_realm.modern_devops_stack, random_password.modern_devops_stack_users]
+  depends_on = [keycloak_realm.modern_gitops_stack, random_password.modern_gitops_stack_users]
 }
 
-resource "keycloak_user_groups" "modern_devops_stack_admins" {
+resource "keycloak_user_groups" "modern_gitops_stack_admins" {
   for_each = var.user_map
 
-  user_id  = resource.keycloak_user.modern_devops_stack_users[each.key].id
-  realm_id = resource.keycloak_realm.modern_devops_stack.id
+  user_id  = resource.keycloak_user.modern_gitops_stack_users[each.key].id
+  realm_id = resource.keycloak_realm.modern_gitops_stack.id
   group_ids = [
-    resource.keycloak_group.modern_devops_stack_admins.id
+    resource.keycloak_group.modern_gitops_stack_admins.id
   ]
-  depends_on = [keycloak_realm.modern_devops_stack,
-    keycloak_user.modern_devops_stack_users,
-  keycloak_group.modern_devops_stack_admins]
+  depends_on = [keycloak_realm.modern_gitops_stack,
+    keycloak_user.modern_gitops_stack_users,
+  keycloak_group.modern_gitops_stack_admins]
 }
 
 resource "null_resource" "this" {
   depends_on = [
-    keycloak_realm.modern_devops_stack,
-    keycloak_group.modern_devops_stack_admins,
-    keycloak_user.modern_devops_stack_users,
-    keycloak_user_groups.modern_devops_stack_admins,
+    keycloak_realm.modern_gitops_stack,
+    keycloak_group.modern_gitops_stack_admins,
+    keycloak_user.modern_gitops_stack_users,
+    keycloak_user_groups.modern_gitops_stack_admins,
     keycloak_saml_client_default_scopes.client_default_scopes,
     keycloak_openid_client_default_scopes.client_default_scopes
   ]
@@ -333,7 +333,7 @@ resource "null_resource" "this" {
 
 
 data "keycloak_realm_keys" "realm_keys" {
-  realm_id   = resource.keycloak_realm.modern_devops_stack.id
+  realm_id   = resource.keycloak_realm.modern_gitops_stack.id
   algorithms = ["RS256"]
 }
 

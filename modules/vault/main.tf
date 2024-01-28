@@ -9,7 +9,7 @@ resource "argocd_project" "this" {
     name      = var.destination_cluster != "in-cluster" ? "vault-${var.destination_cluster}" : "vault"
     namespace = var.argocd_namespace
     annotations = {
-      "modern-devops-stack.io/argocd_namespace" = var.argocd_namespace
+      "modern-gitops-stack.io/argocd_namespace" = var.argocd_namespace
     }
   }
 

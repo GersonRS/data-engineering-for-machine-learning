@@ -25,7 +25,7 @@ resource "argocd_project" "this" {
     name      = "argocd"
     namespace = var.argocd_namespace
     annotations = {
-      "modern-devops-stack.io/argocd_namespace" = var.argocd_namespace
+      "modern-gitops-stack.io/argocd_namespace" = var.argocd_namespace
     }
   }
 
@@ -119,4 +119,3 @@ resource "null_resource" "this" {
     resource.argocd_application.this,
   ]
 }
-
