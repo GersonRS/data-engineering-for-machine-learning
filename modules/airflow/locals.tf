@@ -32,8 +32,8 @@ locals {
       fernetKey = "${var.fernetKey}"
       images = {
         airflow = {
-          repository = "apache/airflow"
-          tag        = "latest"
+          repository = "gersonrs/airflow"
+          tag        = "v1.0.5"
         }
       }
       volumes = [
