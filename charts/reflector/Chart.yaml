@@ -1,21 +1,8 @@
 apiVersion: v2
-appVersion: 7.1.216
 description: A Helm chart to deploy Reflector
-home: https://github.com/emberstack/kubernetes-reflector
-icon: https://raw.githubusercontent.com/emberstack/CDN/master/Projects/ES.FX/es.fx.1.0.0.0.png
-keywords:
-- reflector
-- controller
-- copy
-- secrets
-- configmaps
-- cert-manager
-- certificates
-maintainers:
-- email: helm-charts@emberstack.com
-  name: winromulus
 name: reflector
-sources:
-- https://github.com/emberstack/kubernetes-reflector
-type: application
-version: 7.1.216
+version: "0"
+dependencies:
+  - name: reflector
+    repository: https://emberstack.github.io/helm-charts/
+    version: "*.*.*"

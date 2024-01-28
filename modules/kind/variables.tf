@@ -15,18 +15,18 @@ variable "nodes" {
   type        = list(map(string))
   default = [
     {
-      "platform" = "modern-devops-stack"
+      "platform" = "modern-gitops-stack"
     },
     {
-      "platform" = "modern-devops-stack"
+      "platform" = "modern-gitops-stack"
     },
     {
-      "platform" = "modern-devops-stack"
+      "platform" = "modern-gitops-stack"
     },
   ]
 
   validation {
     condition     = length(var.nodes) >= 3
-    error_message = "A minimum of 3 nodes is required because of the way the other DevOps Stack modules are configured."
+    error_message = "A minimum of 3 nodes is required because of the way the other GitOps Stack modules are configured."
   }
 }

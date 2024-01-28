@@ -41,7 +41,7 @@ resource "argocd_project" "this" {
     name      = var.destination_cluster != "in-cluster" ? "airflow-${var.destination_cluster}" : "airflow"
     namespace = var.argocd_namespace
     annotations = {
-      "modern-devops-stack.io/argocd_namespace" = var.argocd_namespace
+      "modern-gitops-stack.io/argocd_namespace" = var.argocd_namespace
     }
   }
 
@@ -134,70 +134,70 @@ resource "argocd_application" "this" {
   ]
 }
 
-resource "argocd_application" "access_control" {
-  metadata {
-    name      = var.destination_cluster != "in-cluster" ? "access-control-${var.destination_cluster}" : "access-control"
-    namespace = var.argocd_namespace
-    labels = merge({
-      "application" = "access-control"
-      "cluster"     = var.destination_cluster
-    }, var.argocd_labels)
-  }
+# resource "argocd_application" "access_control" {
+#   metadata {
+#     name      = var.destination_cluster != "in-cluster" ? "access-control-${var.destination_cluster}" : "access-control"
+#     namespace = var.argocd_namespace
+#     labels = merge({
+#       "application" = "access-control"
+#       "cluster"     = var.destination_cluster
+#     }, var.argocd_labels)
+#   }
 
-  timeouts {
-    create = "15m"
-    delete = "15m"
-  }
+#   timeouts {
+#     create = "15m"
+#     delete = "15m"
+#   }
 
-  wait = var.app_autosync == { "allow_empty" = tobool(null), "prune" = tobool(null), "self_heal" = tobool(null) } ? false : true
+#   wait = var.app_autosync == { "allow_empty" = tobool(null), "prune" = tobool(null), "self_heal" = tobool(null) } ? false : true
 
-  spec {
-    project = var.argocd_project == null ? argocd_project.this[0].metadata.0.name : var.argocd_project
+#   spec {
+#     project = var.argocd_project == null ? argocd_project.this[0].metadata.0.name : var.argocd_project
 
-    source {
-      repo_url        = "https://github.com/GersonRS/data-engineering-for-machine-learning.git"
-      path            = "yamls/access-control"
-      target_revision = var.target_revision
-      directory {
-        recurse = true
-      }
-    }
+#     source {
+#       repo_url        = "https://github.com/GersonRS/data-engineering-for-machine-learning.git"
+#       path            = "yamls/access-control"
+#       target_revision = var.target_revision
+#       directory {
+#         recurse = true
+#       }
+#     }
 
-    destination {
-      name      = var.destination_cluster
-      namespace = var.namespace
-    }
+#     destination {
+#       name      = var.destination_cluster
+#       namespace = var.namespace
+#     }
 
-    sync_policy {
-      dynamic "automated" {
-        for_each = toset(var.app_autosync == { "allow_empty" = tobool(null), "prune" = tobool(null), "self_heal" = tobool(null) } ? [] : [var.app_autosync])
-        content {
-          prune       = automated.value.prune
-          self_heal   = automated.value.self_heal
-          allow_empty = automated.value.allow_empty
-        }
-      }
+#     sync_policy {
+#       dynamic "automated" {
+#         for_each = toset(var.app_autosync == { "allow_empty" = tobool(null), "prune" = tobool(null), "self_heal" = tobool(null) } ? [] : [var.app_autosync])
+#         content {
+#           prune       = automated.value.prune
+#           self_heal   = automated.value.self_heal
+#           allow_empty = automated.value.allow_empty
+#         }
+#       }
 
-      retry {
-        backoff {
-          duration     = "20s"
-          max_duration = "2m"
-          factor       = "2"
-        }
-        limit = "5"
-      }
+#       retry {
+#         backoff {
+#           duration     = "20s"
+#           max_duration = "2m"
+#           factor       = "2"
+#         }
+#         limit = "5"
+#       }
 
-      sync_options = [
-        "CreateNamespace=true"
-      ]
-    }
-  }
+#       sync_options = [
+#         "CreateNamespace=true"
+#       ]
+#     }
+#   }
 
-  depends_on = [
-    resource.null_resource.dependencies,
-    kubernetes_namespace.airflow_namespace
-  ]
-}
+#   depends_on = [
+#     resource.null_resource.dependencies,
+#     kubernetes_namespace.airflow_namespace
+#   ]
+# }
 
 resource "null_resource" "this" {
   depends_on = [

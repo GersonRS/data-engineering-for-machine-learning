@@ -5,7 +5,7 @@ kind: StatefulSet
 metadata:
   name: {{ .Values.keycloak.database.host }}
   labels:
-    {{- include "modern-devops-stack-module-keycloak.labels" $ | indent 4 }}
+    {{- include "modern-gitops-stack-module-keycloak.labels" $ | indent 4 }}
 spec:
   serviceName: postgresql-db-service
   selector:
@@ -41,7 +41,7 @@ kind: Service
 metadata:
   name: {{ .Values.keycloak.database.host }}
   labels:
-    {{- include "modern-devops-stack-module-keycloak.labels" $ | indent 4 }}
+    {{- include "modern-gitops-stack-module-keycloak.labels" $ | indent 4 }}
 spec:
   selector:
     app: {{ .Values.keycloak.database.host }}
@@ -55,7 +55,7 @@ kind: Secret
 metadata:
   name: keycloak-db-secret
   labels:
-    {{- include "modern-devops-stack-module-keycloak.labels" $ | indent 4 }}
+    {{- include "modern-gitops-stack-module-keycloak.labels" $ | indent 4 }}
 type: Opaque
 data:
   username: {{ .Values.keycloak.database.username }}

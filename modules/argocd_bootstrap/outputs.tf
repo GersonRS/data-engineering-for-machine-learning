@@ -10,7 +10,7 @@ output "argocd_namespace" {
 
 output "argocd_project_names" {
   description = "The names of all the Argo CD AppProjects created by the bootstrap module."
-  value       = [for i in argocd_project.modern_devops_stack_applications : i.metadata.0.name]
+  value       = [for i in argocd_project.modern_gitops_stack_applications : i.metadata.0.name]
 }
 
 output "argocd_server_secretkey" {

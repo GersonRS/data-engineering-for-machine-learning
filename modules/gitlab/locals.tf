@@ -26,7 +26,7 @@ locals {
     args = {
       assertion_consumer_service_url = "https://gitlab.apps.${var.cluster_name}.${var.base_domain}/users/auth/saml/callback"
       idp_cert_fingerprint           = var.oidc.fingerprint
-      idp_sso_target_url             = "https://keycloak.apps.${var.cluster_name}.${var.base_domain}/realms/modern-devops-stack/protocol/saml/clients/gitlab"
+      idp_sso_target_url             = "https://keycloak.apps.${var.cluster_name}.${var.base_domain}/realms/modern-gitops-stack/protocol/saml/clients/gitlab"
       issuer                         = "gitlab"
       name_identifier_format         = "urn:oasis:names:tc:SAML:2.0:nameid-format:persistent"
       attribute_statements : { username : ["username"] }
@@ -35,105 +35,107 @@ locals {
   }]
 
   helm_values = [{
-    global = {
-      appConfig = {
-        object_store = {
-          enabled = true
-          connection = {
-            secret = "gitlab-rails-storage"
+    gitlab = {
+      global = {
+        appConfig = {
+          object_store = {
+            enabled = true
+            connection = {
+              secret = "gitlab-rails-storage"
+            }
+          }
+          omniauth = {
+            enabled = true
+            # autoSignInWithProvider = "${local.provider_name}"
+            allowSingleSignOn     = [local.provider_name]
+            blockAutoCreatedUsers = false
+            autoLinkLdapUser      = false
+            autoLinkSamlUser      = true
+            autoLinkUser          = [local.provider_name]
+
+            providers = [{
+              secret = "gitlab-provider"
+            }]
           }
         }
-        omniauth = {
-          enabled = true
-          # autoSignInWithProvider = "${local.provider_name}"
-          allowSingleSignOn     = [local.provider_name]
-          blockAutoCreatedUsers = false
-          autoLinkLdapUser = false
-          autoLinkSamlUser = true
-          autoLinkUser = [local.provider_name]
-
-          providers = [{
-            secret = "gitlab-provider"
-          }]
+        ingress = {
+          configureCertmanager = false
+          class                = "traefik"
+          provider             = "traefik"
+          annotations = {
+            "cert-manager.io/cluster-issuer"                   = "${var.cluster_issuer}"
+            "traefik.ingress.kubernetes.io/router.entrypoints" = "websecure"
+            "traefik.ingress.kubernetes.io/router.middlewares" = "traefik-withclustername@kubernetescrd"
+            "traefik.ingress.kubernetes.io/router.tls"         = "true"
+            "ingress.kubernetes.io/ssl-redirect"               = "true"
+            "kubernetes.io/ingress.allow-http"                 = "false"
+          }
+          tls = {
+            enabled    = true
+            secretName = "gitlab-ingress-tls"
+          }
         }
-      }
-      ingress = {
-        configureCertmanager = false
-        class                = "traefik"
-        provider             = "traefik"
-        annotations = {
-          "cert-manager.io/cluster-issuer"                   = "${var.cluster_issuer}"
-          "traefik.ingress.kubernetes.io/router.entrypoints" = "websecure"
-          "traefik.ingress.kubernetes.io/router.middlewares" = "traefik-withclustername@kubernetescrd"
-          "traefik.ingress.kubernetes.io/router.tls"         = "true"
-          "ingress.kubernetes.io/ssl-redirect"               = "true"
-          "kubernetes.io/ingress.allow-http"                 = "false"
+        hosts = {
+          domain     = "apps.${var.cluster_name}.${var.base_domain}"
+          externalIP = replace(split(".", var.base_domain)[0], "-", ".")
         }
-        tls = {
-          enabled    = true
-          secretName = "gitlab-ingress-tls"
-        }
-      }
-      hosts = {
-        domain     = "apps.${var.cluster_name}.${var.base_domain}"
-        externalIP = replace(split(".", var.base_domain)[0], "-", ".")
-      }
-      minio = {
-        enabled = false
-      }
-      rails = {
-        bootsnap = {
+        minio = {
           enabled = false
         }
-      }
-      shell = {
-        port = 32022
-      }
-      registry = {
-        bucket = "registry"
-      }
-    }
-    certmanager = {
-      install = false
-    }
-    nginx-ingress = {
-      enabled = false
-    }
-    prometheus = {
-      install = false
-    }
-    gitlab-runner = {
-      install = false
-      runners = {
-        privileged = true
-      }
-    }
-    gitlab = {
-      webservice = {
-        minReplicas = 1
-        maxReplicas = 1
-      }
-      sidekiq = {
-        minReplicas = 1
-        maxReplicas = 1
-      }
-      gitlab-shell = {
-        minReplicas = 1
-        maxReplicas = 1
-        service = {
-          type     = "NodePort"
-          nodePort = 32022
+        rails = {
+          bootsnap = {
+            enabled = false
+          }
+        }
+        shell = {
+          port = 32022
+        }
+        registry = {
+          bucket = "registry"
         }
       }
-    }
-    registry = {
-      storage = {
-        secret = "gitlab-registry-storage"
-        key    = "config"
+      certmanager = {
+        install = false
       }
-      hpa = {
-        minReplicas = 1
-        maxReplicas = 1
+      nginx-ingress = {
+        enabled = false
+      }
+      prometheus = {
+        install = false
+      }
+      gitlab-runner = {
+        install = false
+        runners = {
+          privileged = true
+        }
+      }
+      gitlab = {
+        webservice = {
+          minReplicas = 1
+          maxReplicas = 1
+        }
+        sidekiq = {
+          minReplicas = 1
+          maxReplicas = 1
+        }
+        gitlab-shell = {
+          minReplicas = 1
+          maxReplicas = 1
+          service = {
+            type     = "NodePort"
+            nodePort = 32022
+          }
+        }
+      }
+      registry = {
+        storage = {
+          secret = "gitlab-registry-storage"
+          key    = "config"
+        }
+        hpa = {
+          minReplicas = 1
+          maxReplicas = 1
+        }
       }
     }
   }]

@@ -4,7 +4,7 @@ kind: Service
 metadata:
   name: keycloak
   labels:
-    {{- include "modern-devops-stack-module-keycloak.labels" $ | indent 4 }}
+    {{- include "modern-gitops-stack-module-keycloak.labels" $ | indent 4 }}
 spec:
   type: ClusterIP
   ports:

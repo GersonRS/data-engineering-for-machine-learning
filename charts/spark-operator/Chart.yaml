@@ -1,9 +1,8 @@
 apiVersion: v2
+description: This chart installs spark-operator.
+name: spark-operator
+version: "0"
 dependencies:
 - name: spark-operator
   repository: https://googlecloudplatform.github.io/spark-on-k8s-operator
-  version: 1.1.27
-description: |
-  This chart installs spark-operator.
-name: spark-operator
-version: "0"
+  version: "*.*.*"

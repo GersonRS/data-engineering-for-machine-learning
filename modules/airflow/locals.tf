@@ -33,7 +33,7 @@ locals {
       images = {
         airflow = {
           repository = "gersonrs/airflow"
-          tag        = "latest"
+          tag        = "v1.0.5"
         }
       }
       volumes = [
@@ -169,7 +169,7 @@ locals {
         airflow-airflow-connections = {
           data = <<-EOT
             AIRFLOW_CONN_KUBERNETES: ${base64encode("kubernetes:///?__extra__=%7B%22in_cluster%22%3A+true%2C+%22disable_verify_ssl%22%3A+false%2C+%22disable_tcp_keepalive%22%3A+false%7D")}
-            AIRFLOW_CONN_MINIO_S3: ${base64encode("aws:///?region_name=eu-west-1&aws_access_key_id=${var.storage.access_key}&aws_secret_access_key=${var.storage.secret_access_key}&endpoint_url=http://${var.storage.endpoint}:9000")}
+            AIRFLOW_CONN_MINIO_S3: ${base64encode("aws:///?region_name=eu-west-1&aws_access_key_id=${var.storage.access_key}&aws_secret_access_key=${var.storage.secret_access_key}&endpoint_url=http://${var.storage.endpoint}")}
             AIRFLOW_CONN_POSTEGRES_CURATED: ${base64encode("postgresql://${var.database.user}:${var.database.password}@${var.database.endpoint}:5432/curated")}
             AIRFLOW_CONN_POSTEGRES_DATA: ${base64encode("postgresql://${var.database.user}:${var.database.password}@${var.database.endpoint}:5432/data")}
             AIRFLOW_CONN_POSTEGRES_FEATURE_STORE: ${base64encode("postgresql://${var.database.user}:${var.database.password}@${var.database.endpoint}:5432/feature_store")}
@@ -221,9 +221,12 @@ locals {
           }
         ]
         webserverConfig = <<-EOT
+            from airflow.www.security import AirflowSecurityManager
+            from airflow.www.security_manager import AirflowSecurityManagerV2
             from flask_appbuilder.security.manager import AUTH_OAUTH
             import logging
             import os
+            from typing import Union, Any
 
             log = logging.getLogger(__name__)
             log.setLevel(os.getenv("AIRFLOW__LOGGING__FAB_LOGGING_LEVEL", "INFO"))
@@ -233,16 +236,15 @@ locals {
 
             AUTH_ROLE_ADMIN = 'Admin'
             AUTH_ROLE_PUBLIC = 'Public'
-            AUTH_USER_REGISTRATION = True
+            AUTH_ROLE_USER = 'User'
 
             AUTH_ROLES_SYNC_AT_LOGIN = True
-            AUTH_USER_REGISTRATION_ROLE = 'User'
-
 
             AUTH_ROLES_MAPPING = {
                 "Viewer": ["Viewer"],
                 "Admin": ["Admin"],
             }
+
             OAUTH_PROVIDERS = [{
                 "name": "keycloak",
                 "token_key":"access_token",
@@ -262,10 +264,42 @@ locals {
                     },
                 }
             }]
+            def map_roles(team_list):
+                team_role_map = {
+                    "modern-gitops-stack-admins": AUTH_ROLE_ADMIN,
+                    "modern-gitops-stack-public": AUTH_ROLE_PUBLIC,
+                    "modern-gitops-stack-user": AUTH_ROLE_USER,
+                }
+                return list(set(team_role_map.get(team, AUTH_ROLE_PUBLIC) for team in team_list))
+            class CustomSecurityManager(AirflowSecurityManager):
+                def get_oauth_user_info(self, provider, resp):
+                    me = self.oauth_remotes[provider].get("openid-connect/userinfo")
+                    me.raise_for_status()
+                    data = me.json()
+                    log.debug("User info from Keycloak: %s", data)
+                    log.info("User info from Keycloak: %s", data)
+
+                    groups = map_roles(data.get("groups", []))
+
+                    if groups is None or len(groups) < 1:
+                        groups = ["User"]
+
+                    log.info("User groups info: %s", groups)
+                    return {
+                        "username": data.get("preferred_username", ""),
+                        "first_name": data.get("given_name", ""),
+                        "last_name": data.get("family_name", ""),
+                        "email": data.get("email", ""),
+                        "role_keys": groups
+                    }
+
+
+            # Make sure to replace this with your own implementation of AirflowSecurityManager class
+            SECURITY_MANAGER_CLASS = CustomSecurityManager
         EOT
         extraInitContainers = [
           {
-            image           = "apache/airflow:2.7.3"
+            image           = "apache/airflow:latest"
             imagePullPolicy = "IfNotPresent"
             resources       = {}
             env = concat([

@@ -14,7 +14,7 @@ resource "argocd_project" "this" {
     name      = var.destination_cluster != "in-cluster" ? "mysql-${var.destination_cluster}" : "mysql"
     namespace = var.argocd_namespace
     annotations = {
-      "modern-devops-stack.io/argocd_namespace" = var.argocd_namespace
+      "modern-gitops-stack.io/argocd_namespace" = var.argocd_namespace
     }
   }
 

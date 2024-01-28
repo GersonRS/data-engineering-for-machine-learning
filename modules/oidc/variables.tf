@@ -37,7 +37,7 @@ variable "oidc_redirect_uris" {
 }
 
 variable "user_map" {
-  description = "List of users to be added to the DevOps Stack Realm. Note that all fields are mandatory."
+  description = "List of users to be added to the GitOps Stack Realm. Note that all fields are mandatory."
   type = map(object({
     username   = string
     email      = string
@@ -45,11 +45,11 @@ variable "user_map" {
     last_name  = string
   }))
   default = {
-    moderndevopsadmin = {
-      username   = "moderndevopsadmin"
-      email      = "moderndevopsadmin@modern-devops-stack.io"
+    moderngitopsadmin = {
+      username   = "moderngitopsadmin"
+      email      = "moderngitopsadmin@modern-gitops-stack.io"
       first_name = "Administrator"
-      last_name  = "Modern DevOps Stack"
+      last_name  = "Modern GitOps Stack"
     }
   }
 }

@@ -8,8 +8,6 @@ repos:
   - id: pretty-format-json
     args: ['--autofix']
     exclude: 'Pipfile.lock'
-  - id: requirements-txt-fixer
-    args: [requirements.txt]
   - id: end-of-file-fixer
   - id: trailing-whitespace
     args: [--markdown-linebreak-ext=md]
