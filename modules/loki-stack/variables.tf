@@ -35,7 +35,7 @@ variable "target_revision" {
 variable "namespace" {
   description = "Namespace where the applications's Kubernetes resources should be created. Namespace will be created in case it doesn't exist."
   type        = string
-  default     = "logging"
+  default     = "loki-stack"
 }
 
 variable "helm_values" {

@@ -51,7 +51,7 @@ variable "cluster_issuer" {
 variable "namespace" {
   description = "Namespace where the applications's Kubernetes resources should be created. Namespace will be created in case it doesn't exist."
   type        = string
-  default     = "monitoring"
+  default     = "kube-prometheus-stack"
 }
 
 variable "helm_values" {
